@@ -2,9 +2,11 @@ import pygame
 from pygame import Vector2
 from functions import *
 from shadow import *
+from drawable import *
 
-class Moveable:
+class Moveable(Drawable):
     def __init__(self, pos, width, height):
+        super().__init__(z = 10)
         self.rect = pygame.rect.Rect((0, 0, width, height))
         self.rect.center = pos
         self.pos = Vector2(pos)
@@ -17,6 +19,8 @@ class Moveable:
         self.state = 'idle' #idle, hover, on_mouse
 
         self.on_release = None
+
+        
 
         self.shadow = Shadow(self.pos)
 
@@ -35,17 +39,18 @@ class Moveable:
         if self.hold:
             return
 
-
         if self.rect.collidepoint(mouse_pos) and not self.state == 'on_mouse':
             self.state = 'hover'
 
         if mouse_but[0] and self.state == 'hover':
             self.offset = Vector2(mouse_pos) - self.pos
+            self.z = 100
             self.shadow.set_offset("strong")
             self.state = 'on_mouse'
 
         if not mouse_but[0] and self.state == 'on_mouse':
             self.state = 'hover'
+            self.z = 20
             self.shadow.set_offset()
             self.get_direction_to_anchor()
             if self.on_release:
@@ -86,12 +91,14 @@ class Moveable:
     def stop_reacting_to_mouse(self):
         self.can_move = False
         self.state = 'idle'
+    
+    def start_reacting_to_mouse(self):
+        self.can_move = True
+        self.state = 'idle'
 
     def update(self, dt):
         self.update_pos(dt)
         self.shadow.update(self.rect.center)
-
-
 
     def set_pos(self, pos):
         self.pos = pos

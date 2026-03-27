@@ -1,13 +1,15 @@
 import pygame
 from item import Item
 from pygame import Vector2
+from drawable import *
 
 class ItemArea:
-    def __init__(self, width, pos, max_items = 1):
+    def __init__(self, width, pos, game, max_items = 1):
         self.items_inventory : list[Item] = []
         self.items_anchors = []
         self.pos = pos
         self.max_items = max_items
+        self.game = game
 
         #surface de la zone
         self.surface = pygame.Surface((width, 200)).convert()
@@ -25,11 +27,13 @@ class ItemArea:
         if len(self.items_inventory) >= self.max_items:
             return
         self.items_inventory.append(item)
+        self.game.add_object(item)
         self.set_anchors()
 
     def delete_item(self, item):
         if item in self.items_inventory:
             self.items_inventory.remove(item)
+            item.kill()
             self.set_anchors()
 
     def can_add(self):
@@ -106,13 +110,6 @@ class ItemArea:
         for item in self.items_inventory:
             item.update(dt)
         self.check_anchors()
-
-    def draw(self, screen):
-        for item in self.items_inventory:
-            if item != self.selected_object:
-                item.draw(screen)
-        if self.selected_object is not None:
-            self.selected_object.draw(screen)
     
     def set_callback(self, callback):
         for item in self.items_inventory:

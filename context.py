@@ -21,13 +21,13 @@ class GameContext:
         self.changed_markers = {}
         self.gains = {} # player : gain
 
-    def add_changed_case(self, base_case, new_case, marker = None):
+    def add_changed_case(self, base_case, new_case):
         self.changed_case[base_case] = new_case
-        if marker is not None:
-            self.add_marker(new_case, marker)
 
     def add_marker(self, target_case, marker = None):
         self.changed_markers[target_case] = marker
+        
+
 
     def add_gain(self, player, gain : int):
         if player not in self.gains:

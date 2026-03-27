@@ -28,11 +28,11 @@ class Shadow:
         offset_y = center_y - pos_y
 
         if self.offset == 'default':
-            self.pos = pos_x + offset_x * 0.05 , pos_y + offset_y * 0.05
+            self.pos = pos_x + offset_x * 0.05 , pos_y + 20
         elif self.offset == 'strong':
-            self.pos = pos_x + offset_x * 0.2 , pos_y + offset_y * 0.2
+            self.pos = pos_x + offset_x * 0.2 , pos_y + 60
         elif self.offset == 'minimal':
-            self.pos = pos_x + offset_x * 0.01 , pos_y + offset_y * 0.01
+            self.pos = pos_x + offset_x * 0.01 , pos_y + 10
 
         self.image_pos()
 
@@ -53,3 +53,6 @@ class Shadow:
         self.offset = offset
         self.get_pos()
 
+
+    def obtain_pos(self):
+        return self.pos

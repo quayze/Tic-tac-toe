@@ -39,7 +39,7 @@ class TableConfig:
 class InterfacesConfig:
     MAKER_CONTAINER_OFFSET = 80
     PLAYER_INV_OFFSET = 50
-    PLAYER_INV_HEIGHT = 200
+    PLAYER_INV_HEIGHT = 250
     MARKER_CONTAINER_WIDTH = 200
     PLAYER_BALANCE_WIDTH = 400
     PLAYER_INV_WIDTH = 700
@@ -47,3 +47,16 @@ class InterfacesConfig:
 
 class ItemConfig:
     ITEM_SIZE = 100
+
+
+class ColorThemes:
+    BLUE = {
+        'm_container' : (60, 60, 255),
+        'money_ui' : (0, 255, 200),
+        'case_inv' : (30, 30, 180)
+    }
+    RED = {
+        'm_container' : (180, 30, 30),
+        'money_ui' : (255, 180, 0),
+        'case_inv' : (150, 0, 0)
+    }

@@ -6,28 +6,28 @@ from table import Table
 from case import Case
 
 class MarkerContainer:
-    def __init__(self, player : Player, pos, color):
-        
+    def __init__(self, player : Player, pos, game):
+        self.game = game
         self.pos = pos
         self.player = player
         self.marker = None
         self.pos = pos
         self.placed = False
-        self.surface = generate_nine_slice(InterfacesConfig.MARKER_CONTAINER_WIDTH, InterfacesConfig.PLAYER_INV_HEIGHT, color)
+        color_theme = self.player.color_theme
+        self.surface = generate_nine_slice(InterfacesConfig.MARKER_CONTAINER_WIDTH, InterfacesConfig.PLAYER_INV_HEIGHT, get_color('m_container', color_theme))
         self.rect = self.surface.get_rect(center = pos)
 
         screen_center = HEIGHT//2
         if self.pos[1] < screen_center:
-            self.object_pos = self.pos[0], self.rect.bottom - 80
+            self.object_pos = self.pos[0], self.rect.bottom - 100
         else:
-            self.object_pos = self.pos[0], self.rect.top + 80
+            self.object_pos = self.pos[0], self.rect.top + 100
 
     def add_marker(self):
         self.marker = Marker(self.player, self.object_pos)
+        self.game.add_object(self.marker)
         self.marker.set_anchor(self.object_pos)
         self.placed = False
-
-
 
     def handle_mouse(self, mouse_pos):
         if self.marker is None:
@@ -41,9 +41,6 @@ class MarkerContainer:
     
     def draw(self, screen):
         screen.blit(self.surface, self.rect)
-        if self.marker is None:
-            return
-        self.marker.draw(screen)
 
     def marker_placed(self):
         return self.placed == True

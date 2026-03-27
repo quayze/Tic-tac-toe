@@ -11,7 +11,8 @@ class PlayerBalance:
         self.marker = None
         self.pos = pos
         self.placed = False
-        self.surface = generate_nine_slice(InterfacesConfig.PLAYER_BALANCE_WIDTH, InterfacesConfig.PLAYER_INV_HEIGHT, color = (255, 230, 0))
+        color_theme = self.player.color_theme
+        self.surface = generate_nine_slice(InterfacesConfig.PLAYER_BALANCE_WIDTH, InterfacesConfig.PLAYER_INV_HEIGHT, get_color('money_ui', color_theme))
         self.rect = self.surface.get_rect(center = pos)
 
         screen_center = HEIGHT//2

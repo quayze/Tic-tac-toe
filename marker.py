@@ -28,6 +28,9 @@ class Marker(Moveable):
 
     def get_placed(self):
         self.placed = True
+
+    def juice_up(self, size, rot, t):
+        pass
     
 
 

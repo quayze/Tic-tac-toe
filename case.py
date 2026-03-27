@@ -27,9 +27,6 @@ class Case:
 
     def draw(self, screen):
         screen.blit(self.surface , self.rect)
-        if self.marker is None:
-            return
-        self.marker.draw(screen)
 
     def update(self, dt):
         if self.marker is None:
@@ -54,7 +51,7 @@ class Case:
     def can_place(self):
         return self.marker is None
     
-    def set_marker(self, marker : Marker = None):
+    def set_marker(self, marker=None):
         self.marker = marker
 
     def set_pos(self, pos):

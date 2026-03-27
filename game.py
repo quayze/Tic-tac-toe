@@ -14,15 +14,11 @@ class Game:
         pygame.display.set_caption('Tic Tac Toe')
         self.clock = pygame.time.Clock()
 
-        self.player = Player(name= 'JOUEUR', markers_type= 'cross')
-        self.guest = Player(name= 'GUEST', markers_type= 'round')
+        self.player = Player(name= 'JOUEUR', markers_type= 'cross', color_theme= 'red')
+        self.guest = Player(name= 'GUEST', markers_type= 'round', color_theme= 'blue')
         self.screen_manager = ScreenManager()
 
         self.new_run()
-
-
-
-
 
 
     def run(self):
@@ -64,9 +60,11 @@ class Game:
 
 
     def new_run(self):
-        self.session = GameSession(self.player, self.guest)
-        self.game = TicTacToe(self.session)
+        self.session = GameSession(self.player, self.guest, self)
+        self.game = TicTacToe(self.session, self)
+        self.inventories = self.session.inventories
         self.state = 'play'
+        
 
 
 
@@ -75,13 +73,25 @@ class Game:
     def handle_input(self):
         self.game.handle_input(self.mouse_pos)
 
+        for inv in self.inventories.values():
+            inv.handle_mouse(self.mouse_pos)
+
 
     def run_game(self):
         if self.state == 'play':
             self.game.update(self.delta_time)
+            for inv in self.inventories.values():
+                inv.update(self.delta_time)
 
     def render_game(self):
-        if self.state == 'play':
-            self.game.draw(self.screen)
 
         self.screen_manager.draw(self.screen)
+
+
+    
+
+    def add_object(self, object):
+        self.screen_manager.add_object(object)
+
+    def remove_object(self, object):
+        self.screen_manager.add_removed_object(object)

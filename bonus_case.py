@@ -51,11 +51,14 @@ class ReplacableCase(Case):
 
     def trigger_effect(self, context : GameContext):
         if context.try_place and self.marker is not None and context.player != self.get_owner():
+            self.marker.kill()
             self.marker = None
             self.effect_triggered = True
 
         elif context.marker_placed and self.effect_triggered:
-            context.add_changed_case(self, DefaultCase(), self.marker)
+            new_case = DefaultCase()
+            context.add_changed_case(self, new_case)
+            context.add_marker(new_case, self.marker)
 
         return context
 
@@ -118,6 +121,7 @@ class KillCase(Case):
                 self.shots = self.shots if context.blueprint else self.shots - 1
 
                 context.add_changed_case(kill, DefaultCase())
+                context.add_marker(kill, None)
 
                 
             
@@ -160,9 +164,11 @@ class DivisionCase(Case):
                         break
 
             if target_case is not None:
-                target_index = context.table.get_index(target_case)
                 marker = target_case.get_marker()
-                context.add_changed_case(target_case, DivisionCase(), marker)
+                case = DivisionCase()
+                context.add_changed_case(target_case, case)
+                context.add_marker(case, marker)
+
 
         return context
     
@@ -200,6 +206,7 @@ class BurningCase(Case):
                     burned_case = random.choice(select_table)
 
                 context.add_changed_case(burned_case, EmptyCase())
+                context.add_marker(burned_case, None)
 
         return context
                 
@@ -299,11 +306,14 @@ class DeathCase(Case):
                 for killed_case in dead_player_list:
                     if self == killed_case:
                         context.add_changed_case(self, DefaultCase())
+                        context.add_marker(self)
                     else:
                         context.add_marker(killed_case)     
 
                 if self not in dead_player_list:
-                    context.add_changed_case(self, DefaultCase(), self.get_marker())
+                    d_case = DefaultCase()
+                    context.add_changed_case(self, d_case)
+                    context.add_marker(d_case, self.get_marker())
             
 
         return context
@@ -342,7 +352,8 @@ class RandomCase(Case):
             for i, case in enumerate(copied_cases):
                 base_case = context.table.get_case_list()[i]
 
-                context.add_changed_case(base_case, case, base_case.get_marker())
+                context.add_changed_case(base_case, case)
+                context.add_marker(case, base_case.get_marker())
 
             
         return context
@@ -366,6 +377,7 @@ class CreeperCase(Case):
             for case in destroyed_cases:
                 if case is not None:
                     context.add_changed_case(case, EmptyCase())
+                    context.add_marker(case, None)
 
         return context
     

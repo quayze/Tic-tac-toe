@@ -5,15 +5,24 @@ from marker import Marker
 from context import GameContext
 import random
 from random_case import *
+from drawable import *
 
-class Table:
-    def __init__(self):
+class Table(Drawable):
+    def __init__(self, game):
+        super().__init__(1)
         self.center = pygame.Vector2(WIDTH//2, HEIGHT//2)
+        self.game = game
+        self.game.add_object(self)
+        self.cases_list = []
         self.reset_cases()
 
     
     
     def reset_cases(self):
+        for case in self.cases_list:
+            if case.marker is not None:
+                self.game.remove_object(case.marker)
+
         self.cases_list = []
         test_case = Case((0, 0))
         offset = TableConfig.OFFSET
@@ -131,15 +140,17 @@ class Table:
             new_case : Case = new_case
             index = self.get_index(case)
             self.change_case(new_case, index)
-
+            
         for case, marker in context.changed_markers.items():
             if marker is None:
+                self.game.remove_object(case.marker)
                 case.set_marker()
-
+                
             elif case.can_place():
-                    case.place_marker(marker)
+                case.place_marker(marker)
+                self.game.add_object(marker)
 
-        context.killed_case = []
+        context.changed_markers = {}
         context.changed_case = {}
         return context
     

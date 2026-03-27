@@ -5,22 +5,28 @@ from pygame import Vector2
 from player import Player
 from marker import Marker
 from table import Table
-from marker_manager import *
+from marker_container import *
 from player_interface import PlayerInventory
 from game_session import GameSession
 from context import GameContext
 from item import *
 from item_area import *
+from button import *
+
 
 class TicTacToe:
-    def __init__(self, game_session : GameSession):
+    def __init__(self, game_session : GameSession, game):
         self.session : GameSession = game_session
+        self.game = game
+
+
         self.player1, self.player2 = self.session.players
         self.active_player = self.player1
         self.inventories = self.session.inventories
-        self.table = Table()
+        self.table = Table(self.game)
         self.state = 'playing'  # 'playing', 'win', 'draw'
         self.winner = None
+
 
         self.start_turn()
         
@@ -112,16 +118,10 @@ class TicTacToe:
     def handle_input(self, mouse_pos):
         if self.state != 'playing':
             return
-        for inv in self.inventories.values():
-                inv.handle_mouse(mouse_pos) # un seul à la fois
+
 
     def update(self, dt):
         self.table.update(dt)
-        for inv in self.inventories.values():
-            inv.update(dt)
 
 
-    def draw(self, screen):
-        self.table.draw(screen)
-        for inv in self.inventories.values():
-            inv.draw(screen)
+

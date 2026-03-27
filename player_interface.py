@@ -1,13 +1,16 @@
 import pygame
 from settings import *
 from marker import *
-from marker_manager import *
+from marker_container import *
 from player_balance import PlayerBalance
 from case_inventory import CaseInventory
 from item import *
+from drawable import *
 
-class PlayerInventory:
-    def __init__(self, player, pos = 'bottom'):
+class PlayerInventory(Drawable):
+    def __init__(self, player, game,  pos = 'bottom'):
+        self.game = game
+        super().__init__(10)
         if pos == 'bottom':
             self.pos_y = HEIGHT - InterfacesConfig.PLAYER_INV_OFFSET
             self.container_y = HEIGHT - InterfacesConfig.MAKER_CONTAINER_OFFSET
@@ -21,9 +24,11 @@ class PlayerInventory:
 
         self.player = player
 
-        self.marker_container = MarkerContainer(self.player, (self.center_x, self.container_y), color=(200, 20 , 20))
+        self.marker_container = MarkerContainer(self.player, (self.center_x, self.container_y), self.game)
         self.player_balance = PlayerBalance(self.player, (self.center_x + 500*self.x_offset, self.pos_y))
-        self.case_inventory = CaseInventory(self.player, (self.center_x - 500*self.x_offset, self.pos_y))
+        self.case_inventory = CaseInventory(self.player, (self.center_x - 500*self.x_offset, self.pos_y), self.game)
+
+        self.game.add_object(self)
 
     def handle_mouse(self, mouse_pos):
         self.marker_container.handle_mouse(mouse_pos)
@@ -65,14 +70,12 @@ class PlayerInventory:
         if self.marker_container.has_marker():
             self.marker_container.marker.on_release = None
 
-        
-
 
     def draw(self, screen):
-        
+        self.marker_container.draw(screen)
         self.player_balance.draw(screen)
         self.case_inventory.draw(screen)
-        self.marker_container.draw(screen)
+
 
     
 

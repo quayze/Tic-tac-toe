@@ -40,7 +40,7 @@ def get_font(size):
     return font_cache[size]
 
 
-def generate_nine_slice(width = 0, height = 0, color = (255, 255, 255), pixel_size = PIXEL_SIZE):
+def generate_nine_slice(width = 0, height = 0, color = (255, 255, 255), pixel_size = 6):
 
     corner = load_image('nine_slice_corner', NineSliceConfig.CORNER_IMAGE)
     corner = resize(corner, pixel_size)
@@ -87,3 +87,11 @@ def get_text_surface(text_input, size = 100, color = (255, 255, 255)):
     text_input = str(text_input)
     text_surface = font.render(text_input, True, color)
     return text_surface
+
+
+
+def get_color(interface, color_theme):
+    if color_theme == 'blue':
+        return ColorThemes.BLUE[interface]
+    elif color_theme == 'red':
+        return ColorThemes.RED[interface]
