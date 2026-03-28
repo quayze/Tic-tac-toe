@@ -11,6 +11,7 @@ class GameContext:
         self.marker_placed = False
         self.new_round = False
         self.end_round = False
+        self.destroyed = False
 
         self.replay = False
         self.blueprint = False
@@ -20,6 +21,7 @@ class GameContext:
         self.changed_case = {} # case : [new_case, marker]
         self.changed_markers = {}
         self.gains = {} # player : gain
+        self.losts = {}
 
     def add_changed_case(self, base_case, new_case):
         self.changed_case[base_case] = new_case
@@ -34,3 +36,9 @@ class GameContext:
             self.gains[player] = gain
         else:
             self.gains[player] += gain
+
+    def add_lost(self, player, lost : int):
+        if player not in self.losts:
+            self.losts[player] = lost
+        else:
+            self.losts[player] += lost

@@ -12,9 +12,11 @@ class Case:
         self.marker = None
 
     def place_marker(self, marker : Marker):
+        if marker is None : return
         self.marker : Marker = marker
         self.marker.get_placed()
         self.marker.set_anchor(self.pos)
+        self.marker.set_shadow(False)
 
     def get_image(self, frame_x = 0, frame_y = 0):
         sprite_sheet = load_image('cases', CaseConfig.CASE_SHEET)
@@ -53,6 +55,7 @@ class Case:
     
     def set_marker(self, marker=None):
         self.marker = marker
+        
 
     def set_pos(self, pos):
         self.pos = pos

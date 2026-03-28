@@ -22,7 +22,7 @@ class Marker(Moveable):
 
 
     def draw(self, surface : pygame.Surface):
-        self.shadow.draw(surface)
+        if self.handle_shadow: self.shadow.draw(surface)
         surface.blit(self.surface, self.rect)
         
 
@@ -31,23 +31,7 @@ class Marker(Moveable):
 
     def juice_up(self, size, rot, t):
         pass
-    
 
 
 
 
-
-#recupère une image en fonction d'un type
-def get_marker(marker_type):
-    markers = load_image('marker', MarkerConfig.MARKERS_SHEET)
-    if marker_type == 'cross':
-        return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE)
-    
-    elif marker_type == 'round':
-        return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE, frame_x= 1)
-    
-    elif marker_type == 'donut':
-        return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE, frame_x= 2)
-    
-    elif marker_type == 'nugget_guy':
-        return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE, frame_x= 3)

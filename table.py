@@ -70,9 +70,16 @@ class Table(Drawable):
             if win:
                 return 'win', reference_case.owner
             
+            
         for case in self.cases_list:
             empty_case = isinstance(case, EmptyCase) is True
             if case.get_marker() is None and not empty_case:
+
+                empty_cases = [c for c in self.cases_list if c.get_marker() is None and not isinstance(c, EmptyCase)]
+                chain_owners = set(c.owner for c in empty_cases if isinstance(c, ChainCase) and c.owner is not None)
+                if all(isinstance(c, ChainCase) for c in empty_cases) and len(chain_owners) == 1:
+                    return 'win', case.owner
+                
                 return 'ongoing', None
             
         return 'draw', None

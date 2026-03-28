@@ -21,6 +21,7 @@ def generate_random_case():
     return case_type()
 
 class DefaultCase(Case):
+    """Base case functionning"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.get_image()
@@ -31,6 +32,7 @@ class DefaultCase(Case):
     
 
 class ReplayCase(Case):
+    """Replay if marker placed"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.get_image(1, 0)
@@ -43,6 +45,7 @@ class ReplayCase(Case):
         return context
     
 class ReplacableCase(Case):
+    """Replace 1 time if ennemy marker on it"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.get_image(2, 0)
@@ -65,6 +68,7 @@ class ReplacableCase(Case):
     
 
 class SideCase(Case):
+    """Add marker to a case on one of it side"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.get_image(3, 0)
@@ -98,6 +102,7 @@ class SideCase(Case):
 
 
 class KillCase(Case):
+    """Destroy 1 ennemy marker and square"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.get_image(4, 0)
@@ -129,6 +134,7 @@ class KillCase(Case):
         return context
     
 class DivisionCase(Case):
+    """Replace nearby case with its type, +on other bonus squares"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.get_image(6, 0)
@@ -173,6 +179,7 @@ class DivisionCase(Case):
         return context
     
 class EmptyCase(Case):
+    """Can't place marker on it"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.get_image(8, 0)
@@ -182,6 +189,7 @@ class EmptyCase(Case):
         return False
 
 class BurningCase(Case):
+    """Transform on random square into empty square except itself"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.get_image(9, 0)
@@ -212,6 +220,7 @@ class BurningCase(Case):
                 
 
 class MoneyCase(Case):
+    """Gives random amount of $ to the player who place the marker on it"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.get_image(7, 0)
@@ -224,6 +233,7 @@ class MoneyCase(Case):
         return context
     
 class InterestCase(Case):
+    """Gives 10% of player's balance if on of his case is on it"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.get_image(0, 1)
@@ -239,11 +249,13 @@ class InterestCase(Case):
         return context
     
 class ChainCase(Case):
+    """Can define on play who will be the only one who can place a marker on it"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.get_image(1, 1)
         self.blit_image()
         self.owner = None
+        self.icon = None
         self.placable = True
 
     def trigger_effect(self, context : GameContext):
@@ -259,9 +271,20 @@ class ChainCase(Case):
     
     def set_owner(self, player):
         self.owner = player
+        self.get_icon()
+
+    def get_icon(self):
+        if self.owner is not None:
+            icon = get_marker(self.owner.marker_type)
+            self.icon = resize(icon, PIXEL_SIZE*0.3)
 
     def can_place(self):
         return self.placable and self.marker is None
+    
+    def draw(self, screen):
+        super().draw(screen)
+        if self.icon is not None:
+            screen.blit(self.icon, (self.rect.left +PIXEL_SIZE*3, self.rect.top +PIXEL_SIZE*3))
 
     
 class BluePrintCase(Case):
@@ -282,6 +305,7 @@ class BluePrintCase(Case):
         return context
     
 class DeathCase(Case):
+    """50/50 kill all ennemy squares or all player squares"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.get_image(2, 1)
@@ -319,6 +343,7 @@ class DeathCase(Case):
         return context
 
 class ItemCase(Case):
+    """Gives one random item to the player who placed the marker"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.get_image(3, 1)
@@ -335,6 +360,7 @@ class ItemCase(Case):
     
 
 class RandomCase(Case):
+    """Shuffle all squares on the table except empty cases"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
         self.get_image(4, 1)
@@ -342,23 +368,33 @@ class RandomCase(Case):
 
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
-            shuffled_cases = context.table.get_case_list().copy()
-            random.shuffle(shuffled_cases)
-            copied_cases = []
-            for case in shuffled_cases:
-                current_case = type(case)() if case != self else DefaultCase()
-                copied_cases.append(current_case)
-            
-            for i, case in enumerate(copied_cases):
-                base_case = context.table.get_case_list()[i]
+            all_squares = context.table.get_case_list().copy()
+            changed_squares = []
+            shuffled_squares = []
+            final_dict = {}
+            for square in all_squares:
+                if square is not self and type(square) not in (EmptyCase, ChainCase):
+                    changed_squares.append(square)
+                    shuffled_squares.append(type(square))
 
-                context.add_changed_case(base_case, case)
-                context.add_marker(case, base_case.get_marker())
+            if len(shuffled_squares) > 1:
+                random.shuffle(shuffled_squares)
+                for i, square in enumerate(changed_squares):
+                    final_dict[square] = shuffled_squares[i]
+                for base_square, new_type in final_dict.items():
+                    new_square = new_type()
+                    context.add_changed_case(base_square, new_square)
+                    context.add_marker(new_square, base_square.get_marker())
 
-            
+                new_self = DefaultCase()
+                context.add_changed_case(self, new_self)
+                context.add_marker(new_self, self.get_marker())
+
+
         return context
     
 class CreeperCase(Case):
+    """Transform itself and up to 4 adjacent cases into empty cases"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
         self.get_image(5, 1)
@@ -382,6 +418,7 @@ class CreeperCase(Case):
         return context
     
 class FirstCase(Case):
+    """Player start next round if marker placed on it"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
         self.get_image(6, 1)
@@ -400,3 +437,40 @@ class FirstCase(Case):
 
         return context
     
+
+class JailCase(Case):
+    """-5$ at the end of the round but add a chain case linked to the player on the table"""
+    def __init__(self, pos=(0, 0)):
+        super().__init__(pos)
+        self.get_image(7, 1)
+        self.blit_image()
+
+    def trigger_effect(self, context : GameContext):
+        if context.marker_placed:
+            case_list = context.table.get_case_list()
+            potential_cases = []
+            for case in case_list:
+                if isinstance(case, DefaultCase) and case.get_marker() is None:
+                    potential_cases.append(case)
+            if len(potential_cases) < 1:
+                for case in case_list:
+                    if self != case and case.get_marker() is None and not isinstance(case, ChainCase):
+                        potential_cases.append(case)
+            
+            if potential_cases != []:
+                random.shuffle(potential_cases)
+                case = potential_cases[0]
+                
+                chain_case = ChainCase()
+                chain_case.set_owner(context.player)
+                context.add_changed_case(case, chain_case)
+
+
+        elif context.end_round:
+            player = self.get_owner()
+            if player is not None:
+                total_money = player.get_balance()
+                lost = - 5
+                context.add_lost(player, lost)
+
+        return context

@@ -95,3 +95,22 @@ def get_color(interface, color_theme):
         return ColorThemes.BLUE[interface]
     elif color_theme == 'red':
         return ColorThemes.RED[interface]
+    
+
+#recupère une image en fonction d'un type
+def get_marker(marker_type):
+    markers = load_image('marker', MarkerConfig.MARKERS_SHEET)
+    if marker_type == 'cross':
+        return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE)
+    
+    elif marker_type == 'round':
+        return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE, frame_x= 1)
+    
+    elif marker_type == 'donut':
+        return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE, frame_x= 2)
+    
+    elif marker_type == 'nugget_guy':
+        return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE, frame_x= 3)
+    
+    else:
+        return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE)

@@ -23,6 +23,7 @@ class Moveable(Drawable):
         
 
         self.shadow = Shadow(self.pos)
+        self.handle_shadow = True
 
     def handle_mouse(self, mouse_pos):
         if not self.can_move:
@@ -95,6 +96,9 @@ class Moveable(Drawable):
     def start_reacting_to_mouse(self):
         self.can_move = True
         self.state = 'idle'
+    
+    def set_shadow(self, activated = True):
+        self.handle_shadow = activated
 
     def update(self, dt):
         self.update_pos(dt)

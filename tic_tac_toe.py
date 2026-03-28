@@ -89,10 +89,12 @@ class TicTacToe:
     def apply_effects(self, context : GameContext):
         result, winner = self.table.get_result()
         if result == 'win':
+            print(result, winner.name)
             self.state = 'win'
             self.winner = winner
             self.end_round(context)
         elif result == 'draw':
+            print(result)
             self.state = 'draw'
             self.end_round(context)
         elif result == 'ongoing':
@@ -109,6 +111,8 @@ class TicTacToe:
         context = self.table.trigger_end_round_ablility(context)
         for player, gain in context.gains.items():
             player.pay(gain)
+        for player, lost in context.losts.items():
+            player.lose_money(lost)
 
         self.new_game(context.first_to_play)
 
