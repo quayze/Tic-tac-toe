@@ -15,6 +15,7 @@ class Item(Moveable):
 
         self.shadow.set_image(self.image)
 
+
     def draw(self, surface : pygame.Surface):
         self.shadow.draw(surface)
         surface.blit(self.surface, self.rect)

@@ -11,6 +11,10 @@ class Case:
         self.rect = self.surface.get_rect(center = pos)
         self.marker = None
 
+        #----
+        self.blueprint = True
+        self.counting = True
+
     def place_marker(self, marker : Marker):
         if marker is None : return
         self.marker : Marker = marker

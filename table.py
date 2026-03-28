@@ -19,11 +19,16 @@ class Table(Drawable):
     
     
     def reset_cases(self):
+        # Reset all markers
         for case in self.cases_list:
             if case.marker is not None:
-                self.game.remove_object(case.marker)
+                case.marker.kill()
 
+        #save all old cases
+        old_cases = self.cases_list.copy()
+        #reset
         self.cases_list = []
+
         test_case = Case((0, 0))
         offset = TableConfig.OFFSET
         case_mid_size = test_case.rect.width//2
@@ -36,8 +41,10 @@ class Table(Drawable):
                 current_topleft = topleft + pygame.Vector2(center_offset*x, center_offset*y)
                 self.cases_list.append(get_random_case(current_topleft))
 
+        for i, square in enumerate(old_cases):
+            if isinstance(square, StoneSquare):
+                self.cases_list[i] = square
 
-    
     
     def nearest_case(self, pos):
         min_case = self.cases_list[0]
@@ -72,7 +79,7 @@ class Table(Drawable):
             
             
         for case in self.cases_list:
-            empty_case = isinstance(case, EmptyCase) is True
+            empty_case = case.counting is False
             if case.get_marker() is None and not empty_case:
 
                 empty_cases = [c for c in self.cases_list if c.get_marker() is None and not isinstance(c, EmptyCase)]

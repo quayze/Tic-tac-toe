@@ -20,6 +20,12 @@ def generate_random_case():
     case_type =  random.choices(list(proba_cases.keys()), list(proba_cases.values()))[0]
     return case_type()
 
+
+
+#----------------------------------------------
+# DEFAULT SQUARE
+#----------------------------------------------
+
 class DefaultCase(Case):
     """Base case functionning"""
     def __init__(self, pos = (0, 0)):
@@ -29,7 +35,11 @@ class DefaultCase(Case):
 
     def trigger_effect(self, context):
         return context
-    
+
+#----------------------------------------------
+# COMMON SQUARES
+#----------------------------------------------
+
 
 class ReplayCase(Case):
     """Replay if marker placed"""
@@ -56,9 +66,9 @@ class ReplacableCase(Case):
         if context.try_place and self.marker is not None and context.player != self.get_owner():
             self.marker.kill()
             self.marker = None
-            self.effect_triggered = True
+            if not context.blueprint: self.effect_triggered = True # no unknown variable for blueprint
 
-        elif context.marker_placed and self.effect_triggered:
+        elif not context.blueprint and context.marker_placed and self.effect_triggered: #no self destruct if executed by blueprint / no unknown variable for blueprint
             new_case = DefaultCase()
             context.add_changed_case(self, new_case)
             context.add_marker(new_case, self.marker)
@@ -78,7 +88,7 @@ class SideCase(Case):
 
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
-            index = context.table.get_index(self) if context.index is None else context.index
+            index = context.table.get_index(self)
             #haut
             if self.side == 0:
                 target_case : Case = context.table.get_side(index, 'top')
@@ -107,7 +117,6 @@ class KillCase(Case):
         super().__init__(pos)
         self.get_image(4, 0)
         self.blit_image()
-        self.shots = 6
 
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
@@ -117,13 +126,12 @@ class KillCase(Case):
                 if case.get_owner() is not None and case.get_owner() != context.player:
                     killable_list.append(case)
 
-            if killable_list != [] and self.shots != 0:
+            if killable_list != []:
                 if len(killable_list) == 1:
                     kill = killable_list[0]
                 else:
                     kill : Case = random.choices(killable_list)[0]
                     
-                self.shots = self.shots if context.blueprint else self.shots - 1
 
                 context.add_changed_case(kill, DefaultCase())
                 context.add_marker(kill, None)
@@ -144,7 +152,7 @@ class DivisionCase(Case):
 
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
-            index = context.index if context.index is not None else context.table.get_index(self)
+            index = context.table.get_index(self)
             none_divisable_case = [DivisionCase, EmptyCase]
 
             targets_cases = []
@@ -184,6 +192,7 @@ class EmptyCase(Case):
         super().__init__(pos)
         self.get_image(8, 0)
         self.blit_image()
+        self.counting = False
 
     def can_place(self):
         return False
@@ -197,7 +206,7 @@ class BurningCase(Case):
 
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
-            index = context.table.get_index(self) if context.index is None else context.index
+            index = context.table.get_index(self)
             table = context.table.get_case_list()
             empty_case_list = [case for case in table if isinstance(case, EmptyCase)]
             select_table = table.copy()
@@ -228,7 +237,7 @@ class MoneyCase(Case):
 
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
-            gain = random.randint(0, 20)
+            gain = random.randint(0, 10)
             context.add_gain(context.player, gain)
         return context
     
@@ -257,6 +266,7 @@ class ChainCase(Case):
         self.owner = None
         self.icon = None
         self.placable = True
+        self.blueprint = False
 
     def trigger_effect(self, context : GameContext):
         if context.try_place:
@@ -285,62 +295,8 @@ class ChainCase(Case):
         super().draw(screen)
         if self.icon is not None:
             screen.blit(self.icon, (self.rect.left +PIXEL_SIZE*3, self.rect.top +PIXEL_SIZE*3))
-
     
-class BluePrintCase(Case):
-    def __init__(self, pos = (0, 0)):
-        super().__init__(pos)
-        self.get_image(5, 0)
-        self.blit_image()
 
-    def trigger_effect(self, context : GameContext):
-        index = context.table.get_index(self)
-        copied_case = context.table.get_side(index, 'right')
-        if copied_case is not None and not context.blueprint:
-            context.blueprint = True
-            context.index = index
-            context = copied_case.trigger_effect(context)
-            context.blueprint = False
-            context.index = None
-        return context
-    
-class DeathCase(Case):
-    """50/50 kill all ennemy squares or all player squares"""
-    def __init__(self, pos = (0, 0)):
-        super().__init__(pos)
-        self.get_image(2, 1)
-        self.blit_image()
-
-    def trigger_effect(self, context : GameContext):
-        if context.marker_placed:
-            cases_list = context.table.get_case_list()
-            current_player_list = []
-            other_player_list = []
-
-            for case in cases_list:
-                if case.get_owner() is not None:
-                    if case.get_owner() == context.player:
-                        current_player_list.append(case)
-                    else:
-                        other_player_list.append(case)
-
-            dead_player_list : list = random.choices([current_player_list, other_player_list])[0]
-
-            if dead_player_list != []:
-                for killed_case in dead_player_list:
-                    if self == killed_case:
-                        context.add_changed_case(self, DefaultCase())
-                        context.add_marker(self)
-                    else:
-                        context.add_marker(killed_case)     
-
-                if self not in dead_player_list:
-                    d_case = DefaultCase()
-                    context.add_changed_case(self, d_case)
-                    context.add_marker(d_case, self.get_marker())
-            
-
-        return context
 
 class ItemCase(Case):
     """Gives one random item to the player who placed the marker"""
@@ -393,29 +349,7 @@ class RandomCase(Case):
 
         return context
     
-class CreeperCase(Case):
-    """Transform itself and up to 4 adjacent cases into empty cases"""
-    def __init__(self, pos=(0, 0)):
-        super().__init__(pos)
-        self.get_image(5, 1)
-        self.blit_image()
 
-    def trigger_effect(self, context : GameContext):
-        if context.marker_placed:
-            index = context.table.get_index(self)
-            destroyed_cases = []
-            destroyed_cases.append(self)
-            destroyed_cases.append(context.table.get_side(index, 'top'))
-            destroyed_cases.append(context.table.get_side(index, 'right'))
-            destroyed_cases.append(context.table.get_side(index, 'bottom'))
-            destroyed_cases.append(context.table.get_side(index, 'left'))
-
-            for case in destroyed_cases:
-                if case is not None:
-                    context.add_changed_case(case, EmptyCase())
-                    context.add_marker(case, None)
-
-        return context
     
 class FirstCase(Case):
     """Player start next round if marker placed on it"""
@@ -436,10 +370,10 @@ class FirstCase(Case):
                         context.first_to_play = owner
 
         return context
-    
+
 
 class JailCase(Case):
-    """-5$ at the end of the round but add a chain case linked to the player on the table"""
+    """-5$ or -30% at the end of the round but add a chain case linked to the player on the table"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
         self.get_image(7, 1)
@@ -470,7 +404,190 @@ class JailCase(Case):
             player = self.get_owner()
             if player is not None:
                 total_money = player.get_balance()
-                lost = - 5
+                lost = max(5, int(total_money*0.3))
                 context.add_lost(player, lost)
 
         return context
+    
+#----------------------------------------------
+# RARE SQUARES
+#----------------------------------------------
+
+class BluePrintCase(Case):
+    def __init__(self, pos = (0, 0)):
+        super().__init__(pos)
+        self.get_image(5, 0)
+        self.blit_image()
+        self.blueprint = False
+
+    def trigger_effect(self, context : GameContext):
+        index = context.table.get_index(self)
+        target_case : Case = context.table.get_side(index, 'right')
+            
+        if target_case is not None:
+            self.counting = target_case.counting
+            if target_case.blueprint:
+                context.blueprint = True
+                effect = target_case.trigger_effect.__func__.__get__(self, target_case)
+                context = effect(context)
+                context.blueprint = False
+
+        return context
+
+class DeathCase(Case):
+    """50/50 kill all ennemy squares or all player squares"""
+    def __init__(self, pos = (0, 0)):
+        super().__init__(pos)
+        self.get_image(2, 1)
+        self.blit_image()
+
+    def trigger_effect(self, context : GameContext):
+        if context.marker_placed:
+            cases_list = context.table.get_case_list()
+            current_player_list = []
+            other_player_list = []
+
+            for case in cases_list:
+                if case.get_owner() is not None:
+                    if case.get_owner() == context.player:
+                        current_player_list.append(case)
+                    else:
+                        other_player_list.append(case)
+
+            dead_player_list : list = random.choices([current_player_list, other_player_list])[0]
+
+            if dead_player_list != []:
+                for killed_case in dead_player_list:
+                    if self == killed_case and not context.blueprint: #no self destruct if executed by blueprint
+                        context.add_changed_case(self, DefaultCase())
+                        context.add_marker(self)
+                    else:
+                        context.add_marker(killed_case)     
+
+                if self not in dead_player_list and not context.blueprint: #no self destruct if executed by blueprint
+                    d_case = DefaultCase()
+                    context.add_changed_case(self, d_case)
+                    context.add_marker(d_case, self.get_marker())
+            
+
+        return context
+
+class CreeperCase(Case):
+    """Transform itself and up to 4 adjacent cases into empty cases"""
+    def __init__(self, pos=(0, 0)):
+        super().__init__(pos)
+        self.get_image(5, 1)
+        self.blit_image()
+
+    def trigger_effect(self, context : GameContext):
+        if context.marker_placed:
+            index = context.table.get_index(self)
+            destroyed_cases = []
+            destroyed_cases.append(self)
+            destroyed_cases.append(context.table.get_side(index, 'top'))
+            destroyed_cases.append(context.table.get_side(index, 'right'))
+            destroyed_cases.append(context.table.get_side(index, 'bottom'))
+            destroyed_cases.append(context.table.get_side(index, 'left'))
+
+            for case in destroyed_cases:
+                if case is not None:
+                    context.add_changed_case(case, EmptyCase())
+                    context.add_marker(case, None)
+
+        return context
+
+
+
+#----------------------------------------------
+# LEGENDARY SQUARES
+#----------------------------------------------
+
+class DestructionSquare(Case):
+    """Destroy all bonus squares on the table"""
+    def __init__(self, pos=(0, 0)):
+        super().__init__(pos)
+        self.get_image(0, 3)
+        self.blit_image()
+
+    def trigger_effect(self, context : GameContext):
+        if context.marker_placed:
+            squares = context.table.get_case_list()
+            for square in squares:
+                if square != self and not isinstance(square, DefaultCase):
+                    new_case = DefaultCase()
+                    context.add_changed_case(square, new_case)
+                    context.add_marker(new_case, square.get_marker())
+
+        return context
+
+class DiamondSquare(Case):
+    """Gives 20 $ if player balance < 20 else double money, 10% interest a the end of the round"""
+    def __init__(self, pos=(0, 0)):
+        super().__init__(pos)
+        self.get_image(1, 3)
+        self.blit_image()
+
+    def trigger_effect(self, context : GameContext):
+        if context.marker_placed:
+            current_player = context.player
+            money = current_player.get_balance()
+            if money < 20:
+                context.add_gain(current_player, 20)
+            else:
+               gain = money
+               context.add_gain(current_player, gain) 
+
+        elif context.end_round:
+            player = self.get_owner()
+            if player is not None:
+                money = player.get_balance()
+                gain = int(money * 0.2) + 1
+                context.add_gain(player, gain)
+
+        return context
+
+class LuckySquare(Case):
+    """1/2 -> give legendary square on placement else rare square, 1/2 to re-obtain the square at the end of the round"""
+    def __init__(self, pos=(0, 0)):
+        super().__init__(pos)
+        self.get_image(2, 3)
+        self.blit_image()
+
+    def trigger_effect(self, context : GameContext):
+        if context.marker_placed:
+            current_player = context.player
+            inventory = context.game_session.get_inventory(current_player)
+            item = Item(self.pos, ItemConfig.ITEM_SIZE, ItemConfig.ITEM_SIZE, object= generate_random_case())
+            if inventory.can_add_item(): #à changer un fois toutes les cases terminées et le système de négatif implémenté
+                inventory.add_item(item)
+
+        elif context.end_round:
+            add_self = random.randint(0, 1)
+            if add_self == 1:
+                current_player = self.get_owner()
+                if current_player is not None:
+                    inventory = context.game_session.get_inventory(current_player)
+                    item = Item(self.pos, ItemConfig.ITEM_SIZE, ItemConfig.ITEM_SIZE, object= type(self)())
+                    if inventory.can_add_item():
+                        inventory.add_item(item)
+
+        return context
+
+class TableSquare(Case):
+    """Extend the table on the right : 3 * 4 if not already"""
+    def __init__(self, pos=(0, 0)):
+        super().__init__(pos)
+        self.get_image(3, 3)
+        self.blit_image()
+
+class StoneSquare(Case):
+    """Block one case permenently for 1 game """
+    def __init__(self, pos=(0, 0)):
+        super().__init__(pos)
+        self.get_image(4, 3)
+        self.blit_image()
+        self.blueprint = False
+        self.counting = False
+
+    def can_place(self):
+        return False

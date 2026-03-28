@@ -24,7 +24,7 @@ class ItemArea:
 
 
     def add_item(self, item : Item):
-        if len(self.items_inventory) >= self.max_items:
+        if len(self.items_inventory) > self.max_items:
             return
         self.items_inventory.append(item)
         self.game.add_object(item)

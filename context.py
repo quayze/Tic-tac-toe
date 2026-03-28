@@ -2,7 +2,7 @@ from player import Player
 
 
 class GameContext:
-    def __init__(self, player : Player, table, game_session = None):
+    def __init__(self, player : Player = None, table = None, game_session = None):
         self.player = player
         self.table = table
         self.game_session = game_session
@@ -15,13 +15,12 @@ class GameContext:
 
         self.replay = False
         self.blueprint = False
-        self.index = None
 
         self.first_to_play = None
-        self.changed_case = {} # case : [new_case, marker]
-        self.changed_markers = {}
+        self.changed_case = {} # case : new_case
+        self.changed_markers = {} # case : Marker or None-->destroy
         self.gains = {} # player : gain
-        self.losts = {}
+        self.losts = {} # player : lost
 
     def add_changed_case(self, base_case, new_case):
         self.changed_case[base_case] = new_case

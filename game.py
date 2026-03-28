@@ -14,8 +14,8 @@ class Game:
         pygame.display.set_caption('Tic Tac Toe')
         self.clock = pygame.time.Clock()
 
-        self.player = Player(name= 'JOUEUR', markers_type= 'nugget_guy', color_theme= 'red')
-        self.guest = Player(name= 'GUEST', markers_type= 'donut', color_theme= 'blue')
+        self.player = Player(name= 'JOUEUR', markers_type= 'death_star', color_theme= 'red')
+        self.guest = Player(name= 'GUEST', markers_type= 'vert_cross', color_theme= 'blue')
         self.screen_manager = ScreenManager()
 
         self.new_run()

@@ -112,5 +112,17 @@ def get_marker(marker_type):
     elif marker_type == 'nugget_guy':
         return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE, frame_x= 3)
     
+    elif marker_type == 'cat':
+        return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE, frame_x= 4)
+    
+    elif marker_type == 'death_star':
+        return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE, frame_x= 0, frame_y=1)
+    
+    elif marker_type == 'vert_cross':
+        return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE, frame_x= 1, frame_y=1)
+    
+    elif marker_type == 'sword':
+        return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE, frame_x= 2, frame_y=1)
+    
     else:
         return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE)

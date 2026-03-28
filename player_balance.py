@@ -25,7 +25,7 @@ class PlayerBalance:
 
     def update_text(self):
         self.current_balance = self.player.get_balance()
-        self.money_text = f'{self.current_balance} $'
+        self.money_text = f'{self.current_balance}'
         self.money_surface = get_text_surface(self.money_text, size= 100, color= (255, 255, 255))
         self.money_rect = self.money_surface.get_rect(center = self.text_pos)
 
