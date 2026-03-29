@@ -5,6 +5,7 @@ from player_interface import *
 from screen_manager import ScreenManager
 from effects_manager import *
 from effect import *
+from particles import *
 
 class Game:
     def __init__(self):
@@ -83,11 +84,12 @@ class Game:
             inv.handle_mouse(self.mouse_pos)
 
         if pygame.mouse.get_pressed()[1]:
-            surface = get_marker('cross')
+            surface = get_marker('cat')
             surface = resize(surface, 3)
             self.add_effect(
-                ParticleEffect(
-                    self.mouse_pos, 10, surface, speed_range= (200, 600), angle_range= (-180, 180)
+                TargetEffect(
+                    self.mouse_pos, amount= 1, surface= load_image('bullet', PartConfig.BULLET), target= (WIDTH//2, HEIGHT//2), scale_range=(5, 5),
+                    adaptative_angle= True
                 )
             )
             

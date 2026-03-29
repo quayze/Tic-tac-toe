@@ -10,7 +10,7 @@ from drawable import *
 class PlayerInventory(Drawable):
     def __init__(self, player, game,  pos = 'bottom'):
         self.game = game
-        super().__init__(10)
+        super().__init__(4)
         if pos == 'bottom':
             self.pos_y = HEIGHT - InterfacesConfig.PLAYER_INV_OFFSET
             self.container_y = HEIGHT - InterfacesConfig.MAKER_CONTAINER_OFFSET

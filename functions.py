@@ -26,6 +26,11 @@ def load_image(image_name, image_path : str):
         assests_dict[image_name] = image
     return assests_dict[image_name]
 
+def add_image(image_name, image):
+    if image_name not in assests_dict:
+        assests_dict[image_name] = image
+
+
 
 def get_image(sprite_sheet, width, height, frame_x = 0, frame_y = 0):
     image = pygame.Surface((width, height), pygame.SRCALPHA).convert_alpha()
@@ -95,6 +100,7 @@ def get_color(interface, color_theme):
         return ColorThemes.BLUE[interface]
     elif color_theme == 'red':
         return ColorThemes.RED[interface]
+    
     
 
 #recupère une image en fonction d'un type

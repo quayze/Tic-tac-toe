@@ -83,6 +83,8 @@ class TicTacToe:
         self.table.apply_context(context)
         for player, gain in context.gains.items():
             player.pay(gain)
+        for effect in context.effects:
+            self.game.add_effect(effect)
     
 
     def apply_effects(self, context : GameContext):

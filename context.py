@@ -1,4 +1,5 @@
 from player import Player
+from effect import *
 
 
 class GameContext:
@@ -22,6 +23,8 @@ class GameContext:
         self.gains = {} # player : gain
         self.losts = {} # player : lost
 
+        self.effects = []
+
     def add_changed_case(self, base_case, new_case):
         self.changed_case[base_case] = new_case
 
@@ -41,3 +44,6 @@ class GameContext:
             self.losts[player] = lost
         else:
             self.losts[player] += lost
+
+    def add_effect(self, effect : Effect):
+        self.effects.append(effect)

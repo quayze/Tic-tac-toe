@@ -6,6 +6,7 @@ import random
 from marker import Marker
 import pygame
 from item import *
+from effect import *
 
 
 def generate_random_case():
@@ -135,9 +136,17 @@ class KillCase(Case):
 
                 context.add_changed_case(kill, DefaultCase())
                 context.add_marker(kill, None)
+                # Effects
+                context.add_effect(BloodEffect(
+                    kill.get_pos(), direction= kill.get_pos() - self.pos
+                ))
+                context.add_effect(
+                    TargetEffect(
+                    self.pos, amount= 1, surface= load_image('bullet', PartConfig.BULLET), 
+                    target= kill.get_pos(), scale_range=(8, 8), life_time= (0.1, 0.1),
+                    adaptative_angle= True, kill_duration= 0.1
+                ))
 
-                
-            
 
         return context
     

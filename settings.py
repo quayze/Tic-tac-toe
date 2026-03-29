@@ -60,3 +60,6 @@ class ColorThemes:
         'money_ui' : (255, 180, 0),
         'case_inv' : (150, 0, 0)
     }
+
+class PartConfig:
+    BULLET = 'assets/textures/particles/bullet.png'
