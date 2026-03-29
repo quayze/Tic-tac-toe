@@ -2,8 +2,9 @@ import pygame, sys
 from settings import *
 from tic_tac_toe import *
 from player_interface import *
-from game_session import GameSession
 from screen_manager import ScreenManager
+from effects_manager import *
+from effect import *
 
 class Game:
     def __init__(self):
@@ -17,6 +18,7 @@ class Game:
         self.player = Player(name= 'JOUEUR', markers_type= 'death_star', color_theme= 'red')
         self.guest = Player(name= 'GUEST', markers_type= 'vert_cross', color_theme= 'blue')
         self.screen_manager = ScreenManager()
+        self.effects_manager = EffectsManager(self)
 
         self.new_run()
 
@@ -47,10 +49,14 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+
+
+            self.effects_manager.update(self.delta_time)
             
             self.handle_input()
             self.run_game()
             self.render_game()
+
 
             resized_screen = pygame.transform.scale(self.screen.copy(), (window_width, window_height))
             self.display.blit(resized_screen, (0, 0))
@@ -76,6 +82,16 @@ class Game:
         for inv in self.inventories.values():
             inv.handle_mouse(self.mouse_pos)
 
+        if pygame.mouse.get_pressed()[1]:
+            surface = get_marker('cross')
+            surface = resize(surface, 3)
+            self.add_effect(
+                ParticleEffect(
+                    self.mouse_pos, 10, surface, speed_range= (200, 600), angle_range= (-180, 180)
+                )
+            )
+            
+
 
     def run_game(self):
         if self.state == 'play':
@@ -95,3 +111,6 @@ class Game:
 
     def remove_object(self, object):
         self.screen_manager.add_removed_object(object)
+
+    def add_effect(self, effect):
+        self.effects_manager.add_effect(effect)

@@ -6,8 +6,7 @@ from player import Player
 from marker import Marker
 from table import Table
 from marker_container import *
-from player_interface import PlayerInventory
-from game_session import GameSession
+from player_interface import *
 from context import GameContext
 from item import *
 from item_area import *
