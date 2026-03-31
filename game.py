@@ -16,8 +16,8 @@ class Game:
         pygame.display.set_caption('Tic Tac Toe')
         self.clock = pygame.time.Clock()
 
-        self.player = Player(name= 'JOUEUR', markers_type= 'death_star', color_theme= 'red')
-        self.guest = Player(name= 'GUEST', markers_type= 'vert_cross', color_theme= 'blue')
+        self.player = Player(name= 'JOUEUR', markers_type= 'cross', color_theme= 'red')
+        self.guest = Player(name= 'GUEST', markers_type= 'round', color_theme= 'blue')
         self.screen_manager = ScreenManager()
         self.effects_manager = EffectsManager(self)
 
@@ -87,9 +87,9 @@ class Game:
             surface = get_marker('cat')
             surface = resize(surface, 3)
             self.add_effect(
-                TargetEffect(
-                    self.mouse_pos, amount= 1, surface= load_image('bullet', PartConfig.BULLET), target= (WIDTH//2, HEIGHT//2), scale_range=(5, 5),
-                    adaptative_angle= True
+                FallEffect(
+                    self.mouse_pos, amount= 1, surface= load_image('q_mark_case', PartConfig.Q_MARK_SQUARE), scale_range= (PIXEL_SIZE, PIXEL_SIZE),
+                    speed_range= (800, 1300), angle_offset= 30
                 )
             )
             

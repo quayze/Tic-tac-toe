@@ -41,6 +41,11 @@ class Case:
 
     def get_marker(self):
         return self.marker
+    
+    def remove_marker(self):
+        if self.marker is not None:
+            self.marker.kill()
+            self.marker = None
 
     def get_pos(self):
         return self.pos

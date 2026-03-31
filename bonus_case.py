@@ -90,6 +90,9 @@ class SideCase(Case):
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
             index = context.table.get_index(self)
+            
+            if context.blueprint : self.side = random.randint(0, 3)
+
             #haut
             if self.side == 0:
                 target_case : Case = context.table.get_side(index, 'top')
@@ -355,6 +358,13 @@ class RandomCase(Case):
                 context.add_changed_case(self, new_self)
                 context.add_marker(new_self, self.get_marker())
 
+                for square in all_squares:
+                    context.add_effect(
+                    VanishEffect(
+                    square.get_pos(), amount= 1, surface= load_image('q_mark_case', PartConfig.Q_MARK_SQUARE), 
+                    scale_range= (PIXEL_SIZE, PIXEL_SIZE), life_time= (0.3, 1), z_index= 5
+                ))
+
 
         return context
     
@@ -477,6 +487,14 @@ class DeathCase(Case):
                     d_case = DefaultCase()
                     context.add_changed_case(self, d_case)
                     context.add_marker(d_case, self.get_marker())
+
+                for square in dead_player_list:
+                    context.add_effect(
+                    VanishEffect(
+                    square.get_pos(), amount= 1, surface= load_image('ghost', PartConfig.GHOST), 
+                    scale_range= (8, 8), life_time= (1, 1), z_index= 20, dir_range_x= (0, 0),
+                    dir_range_y= (-1, -1), speed_range=(100, 150), base_alpha= 150
+                ))
             
 
         return context

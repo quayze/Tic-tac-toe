@@ -138,9 +138,50 @@ class TargetEffect(ParticleEffect):
 
             self.particles.add(self.particle_type(self.pos, self.surface, life_time, angle = angle, kill_duration= self.kill_dur, 
                  scaling= scale, target_pos = self.target))
+            
+class VanishEffect(ParticleEffect):
+    def __init__(self, pos, amount, surface, life_time=(1, 1), dir_range_x=(-1, 1), 
+                 dir_range_y=(-1, 1), speed_range=(0, 0), angle_range=(0, 0), scale_range=(1, 1),
+                 base_alpha = 255, 
+                 kill_duration=1, delay=0, sound=None, z_index=50):
+        super().__init__(pos, amount, surface, VanishParticle, life_time, dir_range_x, dir_range_y, 
+                         speed_range, angle_range, scale_range, kill_duration, delay, sound, z_index)
+        self.base_alpha = base_alpha
 
-     
+
+    def add_particules(self):
+        for _ in range(self.amount):
+            speed = self.s_range[0] if self.s_range[0] == self.s_range[1] else random.randint(self.s_range[0], self.s_range[1])
+            angle = self.a_range[0] if self.a_range[0] == self.a_range[1] else random.randint(self.a_range[0], self.a_range[1])
+            life_time = self.lf_range[0] if self.lf_range[0] == self.lf_range[1] else random.uniform(self.lf_range[0], self.lf_range[1])
+            d_x = self.d_x_range[0] if self.d_x_range[0] == self.d_x_range[1] else random.uniform(self.d_x_range[0], self.d_x_range[1])
+            d_y = self.d_y_range[0] if self.d_y_range[0] == self.d_y_range[1] else random.uniform(self.d_y_range[0], self.d_y_range[1])
+            scale = self.scl_range[0] if self.scl_range[0] == self.scl_range[1] else random.uniform(self.scl_range[0], self.scl_range[1])
 
 
+            self.particles.add(self.particle_type(self.pos, self.surface, life_time, (d_x, d_y), speed, angle, self.kill_dur, scale, self.base_alpha))
+
+class FallEffect(ParticleEffect):
+    def __init__(self, pos, amount, surface, life_time=(1, 1), gravity_direction = (0, 1), gravity_force = 40, direction = (0, -1), angle_offset = 0, speed_range=(0, 0), angle_range=(0, 0), scale_range=(1, 1), 
+                 kill_duration=1, delay=0, sound=None, z_index=50):
+        super().__init__(pos, amount, surface, FallingParticle, life_time, (0, 0), (0, 0), speed_range, angle_range, scale_range, kill_duration, delay, sound, z_index)
+        self.gravity_direction = gravity_direction
+        self.direction = Vector2(direction)
+        self.angle_offset = angle_offset
+        self.gravity_force = gravity_force
 
 
+    def add_particules(self):
+        for _ in range(self.amount):
+            speed = self.s_range[0] if self.s_range[0] == self.s_range[1] else random.randint(self.s_range[0], self.s_range[1])
+            angle = self.a_range[0] if self.a_range[0] == self.a_range[1] else random.randint(self.a_range[0], self.a_range[1])
+            life_time = self.lf_range[0] if self.lf_range[0] == self.lf_range[1] else random.uniform(self.lf_range[0], self.lf_range[1])
+            scale = self.scl_range[0] if self.scl_range[0] == self.scl_range[1] else random.uniform(self.scl_range[0], self.scl_range[1])
+            
+            if self.angle_offset != 0:
+                dir_angle = random.uniform(-self.angle_offset, self.angle_offset)
+                direction = self.direction.rotate(dir_angle)
+            else:
+                direction = self.direction
+
+            self.particles.add(self.particle_type(self.pos, self.surface, life_time, direction, speed, angle, self.kill_dur, scale, self.gravity_direction, self.gravity_force))

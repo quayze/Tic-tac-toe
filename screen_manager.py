@@ -25,7 +25,7 @@ class ScreenManager:
         for object in self.deleted:
             if object in self.layers['game']:
                 self.layers['game'].remove(object)
-            self.deleted.clear()
+        self.deleted.clear()
 
 
     def draw_background(self, screen):

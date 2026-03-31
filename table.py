@@ -6,6 +6,7 @@ from context import GameContext
 import random
 from random_case import *
 from drawable import *
+from effect import *
 
 class Table(Drawable):
     def __init__(self, game):
@@ -22,7 +23,7 @@ class Table(Drawable):
         # Reset all markers
         for case in self.cases_list:
             if case.marker is not None:
-                case.marker.kill()
+                self.game.remove_object(case.marker)
 
         #save all old cases
         old_cases = self.cases_list.copy()
@@ -44,7 +45,24 @@ class Table(Drawable):
         for i, square in enumerate(old_cases):
             if isinstance(square, StoneSquare):
                 self.cases_list[i] = square
-
+        self.fall_anim(old_cases)
+        old_cases.clear()
+    
+    def fall_anim(self, squares):
+        for square in squares:
+            if not isinstance(square, StoneSquare):
+                self.game.add_effect(
+                    FallEffect(
+                    square.get_pos(), amount= 1, surface= square.surface,
+                    speed_range= (800, 1300), angle_offset= 30, z_index= 2
+                ))
+                if square.marker is not None:
+                    self.game.add_effect(
+                    FallEffect(
+                    square.get_pos(), amount= 1, surface= square.get_marker().image,
+                    speed_range= (800, 1300), angle_offset= 30, z_index= 2
+                ))
+                    
     
     def nearest_case(self, pos):
         min_case = self.cases_list[0]
@@ -157,12 +175,13 @@ class Table(Drawable):
             
         for case, marker in context.changed_markers.items():
             if marker is None:
-                self.game.remove_object(case.marker)
-                case.set_marker()
+                case.remove_marker()
                 
             elif case.can_place():
                 case.place_marker(marker)
                 self.game.add_object(marker)
+            else:
+                marker.kill()
 
         context.changed_markers = {}
         context.changed_case = {}

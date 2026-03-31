@@ -38,7 +38,6 @@ class Particle(pygame.sprite.Sprite):
 
         if self.life_time <= 0:
             self.on_death(dt)
-            return
         
     def on_death(self, dt):
         self.kill_duration -= dt
@@ -52,6 +51,7 @@ class VanishParticle(Particle):
 
         self.alpha = base_alpha
         self.alpha_decreasing = base_alpha/self.kill_duration
+        self.image.set_alpha(base_alpha)
     
     def on_death(self, dt):
         self.alpha -= self.alpha_decreasing * dt
@@ -108,3 +108,22 @@ class TargetParticule(Particle):
             if self.pos.distance_to(self.target) <= self.speed * dt:
                 self.pos = self.target
             self.rect.center = self.pos
+
+
+class FallingParticle(Particle):
+    def __init__(self, pos, surface, life_time, direction = (1, 0), speed = 0, angle = 0, kill_duration = 0, scaling = 1, gravity_direction = (0, 1), gravity_force = 40):
+        super().__init__(pos, surface, life_time, direction, speed, angle, kill_duration, scaling)
+
+        self.gravity_force = gravity_force
+        self.gravity = 0
+        self.gravity_direction = Vector2(gravity_direction)
+
+    def update(self, dt):
+        self.life_time -= dt
+        self.pos += self.direction * self.speed * dt
+        self.pos += self.gravity * self.gravity_direction * dt
+        self.rect.center = self.pos
+
+        self.gravity += self.gravity_force
+        if self.life_time <= 0:
+            self.on_death(dt)

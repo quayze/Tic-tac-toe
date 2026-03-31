@@ -63,3 +63,5 @@ class ColorThemes:
 
 class PartConfig:
     BULLET = 'assets/textures/particles/bullet.png'
+    Q_MARK_SQUARE = 'assets/textures/particles/questionSquare.png'
+    GHOST = 'assets/textures/particles/ghost.png'
