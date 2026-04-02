@@ -2,8 +2,7 @@ import pygame, sys
 from settings import *
 from tic_tac_toe import *
 from player_interface import *
-from screen_manager import ScreenManager
-from effects_manager import *
+from game_managers import *
 from effect import *
 from particles import *
 
@@ -20,6 +19,7 @@ class Game:
         self.guest = Player(name= 'GUEST', markers_type= 'round', color_theme= 'blue')
         self.screen_manager = ScreenManager()
         self.effects_manager = EffectsManager(self)
+        self.sound_manager = SoundManager()
 
         self.new_run()
 
@@ -89,7 +89,7 @@ class Game:
             self.add_effect(
                 FallEffect(
                     self.mouse_pos, amount= 1, surface= load_image('q_mark_case', PartConfig.Q_MARK_SQUARE), scale_range= (PIXEL_SIZE, PIXEL_SIZE),
-                    speed_range= (800, 1300), angle_offset= 30
+                    speed_range= (800, 1300), angle_offset= 30, sound= SoundsEffects.GUN
                 )
             )
             
@@ -116,3 +116,6 @@ class Game:
 
     def add_effect(self, effect):
         self.effects_manager.add_effect(effect)
+
+    def play_sound(self, sound_path):
+        self.sound_manager.play(sound_path)

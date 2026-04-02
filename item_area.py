@@ -8,6 +8,7 @@ class ItemArea:
         self.items_inventory : list[Item] = []
         self.items_anchors = []
         self.pos = pos
+        self.slots = max_items
         self.max_items = max_items
         self.game = game
 
@@ -24,20 +25,24 @@ class ItemArea:
 
 
     def add_item(self, item : Item):
+        if item.negative: self.max_items += 1
         if len(self.items_inventory) > self.max_items:
+            item.kill()
             return
         self.items_inventory.append(item)
         self.game.add_object(item)
         self.set_anchors()
 
-    def delete_item(self, item):
+    def delete_item(self, item : Item):
         if item in self.items_inventory:
             self.items_inventory.remove(item)
+            if item.negative: self.max_items -= 1
             item.kill()
             self.set_anchors()
 
-    def can_add(self):
-        return len(self.items_inventory) < self.max_items
+    def can_add(self, negative = False):
+        max = self.max_items + 1 if negative else self.max_items
+        return len(self.items_inventory) < max
 
     
     def set_anchors(self):

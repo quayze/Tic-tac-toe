@@ -147,7 +147,7 @@ class KillCase(Case):
                     TargetEffect(
                     self.pos, amount= 1, surface= load_image('bullet', PartConfig.BULLET), 
                     target= kill.get_pos(), scale_range=(8, 8), life_time= (0.1, 0.1),
-                    adaptative_angle= True, kill_duration= 0.1
+                    adaptative_angle= True, kill_duration= 0.1, sound= SoundsEffects.GUN
                 ))
 
 
@@ -585,7 +585,7 @@ class LuckySquare(Case):
             current_player = context.player
             inventory = context.game_session.get_inventory(current_player)
             item = Item(self.pos, ItemConfig.ITEM_SIZE, ItemConfig.ITEM_SIZE, object= generate_random_case())
-            if inventory.can_add_item(): #à changer un fois toutes les cases terminées et le système de négatif implémenté
+            if inventory.can_add_item():
                 inventory.add_item(item)
 
         elif context.end_round:
@@ -594,9 +594,8 @@ class LuckySquare(Case):
                 current_player = self.get_owner()
                 if current_player is not None:
                     inventory = context.game_session.get_inventory(current_player)
-                    item = Item(self.pos, ItemConfig.ITEM_SIZE, ItemConfig.ITEM_SIZE, object= type(self)())
-                    if inventory.can_add_item():
-                        inventory.add_item(item)
+                    item = Item(self.pos, ItemConfig.ITEM_SIZE, ItemConfig.ITEM_SIZE, object= type(self)() , negative= True)
+                    inventory.add_item(item)
 
         return context
 

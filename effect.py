@@ -9,12 +9,23 @@ class Effect(Drawable):
         self.pos = pos
         self.delay = delay
         self.sound = sound
+        self.sound_played = False
         self.starting = False
 
 
     def start(self, game):
         self.starting = True
         game.add_object(self)
+        self.play_audio(game)
+
+    def play_audio(self, game):
+        if self.sound_played:
+            return
+        if self.sound is None:
+            self.sound_played = True
+            return
+        game.play_sound(sound_path = self.sound)
+        self.sound_played = True
     
     def update(self, dt):
         if not self.starting :
@@ -28,6 +39,23 @@ class Effect(Drawable):
         if not self.starting or self.delay > 0:
             return
         return True
+    
+class SoundEffect(Effect):
+    def __init__(self, delay=0, sound_path = None):
+        super().__init__((0,0), delay, sound_path, 0)
+        self.sound = pygame.mixer.Sound()
+
+    def start(self, game):
+        self.starting = True
+        game.add_object(self)
+        self.play_audio()
+
+    def update(self, dt):
+        if not super().update(dt):  # ← bloqué tant que delay > 0
+            return 
+        
+        if self.sound_played:
+            self.kill()
         
 
 

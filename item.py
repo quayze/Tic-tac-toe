@@ -5,7 +5,7 @@ from player import *
 from moveable_object import *
 
 class Item(Moveable):
-    def __init__(self, pos, width, height, object):
+    def __init__(self, pos, width, height, object, negative = False):
         self.object = object
         self.image = self.object.image.copy()
         self.surface = pygame.Surface((width, height), pygame.SRCALPHA).convert_alpha()
@@ -14,6 +14,8 @@ class Item(Moveable):
         self.surface.blit(self.image, (0, 0))
 
         self.shadow.set_image(self.image)
+
+        self.negative = negative
 
 
     def draw(self, surface : pygame.Surface):
