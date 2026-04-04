@@ -1,7 +1,7 @@
 {   
     "Square": {
         "name": "Square", 
-        "description": "class constructor", 
+        "description": "Class constructor",
         "rarity": "null"
     },
     "DefaultSquare": {
@@ -11,37 +11,37 @@
     },
     "ReplaceableSquare" : {
         "name": "Replaceable Square", 
-        "description": "First marker placed can be replaced with orther player's marker", 
+        "description": "The first marker placed can be replaced by the other player's marker", 
         "rarity": "common"
     }, 
     "ReplaySquare" : {
         "name": "Replay Square", 
-        "description": "Player can replay", 
+        "description": "The player can play again", 
         "rarity": "common"
     }, 
     "KillSquare" : {
         "name": "Killer Square", 
-        "description": "Kills one random opponent's marker",
+        "description": "Kills one random opponent marker",
         "rarity": "common"
     }, 
     "SideSquare" : {
         "name": "Side Square", 
-        "description": "Place a maker on the", 
+        "description": "Places a marker on the", 
         "rarity": "common"
     },           
     "DivisionSquare" : {
         "name": "Division Square", 
-        "description": "Replicate itself on one squares around, focus bonus squares", 
+        "description": "Replicates itself onto one adjacent square, focus bonus squares", 
         "rarity": "common"
     }, 
     "BurningSquare" : {
         "name": "Burning Square", 
-        "description": "Burn one random square and destoy its marker", 
+        "description": "Burns one random square and destoys its marker", 
         "rarity": "common"
     }, 
     "MoneySquare" : {
         "name": "Money Square", 
-        "description": "Gives one random amount of money to the player between 1 and 10", 
+        "description": "Gives the player a random amount of money between 1 and 10", 
         "rarity": "common"
     }, 
     "InterestSquare" : {
@@ -56,23 +56,33 @@
     }, 
     "FirstSquare" : {
         "name": "First Square", 
-        "description": "The player who place have a marker on it plays first if not multiple players activate this square", 
+        "description": "The player with a marker on it plays first, unless multiple players activate this square", 
         "rarity": "common"
     },
     "ChainSquare" : {
         "name": "Chain Square", 
-        "description": "Can link to one player, who will the only one who can place markers on it", 
+        "description": "Links to one player, who will be the only one able to place markers on i", 
         "rarity": "null"
     },
     "RandomSquare" : {
         "name": "Random Square", 
-        "description": "Shuffle all squares", 
+        "description": "Shuffles all squares", 
         "rarity": "common"
+    },
+    "JailSquare" : {
+        "name": "Jail Square", 
+        "description": "Creates one linked Chain Square but lose 5$ minimum or 10% of balance at the end of the round", 
+        "rarity": "common"
+    },
+    "EmptySquare" : {
+        "name": "Empty Square", 
+        "description": "Can't store markers", 
+        "rarity": "null"
     },
               
     "BluePrintSquare" : {
         "name": "Blueprint Square", 
-        "description": "Duplicate left square's ability", 
+        "description": "Duplicate the right square's ability", 
         "rarity": "rare"
     }, 
     "DeathSquare" : {
@@ -82,23 +92,23 @@
     }, 
     "CreeperSquare" : {
         "name": "Creeper Square", 
-        "description": "Explodes destroying itself and all squares around him", 
+        "description": "Explodes, destroying itself and all surrounding squares", 
         "rarity": "rare"
     },   
 
     "DiamondSquare" : {
         "name": "Diamond Square", 
-        "description": "Doubles money if player balance < 20 else gives 20 $, 10% interest a the end of the round", 
+        "description": "Doubles money if balance is below 20$ else gives 20$. Grants 10% interest at the end of the round", 
         "rarity": "legendary"
     }, 
     "DestructionSquare" : {
         "name": "Destruction Square", 
-        "description": "Destroy all bonus squares", 
+        "description": "Destroys all bonus squares", 
         "rarity": "legendary"
     }, 
     "LuckySquare" : {
         "name": "Lucky Square", 
-        "description": "50% chance of giving legendary square on placement else rare square, 50% chance to re-obtain this square in negative at the end of the round", 
+        "description": "50% chance to give a legendary square, else gives a rare square. 50% chance to receive this square as a negative item at the end of the round", 
         "rarity": "legendary"
     }
 

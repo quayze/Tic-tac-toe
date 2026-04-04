@@ -103,7 +103,7 @@ class Shop(Drawable):
         self.case_area.clear()
         for i in range(self.max_cases):
             case = generate_random_case()
-            item = Item(self.center + Vector2(i, 0), width= 100, height= 100, object= case)
+            item = SquareItem(self.center + Vector2(i, 0), width= 100, height= 100, object= case)
             item.on_release = self._pay_item
             self.case_area.add_item(item)
 

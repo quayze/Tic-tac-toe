@@ -93,6 +93,7 @@ class Button(Moveable):
                 self.on_release()
 
         if not self.rect.collidepoint(mouse_pos) and self.state == 'on_mouse':
+            print('yes')
             self.state = 'idle'
             self.rect.center = self.pos
             

@@ -23,9 +23,7 @@ class Square:
         self.name = data['name']
         self.description = data['description']
         self.rarity = data['rarity']
-        print(self.name,
-        self.description,
-        self.rarity)
+
 
 
     def place_marker(self, marker : Marker):

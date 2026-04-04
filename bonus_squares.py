@@ -30,7 +30,7 @@ def generate_random_case():
 
 
 #----------------------------------------------
-# DEFAULT SQUARE
+# DEFAULT SQUARES
 #----------------------------------------------
 
 class DefaultSquare(Square):
@@ -327,7 +327,7 @@ class ItemSquare(Square):
         if context.marker_placed:
             current_player = context.player
             inventory = context.game_session.get_inventory(current_player)
-            item = Item(self.pos, ItemConfig.ITEM_SIZE, ItemConfig.ITEM_SIZE, object= generate_random_case())
+            item = SquareItem(self.pos, ItemConfig.ITEM_SIZE, ItemConfig.ITEM_SIZE, object= generate_random_case())
             if inventory.can_add_item():
                 inventory.add_item(item)
         return context

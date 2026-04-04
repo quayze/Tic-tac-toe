@@ -42,7 +42,7 @@ class PlayerInventory(Drawable):
     def add_marker(self):
         self.marker_container.add_marker()
 
-    def add_item(self, item : Item):
+    def add_item(self, item : SquareItem):
         self.case_inventory.add_item(item)
 
     def can_add_item(self):
