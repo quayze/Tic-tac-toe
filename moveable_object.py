@@ -19,6 +19,7 @@ class Moveable(Drawable):
         self.state = 'idle' #idle, hover, on_mouse
 
         self.on_release = None
+        self.on_dragging = None
 
         
 
@@ -73,6 +74,8 @@ class Moveable(Drawable):
         if self.state == 'on_mouse':
             self.pos = Vector2(mouse_pos) - self.offset
             self.rect.center = self.pos
+            if self.on_dragging:
+                self.on_dragging()
 
     def update_pos(self, dt):
         if self.state == 'on_mouse' or self.anchor is None or self.anchor_reach:
@@ -110,6 +113,9 @@ class Moveable(Drawable):
 
     def get_pos(self):
         return self.pos
+    
+    def get_rect(self):
+        return self.rect
     
     def get_anchor(self):
         return self.anchor

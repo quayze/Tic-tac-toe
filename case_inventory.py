@@ -22,6 +22,12 @@ class CaseInventory(ItemArea):
 
         self.table = None
 
+    def get_pos(self):
+        return self.pos
+    
+    def get_size(self):
+        return self.bg_surface.get_size()
+
 
 
     def draw(self, screen):

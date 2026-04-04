@@ -42,6 +42,7 @@ def get_font(size):
     """Récupère la police d'écriture"""
     if size not in font_cache:
         font_cache[size] = pygame.font.Font(TEXT_FONT, size)
+        
     return font_cache[size]
 
 
@@ -132,3 +133,11 @@ def get_marker(marker_type):
     
     else:
         return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE)
+    
+
+def get_text_dimensions(text, size, type = 'height'):
+    font : pygame.font.Font = get_font(size)
+    if type == 'height':
+        return font.size(text)[1]
+    else:
+        return font.size(text)[0]

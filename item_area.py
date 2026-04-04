@@ -127,6 +127,18 @@ class ItemArea:
         self.delete_item(self.selected_object)
         self.selected_object = None
 
+    def transfer(self):
+        if self.selected_object in self.items_inventory:
+            self.items_inventory.remove(self.selected_object)
+            if self.selected_object.negative: self.max_items -= 1
+            self.set_anchors()
+        self.selected_object = None
+
     def delete_callback(self):
         for item in self.items_inventory:
             item.on_release = None
+
+    def clear(self):
+        for item in self.items_inventory:
+            item.kill()
+        self.items_inventory.clear()

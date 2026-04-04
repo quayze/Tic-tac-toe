@@ -204,6 +204,28 @@ class Table(Drawable):
         
         elif side_name == 'bottom':
             return self.get_case(index +3)
+        
+    def destroy(self):
+        for square in self.cases_list:
+
+            self.game.add_effect(
+                FallEffect(
+                square.get_pos(), amount= 1, surface= square.surface,
+                speed_range= (800, 1300), angle_offset= 30, z_index= 2
+            ))
+            if square.marker is not None:
+                self.game.add_effect(
+                FallEffect(
+                square.get_pos(), amount= 1, surface= square.get_marker().image,
+                speed_range= (800, 1300), angle_offset= 30, z_index= 2
+            ))      
+            square.remove_marker()
+
+
+        self.cases_list.clear()
+
+    def activate(self):
+        self.game.add_object(self)
     
                 
 

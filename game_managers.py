@@ -57,10 +57,13 @@ class SoundManager:
 class EffectsManager:
     def __init__(self, game):
         self.effects : list[Effect] = []
-        self.stopped_effects = []
+        self.waiting_effects : list[Effect] = []
+        self.stopped_effects : list[Effect] = []
         self.game = game
 
     def update(self, dt):
+        self.update_delayed_effects(dt)
+
         if self.effects == []:
             return
         
@@ -68,20 +71,41 @@ class EffectsManager:
             effect.update(dt)
             if not effect.alive:
                 self.stopped_effects.append(effect)
+
         self.delete_effects()
 
-    
     def delete_effects(self):
         if self.stopped_effects == []:
             return
+        
         for effect in self.stopped_effects:
             self.effects.remove(effect)
         self.stopped_effects.clear()
 
+    def update_delayed_effects(self, dt):
+        if self.waiting_effects == []:
+            return
+        new_effects = []
+        for effect in self.waiting_effects:
+            effect.update_timer(dt)
+            if effect.delay <= 0:
+                new_effects.append(effect)
+
+        for effect in new_effects:
+            self.waiting_effects.remove(effect)
+            self.start_effect(effect)
+
+
+
+    def start_effect(self, effect : Effect):
+        self.effects.append(effect)
+        effect.start(self.game)
 
 
     def add_effect(self, effect : Effect):
-        self.effects.append(effect)
-        effect.start(self.game)
+        if effect.delay == 0:
+            self.start_effect(effect)
+        else:
+            self.waiting_effects.append(effect)
 
 

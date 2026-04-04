@@ -26,12 +26,22 @@ class TicTacToe:
         self.state = 'playing'  # 'playing', 'win', 'draw'
         self.winner = None
 
+        self.turns_left = 0
+        self.start_turn()
 
+    def reset(self):
+        self.state = 'playing' 
+        self.winner = None
+        self.turns_left = 0
+        self.table.activate()
+        self.table.reset_cases()
         self.start_turn()
         
 
 
     def new_game(self, first_player = None):
+        self.turns_left -= 1
+
         self.active_player = first_player if first_player is not None else random.choices([self.player1, self.player2])[0]
 
         self.table.reset_cases()
@@ -48,6 +58,7 @@ class TicTacToe:
         inv.add_marker()
         inv.set_case_callback(self._place_case)
         inv.set_release_callback(self._try_place)
+
 
     def _place_case(self):
         inv = self._active_inventory()
@@ -115,7 +126,17 @@ class TicTacToe:
         for player, lost in context.losts.items():
             player.lose_money(lost)
 
+        print(self.turns_left)
+
+        if self.turns_left == 0:
+            self.game.next_phase()
+            self.table.destroy()
+            return
+        
         self.new_game(context.first_to_play)
+
+
+
 
 
 

@@ -30,13 +30,14 @@ class Effect(Drawable):
     def update(self, dt):
         if not self.starting :
             return
-        if self.delay > 0:
-            self.delay -= dt
-            return
         return True
     
+    def update_timer(self, dt):
+        if self.delay > 0:
+            self.delay -= dt
+    
     def draw(self, screen):
-        if not self.starting or self.delay > 0:
+        if not self.starting:
             return
         return True
     
@@ -51,7 +52,7 @@ class SoundEffect(Effect):
         self.play_audio()
 
     def update(self, dt):
-        if not super().update(dt):  # ← bloqué tant que delay > 0
+        if not super().update(dt):
             return 
         
         if self.sound_played:
@@ -95,7 +96,7 @@ class ParticleEffect(Effect):
             
 
     def update(self, dt):
-        if not super().update(dt):  # ← bloqué tant que delay > 0
+        if not super().update(dt):
             return 
         
         self.particles.update(dt)
@@ -103,7 +104,7 @@ class ParticleEffect(Effect):
             self.kill()
 
     def draw(self, screen):
-        if not super().draw(screen):  # ← bloqué tant que delay > 0
+        if not super().draw(screen): 
             return 
 
         self.particles.draw(screen)

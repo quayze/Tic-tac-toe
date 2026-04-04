@@ -1,6 +1,7 @@
 import pygame, sys
 from settings import *
 from tic_tac_toe import *
+from shop import *
 from player_interface import *
 from game_managers import *
 from effect import *
@@ -54,7 +55,7 @@ class Game:
 
             self.effects_manager.update(self.delta_time)
             
-            self.handle_input()
+            self.handle_mouse()
             self.run_game()
             self.render_game()
 
@@ -68,41 +69,64 @@ class Game:
 
     def new_run(self):
         self.session = GameSession(self.player, self.guest, self)
-        self.game = TicTacToe(self.session, self)
-        self.inventories = self.session.inventories
+        self.tic_tac_toe = TicTacToe(self.session, self)
+        self.shop = Shop(self.session, self)
+        self.inventories = self.session.inventories.values()
         self.state = 'play'
+
+    def next_phase(self):
+        if self.state == 'play':
+            self.state = 'shop'
+            self.shop.open()
+
+        elif self.state == 'shop':
+            self.state = 'play'
+            self.tic_tac_toe.reset()
         
 
 
 
 
 
-    def handle_input(self):
-        self.game.handle_input(self.mouse_pos)
-
-        for inv in self.inventories.values():
+    def handle_mouse(self):
+        for inv in self.inventories:
             inv.handle_mouse(self.mouse_pos)
 
-        if pygame.mouse.get_pressed()[1]:
-            surface = get_marker('cat')
-            surface = resize(surface, 3)
+        if self.state == 'play':
+            self.tic_tac_toe.handle_input(self.mouse_pos)
+
+        elif self.state == 'shop':
+            self.shop.handle_mouse(self.mouse_pos)
+
+
+
+        if pygame.mouse.get_pressed()[2]:
+            surf = pygame.Surface((10, 10), pygame.SRCALPHA).convert_alpha()
+            surf.fill((0, 0, 0, 255))
             self.add_effect(
                 FallEffect(
-                    self.mouse_pos, amount= 1, surface= load_image('q_mark_case', PartConfig.Q_MARK_SQUARE), scale_range= (PIXEL_SIZE, PIXEL_SIZE),
-                    speed_range= (800, 1300), angle_offset= 30, sound= SoundsEffects.GUN
+                    self.mouse_pos, amount= 1, surface= surf, scale_range= (PIXEL_SIZE, PIXEL_SIZE),
+                    speed_range= (800, 1300), angle_offset= 30
                 )
             )
             
 
 
+
+
+
     def run_game(self):
+        for inv in self.inventories:
+            inv.update(self.delta_time)
         if self.state == 'play':
-            self.game.update(self.delta_time)
-            for inv in self.inventories.values():
-                inv.update(self.delta_time)
+            self.tic_tac_toe.update(self.delta_time)
+        elif self.state == 'shop':
+            self.shop.update(self.delta_time)  
+
+
+
 
     def render_game(self):
-
         self.screen_manager.draw(self.screen)
 
 

@@ -9,9 +9,8 @@ class Player:
         self.balance += amount
 
     def lose_money(self, amount : int):
-        if amount < 0:
-            amount = min(abs(amount), self.balance)
-            self.balance -= amount
+        amount = min(abs(amount), self.balance)
+        self.balance -= amount
 
     def get_balance(self):
         return self.balance
