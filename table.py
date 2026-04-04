@@ -1,6 +1,6 @@
 import pygame
-from case import *
-from bonus_case import *
+from square import *
+from bonus_squares import *
 from marker import Marker
 from context import GameContext
 import random
@@ -30,7 +30,7 @@ class Table(Drawable):
         #reset
         self.cases_list = []
 
-        test_case = Case((0, 0))
+        test_case = Square()
         offset = TableConfig.OFFSET
         case_mid_size = test_case.rect.width//2
 
@@ -100,9 +100,9 @@ class Table(Drawable):
             empty_case = case.counting is False
             if case.get_marker() is None and not empty_case:
 
-                empty_cases = [c for c in self.cases_list if c.get_marker() is None and not isinstance(c, EmptyCase)]
-                chain_owners = set(c.owner for c in empty_cases if isinstance(c, ChainCase) and c.owner is not None)
-                if all(isinstance(c, ChainCase) for c in empty_cases) and len(chain_owners) == 1:
+                empty_cases = [c for c in self.cases_list if c.get_marker() is None and not isinstance(c, EmptySquare)]
+                chain_owners = set(c.owner for c in empty_cases if isinstance(c, ChainSquare) and c.owner is not None)
+                if all(isinstance(c, ChainSquare) for c in empty_cases) and len(chain_owners) == 1:
                     return 'win', case.owner
                 
                 return 'ongoing', None
@@ -122,14 +122,14 @@ class Table(Drawable):
     
     
     def try_place_case(self, item):
-        nearest_case : Case = self.nearest_case(item.get_pos())
+        nearest_case : Square = self.nearest_case(item.get_pos())
         if nearest_case is not None : 
-            if isinstance(nearest_case, DefaultCase) and nearest_case.can_place():
+            if isinstance(nearest_case, DefaultSquare) and nearest_case.can_place():
                 return self.get_index(nearest_case)
         return None
     
     def try_place_marker(self, marker, context : GameContext):
-        nearest_case : Case = self.nearest_case(marker.get_pos())
+        nearest_case : Square = self.nearest_case(marker.get_pos())
         if nearest_case is not None :
             context.try_place = True
             nearest_case.trigger_effect(context)
@@ -139,8 +139,8 @@ class Table(Drawable):
         return None, context
 
     
-    def place_marker(self, marker, context : GameContext, case : Case):
-        current_case : Case = case
+    def place_marker(self, marker, context : GameContext, case : Square):
+        current_case : Square = case
         current_case.place_marker(marker)
         context.marker_placed = True
         context = current_case.trigger_effect(context)
@@ -156,7 +156,7 @@ class Table(Drawable):
         for case in self.cases_list:
             case.draw(surface)
 
-    def get_index(self, case : Case):
+    def get_index(self, case : Square):
         return self.cases_list.index(case)
     
     def get_case(self, index):
@@ -169,7 +169,7 @@ class Table(Drawable):
     
     def apply_context(self, context : GameContext):
         for case, new_case in context.changed_case.items():
-            new_case : Case = new_case
+            new_case : Square = new_case
             index = self.get_index(case)
             self.change_case(new_case, index)
             
@@ -187,8 +187,8 @@ class Table(Drawable):
         context.changed_case = {}
         return context
     
-    def change_case(self, case : Case, index : int):
-        old_case : Case = self.cases_list[index]
+    def change_case(self, case : Square, index : int):
+        old_case : Square = self.cases_list[index]
         case.set_pos(old_case.get_pos())
         self.cases_list[index] = case
 

@@ -3,7 +3,6 @@ from marker import Marker
 from settings import *
 from functions import *
 from table import Table
-from case import Case
 
 class MarkerContainer:
     def __init__(self, player : Player, pos, game):
@@ -23,8 +22,14 @@ class MarkerContainer:
         else:
             self.object_pos = self.pos[0], self.rect.top + 100
 
+        if self.pos[1] < screen_center:
+            self.spawn_pos = self.pos[0], self.rect.bottom - 300
+        else:
+            self.spawn_pos = self.pos[0], self.rect.top + 300
+        
+
     def add_marker(self):
-        self.marker = Marker(self.player, self.object_pos)
+        self.marker = Marker(self.player, self.spawn_pos)
         self.game.add_object(self.marker)
         self.marker.set_anchor(self.object_pos)
         self.placed = False

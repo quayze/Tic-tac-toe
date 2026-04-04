@@ -14,10 +14,11 @@ class MarkerConfig:
 class CaseConfig:
     CASE_SHEET = 'assets/textures/cases.png'
     CASE_SIZE = 19
-    RARITY_PERCENTAGE = {
-        'common' : 0.5,
-        'rare' : 0.2,
-        'legendary' : 0.05
+    RARITY_WEIGHTS = {
+        'common' : 60,
+        'rare' : 20,
+        'legendary' : 5,
+        'null' : 0
     }
 
 class NineSliceConfig:
@@ -66,5 +67,6 @@ class PartConfig:
     Q_MARK_SQUARE = 'assets/textures/particles/questionSquare.png'
     GHOST = 'assets/textures/particles/ghost.png'
 
-class SoundsEffects:
+class SFX:
     GUN = 'assets/sounds/gun.mp3'
+    CASH = 'assets/sounds/cashOut.mp3'

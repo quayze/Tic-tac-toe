@@ -1,4 +1,4 @@
-from case import Case
+from square import Square
 from settings import *
 from functions import *
 from context import GameContext
@@ -7,19 +7,25 @@ from marker import Marker
 import pygame
 from item import *
 from effect import *
+import importlib
 
 
 def generate_random_case():
-    custom_cases = {ReplacableCase : 'common', ReplayCase: 'common', KillCase: 'common', SideCase: 'common', 
-                    DivisionCase: 'common', BurningCase: 'common', MoneyCase: 'common', InterestCase: 'common', 
-                    DeathCase: 'rare', ItemCase: 'common', ChainCase: 'common', CreeperCase: 'rare', FirstCase: 'common', 
-                    RandomCase: 'common'}
-    proba_cases = {}
-    for case, rarity in custom_cases.items():
-        proba_cases[case] = CaseConfig.RARITY_PERCENTAGE[rarity]
-        
-    case_type =  random.choices(list(proba_cases.keys()), list(proba_cases.values()))[0]
-    return case_type()
+    data : dict = get_all_squares_data()
+    classes, weights = [], []
+    module = importlib.import_module('bonus_squares')
+
+    for class_name, info in data.items():
+        weight = CaseConfig.RARITY_WEIGHTS.get(info['rarity'], 0)
+        if weight != 0:
+            cls = getattr(module, class_name, None)
+            if cls is not None:
+                classes.append(cls)
+                weights.append(weight)
+    
+    square_type = random.choices(classes, weights=weights)[0]
+
+    return square_type()
 
 
 
@@ -27,7 +33,7 @@ def generate_random_case():
 # DEFAULT SQUARE
 #----------------------------------------------
 
-class DefaultCase(Case):
+class DefaultSquare(Square):
     """Base case functionning"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
@@ -42,7 +48,7 @@ class DefaultCase(Case):
 #----------------------------------------------
 
 
-class ReplayCase(Case):
+class ReplaySquare(Square):
     """Replay if marker placed"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
@@ -55,7 +61,7 @@ class ReplayCase(Case):
 
         return context
     
-class ReplacableCase(Case):
+class ReplaceableSquare(Square):
     """Replace 1 time if ennemy marker on it"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
@@ -70,7 +76,7 @@ class ReplacableCase(Case):
             if not context.blueprint: self.effect_triggered = True # no unknown variable for blueprint
 
         elif not context.blueprint and context.marker_placed and self.effect_triggered: #no self destruct if executed by blueprint / no unknown variable for blueprint
-            new_case = DefaultCase()
+            new_case = DefaultSquare()
             context.add_changed_case(self, new_case)
             context.add_marker(new_case, self.marker)
 
@@ -78,7 +84,7 @@ class ReplacableCase(Case):
 
     
 
-class SideCase(Case):
+class SideSquare(Square):
     """Add marker to a case on one of it side"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
@@ -95,16 +101,16 @@ class SideCase(Case):
 
             #haut
             if self.side == 0:
-                target_case : Case = context.table.get_side(index, 'top')
+                target_case : Square = context.table.get_side(index, 'top')
             #droite
             elif self.side == 1:
-                target_case : Case = context.table.get_side(index, 'right')
+                target_case : Square = context.table.get_side(index, 'right')
             #bas
             elif self.side == 2:
-                target_case : Case = context.table.get_side(index, 'bottom')
+                target_case : Square = context.table.get_side(index, 'bottom')
             #gauche
             elif self.side == 3:
-                target_case : Case = context.table.get_side(index, 'left')
+                target_case : Square = context.table.get_side(index, 'left')
             
             
             if target_case is not None and target_case.can_place():
@@ -115,7 +121,7 @@ class SideCase(Case):
         return context
 
 
-class KillCase(Case):
+class KillSquare(Square):
     """Destroy 1 ennemy marker and square"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
@@ -134,10 +140,10 @@ class KillCase(Case):
                 if len(killable_list) == 1:
                     kill = killable_list[0]
                 else:
-                    kill : Case = random.choices(killable_list)[0]
+                    kill : Square = random.choices(killable_list)[0]
                     
 
-                context.add_changed_case(kill, DefaultCase())
+                context.add_changed_case(kill, DefaultSquare())
                 context.add_marker(kill, None)
                 # Effects
                 context.add_effect(BloodEffect(
@@ -147,13 +153,13 @@ class KillCase(Case):
                     TargetEffect(
                     self.pos, amount= 1, surface= load_image('bullet', PartConfig.BULLET), 
                     target= kill.get_pos(), scale_range=(8, 8), life_time= (0.1, 0.1),
-                    adaptative_angle= True, kill_duration= 0.1, sound= SoundsEffects.GUN
+                    adaptative_angle= True, kill_duration= 0.1, sound= SFX.GUN
                 ))
 
 
         return context
     
-class DivisionCase(Case):
+class DivisionSquare(Square):
     """Replace nearby case with its type, +on other bonus squares"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
@@ -165,7 +171,7 @@ class DivisionCase(Case):
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
             index = context.table.get_index(self)
-            none_divisable_case = [DivisionCase, EmptyCase]
+            none_divisable_case = [DivisionSquare, EmptySquare]
 
             targets_cases = []
             target_case = None
@@ -178,7 +184,7 @@ class DivisionCase(Case):
     
             #se duplique sur les cases spéciales en priorité
             for case in targets_cases:
-                if case is not None and type(case) != DefaultCase and type(case) not in none_divisable_case:
+                if case is not None and type(case) != DefaultSquare and type(case) not in none_divisable_case:
                     target_case = case
                     break
             
@@ -191,14 +197,14 @@ class DivisionCase(Case):
 
             if target_case is not None:
                 marker = target_case.get_marker()
-                case = DivisionCase()
+                case = DivisionSquare()
                 context.add_changed_case(target_case, case)
                 context.add_marker(case, marker)
 
 
         return context
     
-class EmptyCase(Case):
+class EmptySquare(Square):
     """Can't place marker on it"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
@@ -209,7 +215,7 @@ class EmptyCase(Case):
     def can_place(self):
         return False
 
-class BurningCase(Case):
+class BurningSquare(Square):
     """Transform on random square into empty square except itself"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
@@ -220,7 +226,7 @@ class BurningCase(Case):
         if context.marker_placed:
             index = context.table.get_index(self)
             table = context.table.get_case_list()
-            empty_case_list = [case for case in table if isinstance(case, EmptyCase)]
+            empty_case_list = [case for case in table if isinstance(case, EmptySquare)]
             select_table = table.copy()
             select_table.remove(context.table.get_case(index))
             #on eleve les cases vide du compte
@@ -234,13 +240,13 @@ class BurningCase(Case):
                 else:
                     burned_case = random.choice(select_table)
 
-                context.add_changed_case(burned_case, EmptyCase())
+                context.add_changed_case(burned_case, EmptySquare())
                 context.add_marker(burned_case, None)
 
         return context
                 
 
-class MoneyCase(Case):
+class MoneySquare(Square):
     """Gives random amount of $ to the player who place the marker on it"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
@@ -253,7 +259,7 @@ class MoneyCase(Case):
             context.add_gain(context.player, gain)
         return context
     
-class InterestCase(Case):
+class InterestSquare(Square):
     """Gives 10% of player's balance if on of his case is on it"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
@@ -269,7 +275,7 @@ class InterestCase(Case):
                 context.add_gain(player, gain)
         return context
     
-class ChainCase(Case):
+class ChainSquare(Square):
     """Can define on play who will be the only one who can place a marker on it"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
@@ -310,7 +316,7 @@ class ChainCase(Case):
     
 
 
-class ItemCase(Case):
+class ItemSquare(Square):
     """Gives one random item to the player who placed the marker"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
@@ -327,7 +333,7 @@ class ItemCase(Case):
         return context
     
 
-class RandomCase(Case):
+class RandomSquare(Square):
     """Shuffle all squares on the table except empty cases"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
@@ -341,7 +347,7 @@ class RandomCase(Case):
             shuffled_squares = []
             final_dict = {}
             for square in all_squares:
-                if square is not self and type(square) not in (EmptyCase, ChainCase):
+                if square is not self and type(square) not in (EmptySquare, ChainSquare):
                     changed_squares.append(square)
                     shuffled_squares.append(type(square))
 
@@ -354,7 +360,7 @@ class RandomCase(Case):
                     context.add_changed_case(base_square, new_square)
                     context.add_marker(new_square, base_square.get_marker())
 
-                new_self = DefaultCase()
+                new_self = DefaultSquare()
                 context.add_changed_case(self, new_self)
                 context.add_marker(new_self, self.get_marker())
 
@@ -370,7 +376,7 @@ class RandomCase(Case):
     
 
     
-class FirstCase(Case):
+class FirstSquare(Square):
     """Player start next round if marker placed on it"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
@@ -391,7 +397,7 @@ class FirstCase(Case):
         return context
 
 
-class JailCase(Case):
+class JailSquare(Square):
     """-5$ or -30% at the end of the round but add a chain case linked to the player on the table"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
@@ -403,18 +409,18 @@ class JailCase(Case):
             case_list = context.table.get_case_list()
             potential_cases = []
             for case in case_list:
-                if isinstance(case, DefaultCase) and case.get_marker() is None:
+                if isinstance(case, DefaultSquare) and case.get_marker() is None:
                     potential_cases.append(case)
             if len(potential_cases) < 1:
                 for case in case_list:
-                    if self != case and case.get_marker() is None and not isinstance(case, ChainCase):
+                    if self != case and case.get_marker() is None and not isinstance(case, ChainSquare):
                         potential_cases.append(case)
             
             if potential_cases != []:
                 random.shuffle(potential_cases)
                 case = potential_cases[0]
                 
-                chain_case = ChainCase()
+                chain_case = ChainSquare()
                 chain_case.set_owner(context.player)
                 context.add_changed_case(case, chain_case)
 
@@ -432,7 +438,7 @@ class JailCase(Case):
 # RARE SQUARES
 #----------------------------------------------
 
-class BluePrintCase(Case):
+class BluePrintSquare(Square):
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.get_image(5, 0)
@@ -441,7 +447,7 @@ class BluePrintCase(Case):
 
     def trigger_effect(self, context : GameContext):
         index = context.table.get_index(self)
-        target_case : Case = context.table.get_side(index, 'right')
+        target_case : Square = context.table.get_side(index, 'right')
             
         if target_case is not None:
             self.counting = target_case.counting
@@ -453,7 +459,7 @@ class BluePrintCase(Case):
 
         return context
 
-class DeathCase(Case):
+class DeathSquare(Square):
     """50/50 kill all ennemy squares or all player squares"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
@@ -478,13 +484,13 @@ class DeathCase(Case):
             if dead_player_list != []:
                 for killed_case in dead_player_list:
                     if self == killed_case and not context.blueprint: #no self destruct if executed by blueprint
-                        context.add_changed_case(self, DefaultCase())
+                        context.add_changed_case(self, DefaultSquare())
                         context.add_marker(self)
                     else:
                         context.add_marker(killed_case)     
 
                 if self not in dead_player_list and not context.blueprint: #no self destruct if executed by blueprint
-                    d_case = DefaultCase()
+                    d_case = DefaultSquare()
                     context.add_changed_case(self, d_case)
                     context.add_marker(d_case, self.get_marker())
 
@@ -499,7 +505,7 @@ class DeathCase(Case):
 
         return context
 
-class CreeperCase(Case):
+class CreeperSquare(Square):
     """Transform itself and up to 4 adjacent cases into empty cases"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
@@ -518,7 +524,7 @@ class CreeperCase(Case):
 
             for case in destroyed_cases:
                 if case is not None:
-                    context.add_changed_case(case, EmptyCase())
+                    context.add_changed_case(case, EmptySquare())
                     context.add_marker(case, None)
 
         return context
@@ -529,7 +535,7 @@ class CreeperCase(Case):
 # LEGENDARY SQUARES
 #----------------------------------------------
 
-class DestructionSquare(Case):
+class DestructionSquare(Square):
     """Destroy all bonus squares on the table"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
@@ -540,14 +546,14 @@ class DestructionSquare(Case):
         if context.marker_placed:
             squares = context.table.get_case_list()
             for square in squares:
-                if square != self and not isinstance(square, DefaultCase):
-                    new_case = DefaultCase()
+                if square != self and not isinstance(square, DefaultSquare):
+                    new_case = DefaultSquare()
                     context.add_changed_case(square, new_case)
                     context.add_marker(new_case, square.get_marker())
 
         return context
 
-class DiamondSquare(Case):
+class DiamondSquare(Square):
     """Gives 20 $ if player balance < 20 else double money, 10% interest a the end of the round"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
@@ -573,7 +579,7 @@ class DiamondSquare(Case):
 
         return context
 
-class LuckySquare(Case):
+class LuckySquare(Square):
     """1/2 -> give legendary square on placement else rare square, 1/2 to re-obtain the square at the end of the round"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
@@ -599,14 +605,14 @@ class LuckySquare(Case):
 
         return context
 
-class TableSquare(Case):
+class TableSquare(Square):
     """Extend the table on the right : 3 * 4 if not already"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
         self.get_image(3, 3)
         self.blit_image()
 
-class StoneSquare(Case):
+class StoneSquare(Square):
     """Block one case permenently for 1 game """
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)

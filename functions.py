@@ -1,6 +1,7 @@
 import pygame
 from settings import *
 import random
+import json
 
 def perfect_rezize(image : pygame.Surface, width = None, height = None):
     if width is not None:
@@ -141,3 +142,24 @@ def get_text_dimensions(text, size, type = 'height'):
         return font.size(text)[1]
     else:
         return font.size(text)[0]
+    
+
+
+squares_data = None
+def get_square_data(square_class_name):
+    global squares_data
+    if squares_data is None:
+        with open('data/squares_data.json', 'r') as f:
+            squares_data = json.load(f)
+    return squares_data.get(square_class_name, {
+        "name": square_class_name,
+        "description": "",
+        "rarity": "common"
+    })
+
+def get_all_squares_data():
+    global squares_data
+    if squares_data is None:
+        with open('data/squares_data.json', 'r') as f:
+            squares_data = json.load(f)
+    return squares_data

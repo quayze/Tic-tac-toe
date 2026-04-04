@@ -1,0 +1,105 @@
+{   
+    "Square": {
+        "name": "Square", 
+        "description": "class constructor", 
+        "rarity": "null"
+    },
+    "DefaultSquare": {
+        "name": "Default Square", 
+        "description": "Stores markers", "rarity": 
+        "null"
+    },
+    "ReplaceableSquare" : {
+        "name": "Replaceable Square", 
+        "description": "First marker placed can be replaced with orther player's marker", 
+        "rarity": "common"
+    }, 
+    "ReplaySquare" : {
+        "name": "Replay Square", 
+        "description": "Player can replay", 
+        "rarity": "common"
+    }, 
+    "KillSquare" : {
+        "name": "Killer Square", 
+        "description": "Kills one random opponent's marker",
+        "rarity": "common"
+    }, 
+    "SideSquare" : {
+        "name": "Side Square", 
+        "description": "Place a maker on the", 
+        "rarity": "common"
+    },           
+    "DivisionSquare" : {
+        "name": "Division Square", 
+        "description": "Replicate itself on one squares around, focus bonus squares", 
+        "rarity": "common"
+    }, 
+    "BurningSquare" : {
+        "name": "Burning Square", 
+        "description": "Burn one random square and destoy its marker", 
+        "rarity": "common"
+    }, 
+    "MoneySquare" : {
+        "name": "Money Square", 
+        "description": "Gives one random amount of money to the player between 1 and 10", 
+        "rarity": "common"
+    }, 
+    "InterestSquare" : {
+        "name": "Interest Square", 
+        "description": "Gives 10% of total money if a marker is placed on it at the end of the roundccc", 
+        "rarity": "common"
+    },         
+    "ItemSquare" : {
+        "name": "Item Square", 
+        "description": "Gives one random square to the player", 
+        "rarity": ""
+    }, 
+    "FirstSquare" : {
+        "name": "First Square", 
+        "description": "The player who place have a marker on it plays first if not multiple players activate this square", 
+        "rarity": "common"
+    },
+    "ChainSquare" : {
+        "name": "Chain Square", 
+        "description": "Can link to one player, who will the only one who can place markers on it", 
+        "rarity": "null"
+    },
+    "RandomSquare" : {
+        "name": "Random Square", 
+        "description": "Shuffle all squares", 
+        "rarity": "common"
+    },
+              
+    "BluePrintSquare" : {
+        "name": "Blueprint Square", 
+        "description": "Duplicate left square's ability", 
+        "rarity": "rare"
+    }, 
+    "DeathSquare" : {
+        "name": "Death Square", 
+        "description": "Kills all markers of one random player", 
+        "rarity": "rare"
+    }, 
+    "CreeperSquare" : {
+        "name": "Creeper Square", 
+        "description": "Explodes destroying itself and all squares around him", 
+        "rarity": "rare"
+    },   
+
+    "DiamondSquare" : {
+        "name": "Diamond Square", 
+        "description": "Doubles money if player balance < 20 else gives 20 $, 10% interest a the end of the round", 
+        "rarity": "legendary"
+    }, 
+    "DestructionSquare" : {
+        "name": "Destruction Square", 
+        "description": "Destroy all bonus squares", 
+        "rarity": "legendary"
+    }, 
+    "LuckySquare" : {
+        "name": "Lucky Square", 
+        "description": "50% chance of giving legendary square on placement else rare square, 50% chance to re-obtain this square in negative at the end of the round", 
+        "rarity": "legendary"
+    }
+
+}

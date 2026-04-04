@@ -30,3 +30,8 @@ class Item(Moveable):
         return self.object
     
 
+class SquareItem(Item):
+    def __init__(self, pos, width, height, object, negative=False):
+        super().__init__(pos, width, height, object, negative)
+        print()
+

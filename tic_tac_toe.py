@@ -1,6 +1,6 @@
 import pygame
 from settings import *
-from bonus_case import *
+from bonus_squares import *
 from pygame import Vector2
 from player import Player
 from marker import Marker

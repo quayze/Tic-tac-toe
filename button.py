@@ -4,9 +4,11 @@ from functions import *
 
 
 class Button(Moveable):
-    def __init__(self, pos, width, height, color = (255, 255, 255), text = [''], text_size = 50):
+    def __init__(self, pos, width, height, color = (255, 255, 255), text = [], text_size = 50):
         super().__init__(pos, width, height)
+        self.active = True
         self.base_image = generate_nine_slice(width, height, color)
+        self.disable_image = generate_nine_slice(width, height, (120, 120, 120))
 
 
         self.texts = text
@@ -17,21 +19,45 @@ class Button(Moveable):
         self.active_image = self.image
         self.shadow.set_image(self.image)
 
-        self.active = True
+        
 
     def get_text_image(self):
         self.image = self.base_image.copy()
         
-
-        offset = self.text_size * 1.2
-        base_pos_y = self.image.get_height()//2 - len(self.texts) * get_text_dimensions(self.texts[0], self.text_size) + (len(self.texts)-1)*offset
-        for idx, text in enumerate(self.texts):
-            text_surface = get_text_surface(text, self.text_size)
-            text_rect = text_surface.get_rect(center = (self.image.get_width()//2, base_pos_y + offset * idx))
-            self.image.blit(text_surface, text_rect)
+        if self.texts != []:
+            offset = self.text_size * 1.2
+            base_pos_y = self.image.get_height()//2 - len(self.texts) * get_text_dimensions(self.texts[0], self.text_size) + (len(self.texts)-1)*offset
+            for idx, text in enumerate(self.texts):
+                text_surface = get_text_surface(text, self.text_size)
+                text_rect = text_surface.get_rect(center = (self.image.get_width()//2, base_pos_y + offset * idx))
+                self.image.blit(text_surface, text_rect)
+                self.disable_image.blit(text_surface, text_rect)
 
         self.hover_image = self.image.copy()
         self.hover_image.fill((170, 170, 170), special_flags= pygame.BLEND_RGBA_MULT)
+        
+        if not self.active:
+            self.active_image = self.disable_image
+        elif self.state == 'hover':
+           self.active_image = self.hover_image
+        else:
+            self.active_image = self.image
+    
+
+    def update_text(self, new_texts = []):
+        if new_texts == []:
+            return
+        texts = []
+        for idx, txt in enumerate(new_texts):
+            if txt == '.':
+                texts.append(self.texts[idx])
+            else:
+                texts.append(str(txt))
+        if self.texts == texts:
+            return
+        self.texts = texts
+        self.get_text_image()
+
 
 
 
@@ -81,7 +107,7 @@ class Button(Moveable):
 
     def desactivate(self):
         self.active = False
-        self.active_image = self.hover_image
+        self.active_image = self.disable_image
 
     def draw(self, screen):
         self.shadow.draw(screen)

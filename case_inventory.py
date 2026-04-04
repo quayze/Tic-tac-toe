@@ -1,5 +1,5 @@
 import pygame
-from case import Case
+from square import Square
 from item import *
 from item_area import *
 from table import Table

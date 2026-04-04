@@ -101,12 +101,11 @@ class Game:
 
 
         if pygame.mouse.get_pressed()[2]:
-            surf = pygame.Surface((10, 10), pygame.SRCALPHA).convert_alpha()
-            surf.fill((0, 0, 0, 255))
+            surf = get_marker('cross')
             self.add_effect(
                 FallEffect(
-                    self.mouse_pos, amount= 1, surface= surf, scale_range= (PIXEL_SIZE, PIXEL_SIZE),
-                    speed_range= (800, 1300), angle_offset= 30
+                    self.mouse_pos, amount= 20, surface= surf, scale_range= (3, 3),
+                    speed_range= (800, 1800), angle_offset= 30, angle_range= (-180, 180)
                 )
             )
             

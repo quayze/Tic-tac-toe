@@ -44,12 +44,10 @@ class Effect(Drawable):
 class SoundEffect(Effect):
     def __init__(self, delay=0, sound_path = None):
         super().__init__((0,0), delay, sound_path, 0)
-        self.sound = pygame.mixer.Sound()
 
     def start(self, game):
         self.starting = True
-        game.add_object(self)
-        self.play_audio()
+        self.play_audio(game)
 
     def update(self, dt):
         if not super().update(dt):

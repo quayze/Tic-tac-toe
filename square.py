@@ -4,16 +4,29 @@ from marker import Marker
 from pygame import Vector2
 from functions import * 
 
-class Case:
+class Square:
     def __init__(self, pos = (0, 0)):
         self.pos = Vector2(pos)
         self.surface = pygame.Surface((PIXEL_SIZE * CaseConfig.CASE_SIZE, PIXEL_SIZE * CaseConfig.CASE_SIZE), pygame.SRCALPHA).convert_alpha()
         self.rect = self.surface.get_rect(center = pos)
         self.marker = None
-
-        #----
+        
+        #-----------------------------------
+        # interaction attributes
+        #-----------------------------------
         self.blueprint = True
         self.counting = True
+        #-----------------------------------
+        # data
+        #-----------------------------------
+        data = get_square_data(type(self).__name__)
+        self.name = data['name']
+        self.description = data['description']
+        self.rarity = data['rarity']
+        print(self.name,
+        self.description,
+        self.rarity)
+
 
     def place_marker(self, marker : Marker):
         if marker is None : return
