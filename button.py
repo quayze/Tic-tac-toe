@@ -69,7 +69,7 @@ class Button(Moveable):
             return
         mouse_but = pygame.mouse.get_pressed()
 
-        if mouse_but[0] and not self.rect.collidepoint(mouse_pos):
+        if mouse_but[0] and not self.rect.collidepoint(mouse_pos) and not self.state == 'on_mouse':
             self.hold = True
 
         elif not mouse_but[0]:
@@ -77,6 +77,9 @@ class Button(Moveable):
 
         if self.hold:
             return
+        
+
+
 
         if self.rect.collidepoint(mouse_pos) and not self.state == 'on_mouse':
             self.active_image = self.hover_image
@@ -93,9 +96,11 @@ class Button(Moveable):
                 self.on_release()
 
         if not self.rect.collidepoint(mouse_pos) and self.state == 'on_mouse':
-            print('yes')
             self.state = 'idle'
             self.rect.center = self.pos
+            self.active_image = self.image
+
+
             
 
         if not self.rect.collidepoint(mouse_pos) and self.state == 'hover':

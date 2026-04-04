@@ -112,9 +112,10 @@ class Shop(Drawable):
         self.case_area.update(dt)
     
     def handle_mouse(self, mouse_pos):
+        self.case_area.handle_mouse(mouse_pos)
         self.reroll_but.handle_mouse(mouse_pos)
         self.close_but.handle_mouse(mouse_pos)
-        self.case_area.handle_mouse(mouse_pos)
+        
 
     def draw(self, screen):
         screen.blit(self.surface, self.rect)

@@ -34,10 +34,10 @@ class Item(Moveable):
 class SquareItem(Item):
     def __init__(self, pos, width, height, object, negative=False):
         super().__init__(pos, width, height, object, negative)
-        print(self.object.name,
-        self.object.description,
-        self.object.rarity)
-        self.popup = PopUp(self, 'heights')
+        self.popup = PopUp(self, 'top')
+        self.popup.add_title(self.object.name)
+        self.popup.add_text(self.object.description)
+        self.popup.add_text(self.object.rarity.upper(), (255, 255, 0))
 
     def handle_mouse(self, mouse_pos):
         self.popup.handle_mouse(mouse_pos)
@@ -45,7 +45,8 @@ class SquareItem(Item):
     
     def draw(self, screen):
         super().draw(screen)
-        self.popup.draw(screen)
+        if self.state == 'hover':
+            self.popup.draw(screen)
     
     def update(self, dt):
         self.popup.update(dt)

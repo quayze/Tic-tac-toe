@@ -22,7 +22,9 @@ class CaseConfig:
     }
 
 class NineSliceConfig:
-    CORNER_IMAGE = 'assets/textures/corner.png'
+    CORNER_IMAGE = 'assets/textures/nineSlice/corner.png'
+    EMPTY_CORNER = 'assets/textures/nineSlice/emptyCorner.png'
+    PIXEL_SIZE = 6
 
 class TableConfig:
     OFFSET = 20
@@ -48,6 +50,10 @@ class InterfacesConfig:
 
 class ItemConfig:
     ITEM_SIZE = 100
+
+class PopupConfig:
+    TEXT_SIZE = 30
+    TITLE_SIZE = 60
 
 
 class ColorThemes:

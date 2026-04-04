@@ -6,8 +6,8 @@
     },
     "DefaultSquare": {
         "name": "Default Square", 
-        "description": "Stores markers", "rarity": 
-        "null"
+        "description": "Stores markers", 
+        "rarity": "null"
     },
     "ReplaceableSquare" : {
         "name": "Replaceable Square", 
@@ -108,7 +108,7 @@
     }, 
     "LuckySquare" : {
         "name": "Lucky Square", 
-        "description": "50% chance to give a legendary square, else gives a rare square. 50% chance to receive this square as a negative item at the end of the round", 
+        "description": "50% chance to give a legendary square. 50% chance to receive this square as a negative item at the end of the round", 
         "rarity": "legendary"
     }
 

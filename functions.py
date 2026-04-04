@@ -47,10 +47,13 @@ def get_font(size):
     return font_cache[size]
 
 
-def generate_nine_slice(width = 0, height = 0, color = (255, 255, 255), pixel_size = 6):
+def generate_nine_slice(width = 0, height = 0, color = (255, 255, 255), pixel_size = NineSliceConfig.PIXEL_SIZE, center_color = None, center_alpha = 255):
 
-    corner = load_image('nine_slice_corner', NineSliceConfig.CORNER_IMAGE)
+    center_color = color if center_color is None else center_color
+
+    corner = load_image('empty_nine_slice_corner', NineSliceConfig.EMPTY_CORNER)
     corner = resize(corner, pixel_size)
+    corner.fill(color, special_flags= pygame.BLEND_RGBA_MULT)
 
     corner_width = corner.get_width()
     corner_height = corner.get_height()
@@ -59,6 +62,11 @@ def generate_nine_slice(width = 0, height = 0, color = (255, 255, 255), pixel_si
     if height < corner_height * 2:
         height = corner_height * 2
     surface = pygame.Surface((width, height), pygame.SRCALPHA)
+
+    center_piece = pygame.Surface((width - pixel_size*4, height - pixel_size*4), pygame.SRCALPHA).convert_alpha()
+    center_piece.fill(center_color)
+    center_piece.set_alpha(center_alpha)
+    surface.blit(center_piece, (pixel_size*2, pixel_size*2))
     
 
     surface.blit(corner, (0,0))
@@ -67,22 +75,14 @@ def generate_nine_slice(width = 0, height = 0, color = (255, 255, 255), pixel_si
     surface.blit(pygame.transform.flip(corner, True, True), (width - corner_width, height - corner_height))
 
 
-    horizontal_edge = pygame.Surface((width - corner_width*2, corner_height)).convert()
-    horizontal_edge.fill((255, 255, 255))
-    vertical_edge = pygame.Surface((corner_width, height - corner_height*2)).convert()
-    vertical_edge.fill((255, 255, 255))
-
-
+    horizontal_edge = pygame.Surface((width - corner_width*2, 2*pixel_size)).convert()
+    horizontal_edge.fill(color)
+    vertical_edge = pygame.Surface((2 * pixel_size, height - corner_height*2)).convert()
+    vertical_edge.fill(color)
     surface.blit(horizontal_edge , (corner_width, 0))
-    surface.blit(horizontal_edge, (corner_width, height - corner_height))
+    surface.blit(horizontal_edge, (corner_width, height - 2*pixel_size))
     surface.blit(vertical_edge, (0, corner_height))
-    surface.blit(vertical_edge, (width - corner_width, corner_height))
-    
-    center_piece = pygame.Surface((width - corner_width*2, height - corner_height*2)).convert()
-    center_piece.fill((255, 255, 255))
-    surface.blit(center_piece, (corner_width, corner_height))
-
-    surface.fill(color, special_flags= pygame.BLEND_RGBA_MULT)
+    surface.blit(vertical_edge, (width - 2*pixel_size, corner_height))
 
     return surface
 
@@ -163,3 +163,36 @@ def get_all_squares_data():
         with open('data/squares_data.json', 'r') as f:
             squares_data = json.load(f)
     return squares_data
+
+
+def get_warp_text(text : str, size, width, color = (255, 255, 255)):
+    final_surfaces = []
+
+
+    elements = text.split(' ')
+    offset = 10
+    height = 0
+    current_string = ''
+    for txt in elements:
+        test_string = current_string + txt + ' '
+        if get_text_dimensions(test_string, size, 'width') > width:
+            txt_surf = get_text_surface(current_string.strip(), size, color)
+            txt_rect = txt_surf.get_rect(midtop = (width//2, height))
+            final_surfaces.append([txt_surf, txt_rect])
+            height += txt_rect.height + offset
+            current_string = txt + ' '
+        else:
+           current_string = test_string
+
+    txt_surf = get_text_surface(current_string.strip(), size, color)
+    txt_rect = txt_surf.get_rect(midtop = (width//2, height))
+    final_surfaces.append([txt_surf, txt_rect])
+    height += txt_rect.height
+
+    surface = pygame.Surface((width, height), pygame.SRCALPHA).convert_alpha()
+    for text_info in final_surfaces:
+        surface.blit(text_info[0], text_info[1])
+
+    return surface
+
+    
