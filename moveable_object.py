@@ -42,24 +42,21 @@ class Moveable(Drawable):
 
         if self.rect.collidepoint(mouse_pos) and not self.state == 'on_mouse':
             self.state = 'hover'
+            self.hover_trigger()
 
         if mouse_but[0] and self.state == 'hover':
-            self.offset = Vector2(mouse_pos) - self.pos
-            self.z = 100
-            self.shadow.set_offset("strong")
             self.state = 'on_mouse'
+            self.offset = Vector2(mouse_pos) - self.pos
+            self.on_mouse_trigger()
 
         if not mouse_but[0] and self.state == 'on_mouse':
             self.state = 'hover'
-            self.z = 20
-            self.shadow.set_offset()
-            self.get_direction_to_anchor()
-            if self.on_release:
-                self.on_release()
+            self.on_realease_trigger()
             
-
+            
         if not self.rect.collidepoint(mouse_pos) and self.state == 'hover':
             self.state = 'idle'
+            self.not_hovering_trigger()
 
     def get_direction_to_anchor(self):
         if self.anchor is None:
@@ -116,4 +113,24 @@ class Moveable(Drawable):
     
     def get_anchor(self):
         return self.anchor
+    
+
+    # triggers, can be used by child classes
+
+    def on_mouse_trigger(self):
+        self.z = 100
+        self.shadow.set_offset("strong")
+
+    def on_realease_trigger(self):
+        self.z = 20
+        self.shadow.set_offset()
+        self.get_direction_to_anchor()
+        if self.on_release:
+            self.on_release()
+
+    def hover_trigger(self):
+        pass
+
+    def not_hovering_trigger(self):
+        pass
     

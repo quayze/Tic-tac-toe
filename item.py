@@ -37,16 +37,23 @@ class SquareItem(Item):
         self.popup = PopUp(self, 'top')
         self.popup.add_title(self.object.name)
         self.popup.add_text(self.object.description)
-        self.popup.add_text(self.object.rarity.upper(), (255, 255, 0))
+        self.popup.add_text(self.object.rarity.upper(), SquareConfig.RARITY_COLORS[self.object.rarity])
 
-    def handle_mouse(self, mouse_pos):
-        self.popup.handle_mouse(mouse_pos)
-        return super().handle_mouse(mouse_pos)
+    def hover_trigger(self):
+        super().hover_trigger()
+        self.popup.open()
+
+    def not_hovering_trigger(self):
+        super().not_hovering_trigger()
+        self.popup.close()
+
+    def on_mouse_trigger(self):
+        super().on_mouse_trigger()
+        self.popup.close()
     
     def draw(self, screen):
         super().draw(screen)
-        if self.state == 'hover':
-            self.popup.draw(screen)
+        self.popup.draw(screen)
     
     def update(self, dt):
         self.popup.update(dt)

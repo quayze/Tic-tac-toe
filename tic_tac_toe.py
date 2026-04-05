@@ -26,10 +26,7 @@ class TicTacToe:
         self.state = 'playing'  # 'playing', 'win', 'draw'
         self.winner = None
 
-        self.turns_left = 0
-        self.start_turn()
-
-    def reset(self):
+    def start_playing(self):
         self.state = 'playing' 
         self.winner = None
         self.turns_left = 0

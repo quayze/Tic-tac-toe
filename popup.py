@@ -6,8 +6,7 @@ from pygame import Vector2
 class PopUp:
     def __init__(self, object, alignment = 'top', width = 500):
         self.object = object
-        self.render = True
-        self.active = False
+        self.render = False
         self.alignment = alignment
         self.center = Vector2(WIDTH//2, HEIGHT //2)
         self.offset = 20
@@ -26,9 +25,10 @@ class PopUp:
         self.elements : list[PopupElement] = []
 
 
-    def start_rendering(self):
+    def open(self):
         self.render = True
-    def stop_rendering(self):
+
+    def close(self):
         self.render = False
 
     def update_surface(self):
@@ -97,14 +97,8 @@ class PopUp:
             self.update_pos()
             self.object_pos = self.object.rect.center
 
-    def handle_mouse(self, mouse_pos):
-        if self.object.rect.collidepoint(mouse_pos):
-            self.active = True
-        elif self.active:
-            self.active = False
-
     def draw(self, screen):
-        if not self.active or not self.render:
+        if not self.render:
             return
         self.surface.fill((0, 0, 0, 0))
         self.surface.blit(self.image, (0, 0))

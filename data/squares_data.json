@@ -46,7 +46,7 @@
     }, 
     "InterestSquare" : {
         "name": "Interest Square", 
-        "description": "Gives 10% of total money if a marker is placed on it at the end of the roundccc", 
+        "description": "Gives 10% of total money if a marker is placed on it at the end of the round", 
         "rarity": "common"
     },         
     "ItemSquare" : {
@@ -61,7 +61,7 @@
     },
     "ChainSquare" : {
         "name": "Chain Square", 
-        "description": "Links to one player, who will be the only one able to place markers on i", 
+        "description": "Links to one player, who will be the only one able to place markers on it", 
         "rarity": "null"
     },
     "RandomSquare" : {
@@ -79,6 +79,8 @@
         "description": "Can't store markers", 
         "rarity": "null"
     },
+
+
               
     "BluePrintSquare" : {
         "name": "Blueprint Square", 
@@ -95,6 +97,8 @@
         "description": "Explodes, destroying itself and all surrounding squares", 
         "rarity": "rare"
     },   
+    
+
 
     "DiamondSquare" : {
         "name": "Diamond Square", 

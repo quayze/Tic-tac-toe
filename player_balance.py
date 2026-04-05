@@ -2,6 +2,7 @@ import pygame
 from settings import *
 from functions import *
 from player import Player
+from text import *
 
 class PlayerBalance:
     def __init__(self, player : Player, pos):
@@ -26,14 +27,14 @@ class PlayerBalance:
     def update_text(self):
         self.current_balance = self.player.get_balance()
         self.money_text = f'{self.current_balance}'
-        self.money_surface = get_text_surface(self.money_text, size= 100, color= (255, 255, 255))
-        self.money_rect = self.money_surface.get_rect(center = self.text_pos)
+        self.text = AnimText(self.money_text, 100, self.text_pos)
 
     def update(self, dt):
+        self.text.update(dt)
         if self.current_balance != self.player.get_balance():
             self.update_text()
 
     
     def draw(self, screen):
         screen.blit(self.surface, self.rect)
-        screen.blit(self.money_surface, self.money_rect)
+        self.text.draw(screen)

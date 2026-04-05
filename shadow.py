@@ -33,6 +33,8 @@ class Shadow:
             self.pos = pos_x + offset_x * 0.2 , pos_y + 60
         elif self.offset == 'minimal':
             self.pos = pos_x + offset_x * 0.01 , pos_y + 10
+        elif self.offset == 'bottom':
+            self.pos = pos_x , pos_y + 10
 
         self.image_pos()
 

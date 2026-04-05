@@ -72,6 +72,7 @@ class Game:
         self.tic_tac_toe = TicTacToe(self.session, self)
         self.shop = Shop(self.session, self)
         self.inventories = self.session.inventories.values()
+        self.tic_tac_toe.start_playing()
         self.state = 'play'
 
     def next_phase(self):
@@ -81,7 +82,7 @@ class Game:
 
         elif self.state == 'shop':
             self.state = 'play'
-            self.tic_tac_toe.reset()
+            self.tic_tac_toe.start_playing()
         
 
 

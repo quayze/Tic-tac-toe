@@ -10,13 +10,17 @@ from effect import *
 import importlib
 
 
-def generate_random_case():
+#----------------------------------------------
+# RANDOM GENERATION
+#----------------------------------------------
+
+def generate_random_square():
     data : dict = get_all_squares_data()
     classes, weights = [], []
     module = importlib.import_module('bonus_squares')
 
     for class_name, info in data.items():
-        weight = CaseConfig.RARITY_WEIGHTS.get(info['rarity'], 0)
+        weight = SquareConfig.RARITY_WEIGHTS.get(info['rarity'], 0)
         if weight != 0:
             cls = getattr(module, class_name, None)
             if cls is not None:
@@ -27,10 +31,26 @@ def generate_random_case():
 
     return square_type()
 
+def square_random_rarity(rarity = 'common'):
+    data : dict = get_all_squares_data()
+    classes = []
+    module = importlib.import_module('bonus_squares')
+
+    for class_name, info in data.items():
+        curr_rarity = info['rarity']
+        if curr_rarity == rarity:
+            cls = getattr(module, class_name, None)
+            if cls is not None:
+                classes.append(cls)
+    
+    square_type = random.choices(classes)[0]
+
+    return square_type()
+
 
 
 #----------------------------------------------
-# DEFAULT SQUARES
+# DEFAULT SQUARE
 #----------------------------------------------
 
 class DefaultSquare(Square):
@@ -327,7 +347,7 @@ class ItemSquare(Square):
         if context.marker_placed:
             current_player = context.player
             inventory = context.game_session.get_inventory(current_player)
-            item = SquareItem(self.pos, ItemConfig.ITEM_SIZE, ItemConfig.ITEM_SIZE, object= generate_random_case())
+            item = SquareItem(self.pos, ItemConfig.ITEM_SIZE, ItemConfig.ITEM_SIZE, object= generate_random_square())
             if inventory.can_add_item():
                 inventory.add_item(item)
         return context
@@ -590,8 +610,11 @@ class LuckySquare(Square):
         if context.marker_placed:
             current_player = context.player
             inventory = context.game_session.get_inventory(current_player)
-            item = Item(self.pos, ItemConfig.ITEM_SIZE, ItemConfig.ITEM_SIZE, object= generate_random_case())
+
+            rarity = random.choices(['rare', 'legendary'])[0]
+            
             if inventory.can_add_item():
+                item = SquareItem(self.pos, ItemConfig.ITEM_SIZE, ItemConfig.ITEM_SIZE, object= square_random_rarity(rarity))
                 inventory.add_item(item)
 
         elif context.end_round:
@@ -600,7 +623,7 @@ class LuckySquare(Square):
                 current_player = self.get_owner()
                 if current_player is not None:
                     inventory = context.game_session.get_inventory(current_player)
-                    item = Item(self.pos, ItemConfig.ITEM_SIZE, ItemConfig.ITEM_SIZE, object= type(self)() , negative= True)
+                    item = SquareItem(self.pos, ItemConfig.ITEM_SIZE, ItemConfig.ITEM_SIZE, object= type(self)() , negative= True)
                     inventory.add_item(item)
 
         return context

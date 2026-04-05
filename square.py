@@ -7,7 +7,7 @@ from functions import *
 class Square:
     def __init__(self, pos = (0, 0)):
         self.pos = Vector2(pos)
-        self.surface = pygame.Surface((PIXEL_SIZE * CaseConfig.CASE_SIZE, PIXEL_SIZE * CaseConfig.CASE_SIZE), pygame.SRCALPHA).convert_alpha()
+        self.surface = pygame.Surface((PIXEL_SIZE * SquareConfig.CASE_SIZE, PIXEL_SIZE * SquareConfig.CASE_SIZE), pygame.SRCALPHA).convert_alpha()
         self.rect = self.surface.get_rect(center = pos)
         self.marker = None
         
@@ -34,8 +34,8 @@ class Square:
         self.marker.set_shadow(False)
 
     def get_image(self, frame_x = 0, frame_y = 0):
-        sprite_sheet = load_image('cases', CaseConfig.CASE_SHEET)
-        image = get_image(sprite_sheet, CaseConfig.CASE_SIZE, CaseConfig.CASE_SIZE, frame_x, frame_y)
+        sprite_sheet = load_image('cases', SquareConfig.CASE_SHEET)
+        image = get_image(sprite_sheet, SquareConfig.CASE_SIZE, SquareConfig.CASE_SIZE, frame_x, frame_y)
         self.image = image
 
     def blit_image(self):

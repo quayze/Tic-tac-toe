@@ -11,7 +11,7 @@ class MarkerConfig:
     MARKERS_SHEET = 'assets/textures/markers.png'
     MARKERS_TYPE = ['cross', 'round']
 
-class CaseConfig:
+class SquareConfig:
     CASE_SHEET = 'assets/textures/cases.png'
     CASE_SIZE = 19
     RARITY_WEIGHTS = {
@@ -19,6 +19,12 @@ class CaseConfig:
         'rare' : 20,
         'legendary' : 5,
         'null' : 0
+    }
+    RARITY_COLORS = {
+        'common' : (0, 100, 255),
+        'rare' : (255, 0, 0),
+        'legendary' : (255, 150, 0),
+        'null' : (0, 0, 0)
     }
 
 class NineSliceConfig:

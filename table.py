@@ -15,7 +15,6 @@ class Table(Drawable):
         self.game = game
         self.game.add_object(self)
         self.cases_list = []
-        self.reset_cases()
 
     
     

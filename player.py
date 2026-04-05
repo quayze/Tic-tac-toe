@@ -3,7 +3,7 @@ class Player:
         self.name = name
         self.marker_type = markers_type
         self.color_theme = color_theme
-        self.balance = 20
+        self.balance = 200
 
     def pay(self, amount : int):
         self.balance += amount
