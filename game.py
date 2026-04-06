@@ -143,3 +143,6 @@ class Game:
 
     def play_sound(self, sound_path):
         self.sound_manager.play(sound_path)
+
+    def effects_finished(self):
+        return self.effects_manager.effects == [] and self.effects_manager.waiting_effects == []

@@ -16,18 +16,23 @@ class PlayerBalance:
         self.surface = generate_nine_slice(InterfacesConfig.PLAYER_BALANCE_WIDTH, InterfacesConfig.PLAYER_INV_HEIGHT, get_color('money_ui', color_theme))
         self.rect = self.surface.get_rect(center = pos)
 
+        
+
         screen_center = HEIGHT//2
         if self.pos[1] < screen_center:
             self.text_pos = self.pos[0], self.rect.bottom - 80
         else:
             self.text_pos = self.pos[0], self.rect.top + 80
 
+        self.text = AnimText('0', 100, self.text_pos)
+
         self.update_text()
 
     def update_text(self):
         self.current_balance = self.player.get_balance()
         self.money_text = f'{self.current_balance}'
-        self.text = AnimText(self.money_text, 100, self.text_pos)
+        self.text.change_text(self.money_text)
+        self.text.start()
 
     def update(self, dt):
         self.text.update(dt)

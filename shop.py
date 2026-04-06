@@ -10,6 +10,7 @@ from item_area import *
 from bonus_squares import *
 from player import *
 from effect import *
+from interact_box import *
 
 class Shop(Drawable):
     def __init__(self, game_session : GameSession, game):
@@ -30,30 +31,33 @@ class Shop(Drawable):
         self.case_area = ItemArea(600, self.center, self.game, max_items= 5)
         self.max_cases = 5
 
-        #pay_items
-        p1_cases_size = self.session.get_inventory(self.player1).case_inventory.get_size()
-        p1_cases_pos = self.session.get_inventory(self.player1).case_inventory.get_pos()
-        p1_pay_surface = pygame.rect.Rect((0, 0, * p1_cases_size))
-        p1_pay_surface.center = p1_cases_pos
 
-        p2_cases_size = self.session.get_inventory(self.player2).case_inventory.get_size()
-        p2_cases_pos = self.session.get_inventory(self.player2).case_inventory.get_pos()
-        p2_pay_surface = pygame.rect.Rect((0, 0, * p2_cases_size))
-        p2_pay_surface.center = p2_cases_pos
         
-        self.pay_surfaces = {self.player1 : p1_pay_surface,
-                             self.player2 : p2_pay_surface
+        self.pay_surfaces = {self.player1 : self.session.get_square_pay_surface(self.player1),
+                             self.player2 : self.session.get_square_pay_surface(self.player2)
                              }
+        
 
+    def _enable_pay_box(self):
+        current_item = self.case_area.get_selected()
+        self.pay_surfaces[self.player_active].update_text(f'BUY {current_item.price}')
+        self.pay_surfaces[self.player_active].activate()
 
     def _pay_item(self):
         current_item = self.case_area.get_selected()
-        if self.pay_surfaces[self.player_active].colliderect(current_item.get_rect()):
+        price = current_item.price
+        self.pay_surfaces[self.player_active].desactivate()
+
+        if self.pay_surfaces[self.player_active].collision(current_item.rect):
             inventory = self.session.get_inventory(self.player_active)
             if inventory.can_add_item():
-                self.case_area.transfer()
-                inventory.add_item(current_item)
-                inventory.delete_callbacks()
+                if self.player_active.get_balance() >= price:
+                    self.player_active.lose_money(price)
+                    self.case_area.transfer()
+                    inventory.add_item(current_item)
+                    inventory.delete_callbacks()
+
+            self.activate_reroll()
 
     def _reroll_shop(self):
         if self.player_active.get_balance() >= self.reroll_price:
@@ -94,7 +98,8 @@ class Shop(Drawable):
     def activate_reroll(self):
         if self.player_active.get_balance() >= self.reroll_price:
             self.reroll_but.activate() 
-            self.reroll_but.on_release = self._reroll_shop
+            if self.reroll_but.on_release is None:
+                self.reroll_but.on_release = self._reroll_shop
         else:
             self.reroll_but.desactivate()
 
@@ -105,6 +110,7 @@ class Shop(Drawable):
             case = generate_random_square()
             item = SquareItem(self.center + Vector2(i, 0), width= 100, height= 100, object= case)
             item.on_release = self._pay_item
+            item.on_click = self._enable_pay_box
             self.case_area.add_item(item)
 
 
@@ -121,4 +127,3 @@ class Shop(Drawable):
         screen.blit(self.surface, self.rect)
         self.reroll_but.draw(screen)
         self.close_but.draw(screen)
-

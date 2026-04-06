@@ -122,11 +122,10 @@ class TicTacToe:
             player.pay(gain)
         for player, lost in context.losts.items():
             player.lose_money(lost)
-
-        print(self.turns_left)
+        
 
         if self.turns_left == 0:
-            self.game.next_phase()
+            self.state = 'ending'
             self.table.destroy()
             return
         
@@ -145,6 +144,26 @@ class TicTacToe:
 
     def update(self, dt):
         self.table.update(dt)
+
+        if self.state == 'playing':
+            pass
+        elif self.state == 'win':
+            self.update_win(dt)
+        elif self.state == 'draw':
+            self.update_draw(dt)
+        elif self.state == 'ending':
+            self.update_ending(dt)
+
+    def update_win(self):
+        return
+    
+    def update_draw(self):
+        return
+
+    def update_ending(self, dt):
+        if self.game.effects_finished():
+            self.game.next_phase()
+            
 
 
 

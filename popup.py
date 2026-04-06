@@ -4,7 +4,7 @@ from functions import *
 from pygame import Vector2
 
 class PopUp:
-    def __init__(self, object, alignment = 'top', width = 500):
+    def __init__(self, object, alignment = 'sides', width = 500):
         self.object = object
         self.render = False
         self.alignment = alignment
@@ -41,19 +41,33 @@ class PopUp:
 
     def update_pos(self):
         obj_rect : pygame.Rect = self.object.rect
-        if self.alignment == 'left':
-            self.rect.midright = Vector2(obj_rect.midleft) + Vector2(-self.offset, 0)
-        elif self.alignment == 'right':
-            self.rect.midleft = Vector2(obj_rect.midright) + Vector2(self.offset, 0) 
+        if self.alignment == 'sides':
+            if obj_rect.centerx >= self.center.x:
+                self.rect.midright = Vector2(obj_rect.midleft) + Vector2(-self.offset, 0)
+            else:
+                self.rect.midleft = Vector2(obj_rect.midright) + Vector2(self.offset, 0) 
 
         elif self.alignment == 'top':
-            self.rect.midbottom = Vector2(obj_rect.midtop) + Vector2(0, -self.offset)
-        elif self.alignment == 'bottom':
-            self.rect.midtop = Vector2(obj_rect.midbottom) + Vector2(0, self.offset)
+            if obj_rect.centery >= self.center.y:
+                self.rect.midbottom = Vector2(obj_rect.midtop) + Vector2(0, -self.offset)
+            else :
+                self.rect.midtop = Vector2(obj_rect.midbottom) + Vector2(0, self.offset)
 
-    def add_text(self, text, bg_color = (255, 255, 255)):
+        if self.rect.right > WIDTH:
+            self.rect.right = WIDTH - 10
+
+        if self.rect.left < 0:
+            self.rect.left = 10
+
+        if self.rect.top < 0:
+            self.rect.top = 10
+        
+        if self.rect.bottom > HEIGHT:
+            self.rect.bottom = HEIGHT - 10
+
+    def add_text(self, text, bg_color = (255, 255, 255), text_color = (0, 0, 0)):
         element = PopupText(self.center_width, 
-                                       mid_pos= (self.get_next_pos()), text=text, bg_color = bg_color)
+                                       mid_pos= (self.get_next_pos()), text=text, bg_color = bg_color, text_color= text_color)
         self.elements.append(element)
 
         self.set_height(element)
@@ -106,6 +120,10 @@ class PopUp:
             element.draw(self.surface)
         screen.blit(self.surface, self.rect)
 
+    def change_alignment(self, alignment = 'top'):
+        self.alignment = alignment
+        self.update_pos()
+
 
 class PopupElement:
     def __init__(self, popup_width, mid_pos, surface):
@@ -123,11 +141,11 @@ class PopupElement:
         self.rect.midtop = pos
 
 class PopupText(PopupElement):
-    def __init__(self, popup_width, mid_pos, text, bg_color = (255, 255, 255)):
+    def __init__(self, popup_width, mid_pos, text, bg_color = (255, 255, 255), text_color = (0, 0, 0)):
         
         width = popup_width - 20
         offset = 10
-        text_surface = get_warp_text(text, PopupConfig.TEXT_SIZE, width, (0, 0, 0))
+        text_surface = get_warp_text(text, PopupConfig.TEXT_SIZE, width, text_color)
         text_rect = text_surface.get_rect(midtop = (width//2, offset))
         surface = generate_nine_slice(width, text_surface.get_height()+ offset*2, pixel_size= 3, color= bg_color)
         surface.blit(text_surface, text_rect)

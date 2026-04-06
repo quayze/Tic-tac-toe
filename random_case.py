@@ -1,6 +1,6 @@
 import random
 from bonus_squares import *
-def get_random_case(pos):
+def get_random_case1(pos):
     square = random.choices([ReplaySquare, KillSquare, SideSquare, ReplaceableSquare ,
                            DefaultSquare, DivisionSquare, BurningSquare, MoneySquare, 
                            InterestSquare, DeathSquare, ItemSquare, JailSquare, CreeperSquare, RandomSquare,
@@ -11,5 +11,5 @@ def get_random_case1(pos):
     case = random.choices([KillSquare, DefaultSquare])[0]
     return case(pos)
 
-def get_random_case1(pos):
+def get_random_case(pos):
     return DefaultSquare(pos)

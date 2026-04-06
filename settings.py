@@ -14,6 +14,7 @@ class MarkerConfig:
 class SquareConfig:
     CASE_SHEET = 'assets/textures/cases.png'
     CASE_SIZE = 19
+    # RARITY SETTINGS
     RARITY_WEIGHTS = {
         'common' : 60,
         'rare' : 20,
@@ -25,6 +26,18 @@ class SquareConfig:
         'rare' : (255, 0, 0),
         'legendary' : (255, 150, 0),
         'null' : (0, 0, 0)
+    }
+    BUY_PRICE = {
+        'common' : 5,
+        'rare' : 10,
+        'legendary' : 25,
+        'null' : 0
+    }
+    SELL_PRICE = {
+        'common' : 2,
+        'rare' : 5,
+        'legendary' : 15,
+        'null' : 0
     }
 
 class NineSliceConfig:

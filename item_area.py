@@ -116,9 +116,12 @@ class ItemArea:
             item.update(dt)
         self.check_anchors()
     
-    def set_callback(self, callback):
+    def set_callback(self, callback, type = 'on_release'):
         for item in self.items_inventory:
-            item.on_release = callback
+            if type == 'on_release':
+                item.on_release = callback
+            elif type == 'on_click':
+                item.on_click = callback
 
     def get_selected(self):
         return self.selected_object
@@ -137,6 +140,7 @@ class ItemArea:
     def delete_callback(self):
         for item in self.items_inventory:
             item.on_release = None
+            item.on_click = None
 
     def clear(self):
         for item in self.items_inventory:

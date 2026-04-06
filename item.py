@@ -37,7 +37,11 @@ class SquareItem(Item):
         self.popup = PopUp(self, 'top')
         self.popup.add_title(self.object.name)
         self.popup.add_text(self.object.description)
-        self.popup.add_text(self.object.rarity.upper(), SquareConfig.RARITY_COLORS[self.object.rarity])
+        self.popup.add_text(self.object.rarity.upper(), SquareConfig.RARITY_COLORS[self.object.rarity], (255, 255, 255))
+        self.price = SquareConfig.BUY_PRICE[self.object.rarity]
+        self.sell_price = SquareConfig.SELL_PRICE[self.object.rarity]
+
+
 
     def hover_trigger(self):
         super().hover_trigger()

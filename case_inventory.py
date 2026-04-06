@@ -23,7 +23,7 @@ class CaseInventory(ItemArea):
         self.table = None
 
     def get_pos(self):
-        return self.pos
+        return self.bg_rect.center
     
     def get_size(self):
         return self.bg_surface.get_size()

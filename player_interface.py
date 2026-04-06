@@ -6,6 +6,7 @@ from player_balance import PlayerBalance
 from case_inventory import CaseInventory
 from item import *
 from drawable import *
+from interact_box import *
 
 class PlayerInventory(Drawable):
     def __init__(self, player, game,  pos = 'bottom'):
@@ -28,7 +29,18 @@ class PlayerInventory(Drawable):
         self.player_balance = PlayerBalance(self.player, (self.center_x + 500*self.x_offset, self.pos_y))
         self.case_inventory = CaseInventory(self.player, (self.center_x - 500*self.x_offset, self.pos_y), self.game)
 
+        self.init_pay_interface()
+
         self.game.add_object(self)
+
+    def init_pay_interface(self):
+        case_inventory_size = self.case_inventory.get_size()
+        case_inv_pos = self.case_inventory.get_pos()
+        items_pos = self.case_inventory.items_pos
+        self.pay_square_surface = InteractiveBox(case_inventory_size[0], case_inventory_size[1], case_inv_pos, color= (0, 255, 0), 
+                                        alpha= 150, text= 'BUY', text_pos= items_pos)
+        self.game.add_object(self.pay_square_surface)
+        
 
     def handle_mouse(self, mouse_pos):
         self.marker_container.handle_mouse(mouse_pos)
@@ -89,3 +101,6 @@ class GameSession:
 
     def get_inventory(self, player):
         return self.inventories[player]
+    
+    def get_square_pay_surface(self, player):
+        return self.inventories[player].pay_square_surface

@@ -18,12 +18,14 @@ class Moveable(Drawable):
 
         self.state = 'idle' #idle, hover, on_mouse
 
-        self.on_release = None
-
-        
-
         self.shadow = Shadow(self.pos)
         self.handle_shadow = True
+
+        #----------------------
+        # CALLBACKS
+        #----------------------
+        self.on_release = None
+        self.on_click = None
 
     def handle_mouse(self, mouse_pos):
         if not self.can_move:
@@ -120,6 +122,8 @@ class Moveable(Drawable):
     def on_mouse_trigger(self):
         self.z = 100
         self.shadow.set_offset("strong")
+        if self.on_click:
+            self.on_click()
 
     def on_realease_trigger(self):
         self.z = 20
