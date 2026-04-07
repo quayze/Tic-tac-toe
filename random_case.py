@@ -8,8 +8,8 @@ def get_random_case1(pos):
     return square(pos)
 
 def get_random_case(pos):
-    case = random.choices([ModifySideSquare, DefaultSquare])[0]
+    case = random.choices([CreeperSquare, RandomSquare])[0]
     return case(pos)
 
-def get_random_case(pos):
+def get_random_case1(pos):
     return DefaultSquare(pos)

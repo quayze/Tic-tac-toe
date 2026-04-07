@@ -25,6 +25,9 @@ class Game:
         self.new_run()
 
 
+        self.temp = False
+
+
     def run(self):
 
         self.start_time = pygame.time.get_ticks()
@@ -101,14 +104,15 @@ class Game:
 
 
 
-        if pygame.mouse.get_pressed()[2]:
+        if pygame.mouse.get_pressed()[2] and not self.temp:
+            self.temp = True
             surf = get_marker('cross')
             self.add_effect(
-                FallEffect(
-                    self.mouse_pos, amount= 20, surface= surf, scale_range= (3, 3),
-                    speed_range= (800, 1800), angle_offset= 30, angle_range= (-180, 180)
-                )
+                FullExplosionEffect(self.mouse_pos)
+                   
             )
+        elif not pygame.mouse.get_pressed()[2]:
+            self.temp = False
             
 
 

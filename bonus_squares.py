@@ -8,6 +8,7 @@ import pygame
 from item import *
 from effect import *
 import importlib
+from particles import *
 
 
 #----------------------------------------------
@@ -386,9 +387,9 @@ class RandomSquare(Square):
 
                 for square in all_squares:
                     context.add_effect(
-                    VanishEffect(
+                    ParticleEffect(
                     square.get_pos(), amount= 1, surface= load_image('q_mark_case', PartConfig.Q_MARK_SQUARE), 
-                    scale_range= (PIXEL_SIZE, PIXEL_SIZE), life_time= (0.3, 1), z_index= 5
+                    scale_range= (PIXEL_SIZE, PIXEL_SIZE), life_time= (0.3, 1), z_index= 5, death_effect= FadeDeath
                 ))
 
 
@@ -586,10 +587,10 @@ class DeathSquare(Square):
 
                 for square in dead_player_list:
                     context.add_effect(
-                    VanishEffect(
+                    ParticleEffect(
                     square.get_pos(), amount= 1, surface= load_image('ghost', PartConfig.GHOST), 
                     scale_range= (8, 8), life_time= (1, 1), z_index= 20, dir_range_x= (0, 0),
-                    dir_range_y= (-1, -1), speed_range=(100, 150), base_alpha= 150
+                    dir_range_y= (-1, -1), speed_range=(100, 150), alpha_range= (150, 200), death_effect= FadeDeath
                 ))
             
 
@@ -616,6 +617,8 @@ class CreeperSquare(Square):
                 if case is not None:
                     context.add_changed_case(case, EmptySquare())
                     context.add_marker(case, None)
+
+            context.add_effect(FullExplosionEffect(self.get_pos()))
 
         return context
 

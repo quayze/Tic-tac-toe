@@ -56,7 +56,7 @@ class AnimText:
             return
         self.delay -= dt
         if self.delay <= 0:
-            self.delay = 0.5
+            self.delay = 1/self.anim_speed
             for letter in self.letters:
                 if letter.state != 'animate':
                     letter.state = 'animate'

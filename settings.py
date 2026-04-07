@@ -101,3 +101,4 @@ class PartConfig:
 class SFX:
     GUN = 'assets/sounds/gun.mp3'
     CASH = 'assets/sounds/cashOut.mp3'
+    EXPLOSION = 'assets/sounds/explosion.mp3'

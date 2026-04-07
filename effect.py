@@ -31,7 +31,7 @@ class Effect(Drawable):
         if not self.starting :
             return
         return True
-    
+        
     def update_timer(self, dt):
         if self.delay > 0:
             self.delay -= dt
@@ -48,6 +48,7 @@ class SoundEffect(Effect):
     def start(self, game):
         self.starting = True
         self.play_audio(game)
+        
 
     def update(self, dt):
         if not super().update(dt):
@@ -55,13 +56,28 @@ class SoundEffect(Effect):
         
         if self.sound_played:
             self.kill()
+
+class MultipleEffect(Effect):
+    def __init__(self, pos, delay=0, sound=None, z_index=50):
+        super().__init__(pos, delay, sound, z_index)
+        self.effects : list[Effect] = []
+
+    def add_effect(self, effect : Effect):
+        self.effects.append(effect)
+
+    def start(self, game):
+        for effect in self.effects:
+            game.add_effect(effect)
+        self.effects.clear()
+        self.play_audio(game)
+        self.kill()
         
 
 
 class ParticleEffect(Effect):
-    def __init__(self, pos, amount, surface : pygame.Surface, particle_type : Particle,
+    def __init__(self, pos, amount, surface : pygame.Surface, particle_type : Particle = Particle,
                  life_time = (1, 1), dir_range_x = (-1, 1), dir_range_y = (-1, 1), speed_range = (0, 0), angle_range = (0, 0), scale_range = (1, 1),
-                 kill_duration = 1,  delay=0, sound=None, z_index=50):
+                 kill_duration = 1,  delay=0, sound=None, z_index=50, alpha_range = (255, 255), death_effect = None):
         super().__init__(pos, delay, sound, z_index)
         self.amount = amount
         self.surface = surface
@@ -72,6 +88,8 @@ class ParticleEffect(Effect):
         self.d_y_range = dir_range_y
         self.scl_range = scale_range
         self.kill_dur = kill_duration
+        self.alpha_range = alpha_range
+        self.death_eff = death_effect or TimedDeath
 
         self.particle_type = particle_type
         self.particles = pygame.sprite.Group()
@@ -79,6 +97,7 @@ class ParticleEffect(Effect):
     def start(self, game):
         super().start(game)
         self.add_particules()
+        
 
     def add_particules(self):
         for _ in range(self.amount):
@@ -88,9 +107,10 @@ class ParticleEffect(Effect):
             d_x = self.d_x_range[0] if self.d_x_range[0] == self.d_x_range[1] else random.uniform(self.d_x_range[0], self.d_x_range[1])
             d_y = self.d_y_range[0] if self.d_y_range[0] == self.d_y_range[1] else random.uniform(self.d_y_range[0], self.d_y_range[1])
             scale = self.scl_range[0] if self.scl_range[0] == self.scl_range[1] else random.uniform(self.scl_range[0], self.scl_range[1])
+            alpha = self.alpha_range[0] if self.alpha_range[0] == self.alpha_range[1] else random.uniform(self.alpha_range[0], self.alpha_range[1])
 
 
-            self.particles.add(self.particle_type(self.pos, self.surface, life_time, (d_x, d_y), speed, angle, self.kill_dur, scale))
+            self.particles.add(self.particle_type(self.pos, self.surface, life_time, (d_x, d_y), speed, angle, self.kill_dur, scale, alpha, self.death_eff))
             
 
     def update(self, dt):
@@ -109,11 +129,11 @@ class ParticleEffect(Effect):
 
 
 class BloodEffect(ParticleEffect):
-    def __init__(self, pos, direction = (1, 0), delay=0, z_index=50):
+    def __init__(self, pos, direction = (1, 0), amount = 500, angle_offset = 30, delay=0, z_index=50):
         surface = pygame.Surface((10, 10), pygame.SRCALPHA).convert_alpha()
         surface.fill((255, 0, 0))
         sound = None
-        amount = 500
+        amount = amount
         life_time = (0.5, 1)
         kill_duration = 1
         dir_range_x= (0, 0)
@@ -121,8 +141,9 @@ class BloodEffect(ParticleEffect):
         speed_range=(400, 800)
         angle_range=(-180, 180)
         scale_range=(0.5, 1.5)
-        super().__init__(pos, amount, surface, SlowDownParticle, life_time, dir_range_x, dir_range_y, speed_range, angle_range, scale_range, kill_duration, delay, sound, z_index)
-        self.angle_offset = 30
+        super().__init__(pos, amount, surface, SlowDownParticle, life_time, dir_range_x, dir_range_y, speed_range, 
+                         angle_range, scale_range, kill_duration, delay, sound, z_index, death_effect= FadeDeath)
+        self.angle_offset = angle_offset
         self.direction = Vector2(direction)
         self.time_inactive = (0.7, 1)
 
@@ -140,16 +161,19 @@ class BloodEffect(ParticleEffect):
             scale =random.uniform(self.scl_range[0], self.scl_range[1])
             full_time_speed = life_time / 3
 
+
             self.particles.add(self.particle_type(self.pos, self.surface, life_time, direction, speed, angle, 
-                                                  self.kill_dur, scale, full_speed_time = full_time_speed, time_before_despawn = time_inactive))
+                                                  self.kill_dur, scale, full_speed_time = full_time_speed, time_before_despawn = time_inactive,
+                                                  death_behavior = self.death_eff))
 
 class TargetEffect(ParticleEffect):
     def __init__(self, pos, amount, surface, target : tuple, adaptative_angle = False,
                  life_time=(1, 1), angle_range=(0, 0), scale_range=(1, 1), 
-                 kill_duration=0, delay=0, sound=None, z_index=50):
+                 kill_duration=0, delay=0, sound=None, z_index=50, alpha_range = (255, 255), death_effect = None):
         self.target = target
         self.adaptative_angle = adaptative_angle
-        super().__init__(pos, amount, surface, TargetParticule, life_time, (0, 0), (0, 0), (0, 0), angle_range, scale_range, kill_duration, delay, sound, z_index)
+        super().__init__(pos, amount, surface, TargetParticule, life_time, (0, 0), (0, 0), (0, 0), angle_range, 
+                         scale_range, kill_duration, delay, sound, z_index, alpha_range, death_effect)
 
 
     def add_particules(self):
@@ -162,36 +186,18 @@ class TargetEffect(ParticleEffect):
 
             life_time = random.uniform(self.lf_range[0], self.lf_range[1])
             scale =random.uniform(self.scl_range[0], self.scl_range[1])
+            alpha = self.alpha_range[0] if self.alpha_range[0] == self.alpha_range[1] else random.uniform(self.alpha_range[0], self.alpha_range[1])
 
             self.particles.add(self.particle_type(self.pos, self.surface, life_time, angle = angle, kill_duration= self.kill_dur, 
-                 scaling= scale, target_pos = self.target))
+                 scaling= scale, alpha = alpha, death_behavior = self.death_eff, target_pos = self.target))
             
-class VanishEffect(ParticleEffect):
-    def __init__(self, pos, amount, surface, life_time=(1, 1), dir_range_x=(-1, 1), 
-                 dir_range_y=(-1, 1), speed_range=(0, 0), angle_range=(0, 0), scale_range=(1, 1),
-                 base_alpha = 255, 
-                 kill_duration=1, delay=0, sound=None, z_index=50):
-        super().__init__(pos, amount, surface, VanishParticle, life_time, dir_range_x, dir_range_y, 
-                         speed_range, angle_range, scale_range, kill_duration, delay, sound, z_index)
-        self.base_alpha = base_alpha
 
-
-    def add_particules(self):
-        for _ in range(self.amount):
-            speed = self.s_range[0] if self.s_range[0] == self.s_range[1] else random.randint(self.s_range[0], self.s_range[1])
-            angle = self.a_range[0] if self.a_range[0] == self.a_range[1] else random.randint(self.a_range[0], self.a_range[1])
-            life_time = self.lf_range[0] if self.lf_range[0] == self.lf_range[1] else random.uniform(self.lf_range[0], self.lf_range[1])
-            d_x = self.d_x_range[0] if self.d_x_range[0] == self.d_x_range[1] else random.uniform(self.d_x_range[0], self.d_x_range[1])
-            d_y = self.d_y_range[0] if self.d_y_range[0] == self.d_y_range[1] else random.uniform(self.d_y_range[0], self.d_y_range[1])
-            scale = self.scl_range[0] if self.scl_range[0] == self.scl_range[1] else random.uniform(self.scl_range[0], self.scl_range[1])
-
-
-            self.particles.add(self.particle_type(self.pos, self.surface, life_time, (d_x, d_y), speed, angle, self.kill_dur, scale, self.base_alpha))
 
 class FallEffect(ParticleEffect):
     def __init__(self, pos, amount, surface, life_time=(1, 1), gravity_direction = (0, 1), gravity_force = 40, direction = (0, -1), angle_offset = 0, speed_range=(0, 0), angle_range=(0, 0), scale_range=(1, 1), 
-                 kill_duration=1, delay=0, sound=None, z_index=50):
-        super().__init__(pos, amount, surface, FallingParticle, life_time, (0, 0), (0, 0), speed_range, angle_range, scale_range, kill_duration, delay, sound, z_index)
+                 kill_duration=1, delay=0, sound=None, z_index=50, alpha_range = (255, 255)):
+        super().__init__(pos, amount, surface, FallingParticle, life_time, (0, 0), (0, 0), speed_range, angle_range, 
+                         scale_range, kill_duration, delay, sound, z_index, alpha_range)
         self.gravity_direction = gravity_direction
         self.direction = Vector2(direction)
         self.angle_offset = angle_offset
@@ -204,6 +210,7 @@ class FallEffect(ParticleEffect):
             angle = self.a_range[0] if self.a_range[0] == self.a_range[1] else random.randint(self.a_range[0], self.a_range[1])
             life_time = self.lf_range[0] if self.lf_range[0] == self.lf_range[1] else random.uniform(self.lf_range[0], self.lf_range[1])
             scale = self.scl_range[0] if self.scl_range[0] == self.scl_range[1] else random.uniform(self.scl_range[0], self.scl_range[1])
+            alpha = self.alpha_range[0] if self.alpha_range[0] == self.alpha_range[1] else random.uniform(self.alpha_range[0], self.alpha_range[1])
             
             if self.angle_offset != 0:
                 dir_angle = random.uniform(-self.angle_offset, self.angle_offset)
@@ -211,4 +218,64 @@ class FallEffect(ParticleEffect):
             else:
                 direction = self.direction
 
-            self.particles.add(self.particle_type(self.pos, self.surface, life_time, direction, speed, angle, self.kill_dur, scale, self.gravity_direction, self.gravity_force))
+            self.particles.add(self.particle_type(self.pos, self.surface, life_time, direction, speed, angle, self.kill_dur, 
+                                                  scale, alpha, self.death_eff, self.gravity_direction, self.gravity_force))
+
+
+class ExplosionEffect(ParticleEffect):
+    def __init__(self, pos, amount, life_time=(1, 1), speed_range=(0, 0),
+                 color = (255, 255, 255), scale_range = (1, 1),
+                 delay=0, z_index=50):
+        
+
+        surface = pygame.Surface((20, 20), pygame.SRCALPHA).convert_alpha()
+        pygame.draw.circle(surface, color, (10, 10), 10)
+
+        sound = None
+        kill_duration = 1
+        dir_range_x= (-1, 1)
+        dir_range_y= (-1, 1)
+        angle_range=(0, 0)
+        alpha_range = (255, 255)
+
+
+        super().__init__(pos, amount, surface, SlowDownParticle, life_time, dir_range_x, dir_range_y, 
+                         speed_range, angle_range, scale_range, kill_duration, delay, 
+                         sound, z_index, alpha_range, ScaleDeath)
+
+    def add_particules(self):
+        for _ in range(self.amount):
+            speed = random.randint(self.s_range[0], self.s_range[1])
+            angle = random.randint(self.a_range[0], self.a_range[1])
+            life_time = random.uniform(self.lf_range[0], self.lf_range[1])
+
+            d_x = self.d_x_range[0] if self.d_x_range[0] == self.d_x_range[1] else random.uniform(self.d_x_range[0], self.d_x_range[1])
+            d_y = self.d_y_range[0] if self.d_y_range[0] == self.d_y_range[1] else random.uniform(self.d_y_range[0], self.d_y_range[1])
+
+
+            scale =random.uniform(self.scl_range[0], self.scl_range[1])
+            full_time_speed = life_time / 4
+
+
+            self.particles.add(self.particle_type(self.pos, self.surface, life_time, (d_x, d_y), speed, angle, 
+                                                  self.kill_dur, scale, full_speed_time = full_time_speed,
+                                                  death_behavior = self.death_eff))
+            
+
+
+class FullExplosionEffect(MultipleEffect):
+    def __init__(self, pos, delay=0, z_index=50):
+        sound = SFX.EXPLOSION
+        super().__init__(pos, delay, sound, z_index)
+        self.add_effect(ExplosionEffect(pos, amount= 20, speed_range= (1000, 1200), 
+                                        life_time= (0.6, 1), scale_range= (1, 1),color= (0, 0, 0)))
+        
+        self.add_effect(ExplosionEffect(pos, amount= 20, speed_range= (1000, 1200), 
+                                        life_time= (0.6, 1), scale_range= (1, 1),color= (255, 255, 255)))
+
+        self.add_effect(ExplosionEffect(pos, amount= 40, speed_range= (400, 1000), 
+                                        life_time= (0.5, 0.8), scale_range= (3, 3), color= (255, 150, 0)))
+        
+        self.add_effect(ExplosionEffect(pos, amount= 80, speed_range= (400, 1000), 
+                                        life_time= (0.4, 0.8), scale_range= (3, 3), color= (255, 30, 0)))
+        
