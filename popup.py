@@ -2,6 +2,7 @@ import pygame
 from settings import *
 from functions import *
 from pygame import Vector2
+from text import *
 
 class PopUp:
     def __init__(self, object, alignment = 'sides', width = 500):
@@ -81,8 +82,8 @@ class PopUp:
         self.elements.append(element)
 
         max_width = self.width - 2*self.border_offset - 30
-        if element.rect.width > max_width:
-            self.width = element.rect.width + 2*self.border_offset + 30
+        if element.get_width() > max_width:
+            self.width = element.get_width() + 2*self.border_offset + 30
             self.update_surface()
             element.change_pos((self.rect.width // 2, self.border_offset + self.offset_betwenn_el))
             self.center_width = self.rect.width - 2 * self.border_offset
@@ -111,6 +112,9 @@ class PopUp:
             self.update_pos()
             self.object_pos = self.object.rect.center
 
+        for el in self.elements:
+            el.update(dt)
+
     def draw(self, screen):
         if not self.render:
             return
@@ -126,19 +130,23 @@ class PopUp:
 
 
 class PopupElement:
-    def __init__(self, popup_width, mid_pos, surface):
+    def __init__(self, popup_width, mid_pos):
         self.popup_width = popup_width
-        self.surface = surface
-        self.rect = self.surface.get_rect(midtop = mid_pos)
 
     def draw(self, popup):
-        popup.blit(self.surface, self.rect)
+        pass
+
+    def update(self, dt):
+        pass
 
     def get_bottom_rect(self):
-        return self.rect.bottom
+        pass
     
     def change_pos(self, pos):
-        self.rect.midtop = pos
+        pass
+
+    def get_width(self):
+        return 1
 
 class PopupText(PopupElement):
     def __init__(self, popup_width, mid_pos, text, bg_color = (255, 255, 255), text_color = (0, 0, 0)):
@@ -147,16 +155,44 @@ class PopupText(PopupElement):
         offset = 10
         text_surface = get_warp_text(text, PopupConfig.TEXT_SIZE, width, text_color)
         text_rect = text_surface.get_rect(midtop = (width//2, offset))
-        surface = generate_nine_slice(width, text_surface.get_height()+ offset*2, pixel_size= 3, color= bg_color)
-        surface.blit(text_surface, text_rect)
+        self.surface = generate_nine_slice(width, text_surface.get_height()+ offset*2, pixel_size= 3, color= bg_color)
+        self.surface.blit(text_surface, text_rect)
+        self.rect = self.surface.get_rect(midtop = mid_pos)
 
-        super().__init__(popup_width, mid_pos, surface)
+        super().__init__(popup_width, mid_pos)
+
+    def draw(self, popup):
+        popup.blit(self.surface, self.rect)
+
+    def get_width(self):
+        return self.rect.width
+    
+    def change_pos(self, pos):
+        self.rect.midtop = pos
+
+    def get_bottom_rect(self):
+        return self.rect.bottom
 
 class PopupTitle(PopupElement):
     def __init__(self, popup_width, mid_pos, text):
         
-        surface = get_text_surface(text, PopupConfig.TITLE_SIZE)
-        super().__init__(popup_width, mid_pos, surface)
+        self.text = AnimText(text, PopupConfig.TITLE_SIZE, mid_pos, align= 'midtop', anim_speed= 2.5)
+        self.text.start()
+        super().__init__(popup_width, mid_pos)
 
+    def draw(self, popup):
+        self.text.draw(popup)
+
+    def update(self, dt):
+        self.text.update(dt)
+
+    def get_bottom_rect(self):
+        return self.text.get_bottom()
+    
+    def get_width(self):
+        return self.text.get_width()
+    
+    def change_pos(self, pos):
+        self.text.set_pos(pos)
 
         

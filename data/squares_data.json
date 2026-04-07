@@ -79,6 +79,16 @@
         "description": "Can't store markers", 
         "rarity": "null"
     },
+    "TeleportSquare" : {
+        "name": "Teleportation Square",
+        "description": "Teleport the marker on a random case with no marker",
+        "rarity": "common"
+    },
+    "ModifySideSquare" : {
+        "name": "Ying Yang Square",
+        "description": "Create a random square is the side square is a default square else delete its effect",
+        "rarity": "common"
+    },
 
 
               

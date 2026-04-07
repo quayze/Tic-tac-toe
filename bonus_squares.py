@@ -454,6 +454,76 @@ class JailSquare(Square):
 
         return context
     
+class ModifySideSquare(Square):
+    """Add marker to a case on one of it side"""
+    def __init__(self, pos = (0, 0)):
+        super().__init__(pos)
+        self.get_image(8, 1)
+        self.side = random.randint(0, 3)
+        self.image = pygame.transform.rotate(self.image, self.side * -90)
+        self.blit_image()
+
+    def trigger_effect(self, context : GameContext):
+        if context.marker_placed:
+            index = context.table.get_index(self)
+            
+            if context.blueprint : self.side = random.randint(0, 3)
+
+            #haut
+            if self.side == 0:
+                target_square : Square = context.table.get_side(index, 'top')
+            #droite
+            elif self.side == 1:
+                target_square : Square = context.table.get_side(index, 'right')
+            #bas
+            elif self.side == 2:
+                target_square : Square = context.table.get_side(index, 'bottom')
+            #gauche
+            elif self.side == 3:
+                target_square : Square = context.table.get_side(index, 'left')
+            
+            
+            if target_square is not None and target_square.can_place():
+                if target_square.counting:
+                    if not isinstance(target_square, DefaultSquare):
+                        context.add_changed_case(target_square, DefaultSquare())
+                    else:
+                        new_square = generate_random_square()
+                        context.add_changed_case(target_square, new_square)
+
+        return context
+    
+
+class TeleportSquare(Square):
+    """Player start next round if marker placed on it"""
+    def __init__(self, pos=(0, 0)):
+        super().__init__(pos)
+        self.get_image(9, 1)
+        self.blit_image()
+
+    def trigger_effect(self, context : GameContext):
+        if context.marker_placed:
+            all_squares = context.table.get_case_list()
+            selected_list = []
+            teleported_square = None
+            for square in all_squares:
+                if square.marker is None and self != square:
+                    selected_list.append(square)
+
+            if len(selected_list) == 1:
+                teleported_square = selected_list[0]
+            elif len(selected_list) > 1:
+                teleported_square = random.choices(selected_list)[0]
+
+            if teleported_square is not None:
+                marker = Marker(context.player, teleported_square.get_pos())
+                context.add_changed_case(self, DefaultSquare())
+                context.add_marker(self, None)
+                context.add_marker(teleported_square, marker)
+
+
+        return context
+    
 #----------------------------------------------
 # RARE SQUARES
 #----------------------------------------------

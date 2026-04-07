@@ -8,7 +8,10 @@ class Shadow:
         
         self.object_pos = object_pos
 
-        self.offset = 'default' # default, strong, minimal
+        self.x_mult = None
+        self.y_mult = None
+        self.x_abs = 0
+        self.y_abs = 0
 
         self.get_pos()
 
@@ -27,14 +30,18 @@ class Shadow:
         offset_x = center_x - pos_x
         offset_y = center_y - pos_y
 
-        if self.offset == 'default':
-            self.pos = pos_x + offset_x * 0.05 , pos_y + 20
-        elif self.offset == 'strong':
-            self.pos = pos_x + offset_x * 0.2 , pos_y + 60
-        elif self.offset == 'minimal':
-            self.pos = pos_x + offset_x * 0.01 , pos_y + 10
-        elif self.offset == 'bottom':
-            self.pos = pos_x , pos_y + 10
+
+        if self.x_mult is not None:
+            x_parallax =  offset_x * self.x_mult
+        else:
+            x_parallax = self.x_abs
+
+        if self.y_mult is not None:
+            y_parallax = offset_y * self.y_mult
+        else:
+            y_parallax = self.y_abs
+
+        self.pos = pos_x + x_parallax, pos_y + y_parallax
 
         self.image_pos()
 
@@ -50,9 +57,11 @@ class Shadow:
             self.object_pos = object_pos
             self.get_pos()
 
-
-    def set_offset(self, offset = 'default'):
-        self.offset = offset
+    def set_parallax(self, x_mult = None, y_mult = None, x_abs = 0, y_abs = 0):
+        self.x_mult = x_mult
+        self.y_mult = y_mult
+        self.x_abs = x_abs
+        self.y_abs = y_abs
         self.get_pos()
 
 

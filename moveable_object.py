@@ -19,6 +19,7 @@ class Moveable(Drawable):
         self.state = 'idle' #idle, hover, on_mouse
 
         self.shadow = Shadow(self.pos)
+        self.shadow.set_parallax(**ShadowConfig.DEFAULT)
         self.handle_shadow = True
 
         #----------------------
@@ -121,13 +122,13 @@ class Moveable(Drawable):
 
     def on_mouse_trigger(self):
         self.z = 100
-        self.shadow.set_offset("strong")
+        self.shadow.set_parallax(**ShadowConfig.STRONG)
         if self.on_click:
             self.on_click()
 
     def on_realease_trigger(self):
         self.z = 20
-        self.shadow.set_offset()
+        self.shadow.set_parallax(**ShadowConfig.DEFAULT)
         self.get_direction_to_anchor()
         if self.on_release:
             self.on_release()

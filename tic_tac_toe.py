@@ -23,7 +23,7 @@ class TicTacToe:
         self.active_player = self.player1
         self.inventories = self.session.inventories
         self.table = Table(self.game)
-        self.state = 'playing'  # 'playing', 'win', 'draw'
+        self.state = 'playing'  # 'playing', 'win', 'draw', 'ending'
         self.winner = None
 
     def start_playing(self):

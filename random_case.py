@@ -7,8 +7,8 @@ def get_random_case1(pos):
                            FirstSquare, DiamondSquare, DestructionSquare, LuckySquare, BluePrintSquare])[0]
     return square(pos)
 
-def get_random_case1(pos):
-    case = random.choices([KillSquare, DefaultSquare])[0]
+def get_random_case(pos):
+    case = random.choices([ModifySideSquare, DefaultSquare])[0]
     return case(pos)
 
 def get_random_case(pos):

@@ -12,7 +12,7 @@ class MarkerConfig:
     MARKERS_TYPE = ['cross', 'round']
 
 class SquareConfig:
-    CASE_SHEET = 'assets/textures/cases.png'
+    CASE_SHEET = 'assets/textures/squares.png'
     CASE_SIZE = 19
     # RARITY SETTINGS
     RARITY_WEIGHTS = {
@@ -73,6 +73,12 @@ class ItemConfig:
 class PopupConfig:
     TEXT_SIZE = 30
     TITLE_SIZE = 60
+
+class ShadowConfig:
+    DEFAULT = {'x_mult' : 0.05, 'y_abs' : 20}
+    STRONG = {'x_mult' : 0.15, 'y_abs' : 60}
+    MINIMAL = {'x_mult' : 0.01, 'y_abs' : 10}
+    BOTTOM = {'y_abs' : 10}
 
 
 class ColorThemes:
