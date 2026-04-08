@@ -106,7 +106,8 @@ class Game:
 
         if pygame.mouse.get_pressed()[2] and not self.temp:
             self.temp = True
-            surf = get_marker('cross')
+            surf = get_marker('death_star')
+            surf = resize(surf, PIXEL_SIZE)
             self.add_effect(
                 FullExplosionEffect(self.mouse_pos)
                    

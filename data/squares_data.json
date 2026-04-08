@@ -13,7 +13,7 @@
         "name": "Replaceable Square", 
         "description": "The first marker placed can be replaced by the other player's marker", 
         "rarity": "common"
-    }, 
+    },
     "ReplaySquare" : {
         "name": "Replay Square", 
         "description": "The player can play again", 
@@ -111,17 +111,17 @@
 
 
     "DiamondSquare" : {
-        "name": "Diamond Square", 
+        "name": "The Gem", 
         "description": "Doubles money if balance is below 20$ else gives 20$. Grants 10% interest at the end of the round", 
         "rarity": "legendary"
     }, 
     "DestructionSquare" : {
-        "name": "Destruction Square", 
+        "name": "Destructor", 
         "description": "Destroys all bonus squares", 
         "rarity": "legendary"
     }, 
     "LuckySquare" : {
-        "name": "Lucky Square", 
+        "name": "Lucky Clover", 
         "description": "50% chance to give a legendary square. 50% chance to receive this square as a negative item at the end of the round", 
         "rarity": "legendary"
     }

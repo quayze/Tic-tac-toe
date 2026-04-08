@@ -195,4 +195,30 @@ def get_warp_text(text : str, size, width, color = (255, 255, 255)):
 
     return surface
 
+
+def generate_round(pixel_size = 10, radius = 100, color = (255, 255, 255)):
+
+
+    scaled_radius = radius // pixel_size if pixel_size <= radius else radius
+
+    surface = pygame.Surface((scaled_radius*2, scaled_radius*2), pygame.SRCALPHA).convert_alpha()
+    pygame.draw.circle(surface, color, (scaled_radius, scaled_radius), scaled_radius)
+    surface = pygame.transform.scale(surface, (radius * 2, radius * 2))
+
+    return surface
+
+def rand(tuple_int, int_mode = False):
+    if isinstance(tuple_int, int) or isinstance(tuple_int, float):
+        return tuple_int
+    else:
+        lo, hi = tuple_int
+        if lo >= hi:
+            return lo
+        else:
+            if int_mode:
+                return random.randint(lo, hi)
+            else:
+                return random.uniform(lo, hi)
+
+
     

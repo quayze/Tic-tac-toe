@@ -11,6 +11,7 @@ class Item(Moveable):
         self.image = self.object.image.copy()
         self.surface = pygame.Surface((width, height), pygame.SRCALPHA).convert_alpha()
         super().__init__(pos, self.surface.get_width(), self.surface.get_height())
+        self.z = 25
         self.image = pygame.transform.scale(self.image, self.surface.get_size())
         self.surface.blit(self.image, (0, 0))
 

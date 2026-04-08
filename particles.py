@@ -72,7 +72,7 @@ class SlowDownParticle(Particle):
 
         if self.full_speed <= 0:
             self.speed -= self.speed_decreasing*dt
-            self.speed = max(0, self.speed)
+            self.speed = max(self.final_speed, self.speed)
         
         if self.life_time <= 0:
             self.time_before_despawn -= dt
@@ -81,7 +81,7 @@ class SlowDownParticle(Particle):
             
 
 
-class TargetParticule(Particle):
+class TargetParticle(Particle):
     def __init__(self, pos, surface, life_time, direction=(1, 0), speed=0, angle=0, kill_duration=1, 
                  scaling=1, alpha = 255, death_behavior = None, target_pos = (0, 500)):
         pos = Vector2(pos)
@@ -123,6 +123,20 @@ class FallingParticle(Particle):
         self.gravity += self.gravity_force
         if self.life_time <= 0:
             self.death_behavior.on_death(self, dt)
+
+class RotatingParticle(Particle):
+    def __init__(self, pos, surface, life_time, direction=(1, 0), 
+                 speed=0, angle=0, kill_duration=1, scaling=1, alpha=255, 
+                 death_behavior=None, rotation_speed = 360):
+        super().__init__(pos, surface, life_time, direction, speed, angle, kill_duration, scaling, alpha, death_behavior)
+        self.rotation_speed = rotation_speed
+        self.base_image = self.image
+
+    def update(self, dt):
+        self.angle = (self.angle + self.rotation_speed * dt) % 360
+        self.image = pygame.transform.rotate(self.base_image, self.angle)
+        self.rect = self.image.get_rect(center = self.pos)
+        super().update(dt)
 
 
 class DeathBehavior:

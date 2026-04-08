@@ -81,6 +81,7 @@ class ShadowConfig:
     BOTTOM = {'y_abs' : 10}
 
 
+
 class ColorThemes:
     BLUE = {
         'm_container' : (60, 60, 255),
@@ -97,8 +98,18 @@ class PartConfig:
     BULLET = 'assets/textures/particles/bullet.png'
     Q_MARK_SQUARE = 'assets/textures/particles/questionSquare.png'
     GHOST = 'assets/textures/particles/ghost.png'
+    REWIND = 'assets/textures/particles/rewind.png'
+    COIN = 'assets/textures/particles/coin.png'
 
 class SFX:
     GUN = 'assets/sounds/gun.mp3'
     CASH = 'assets/sounds/cashOut.mp3'
     EXPLOSION = 'assets/sounds/explosion.mp3'
+    POP = 'assets/sounds/pop.mp3'
+    BREAKING = 'assets/sounds/break.mp3'
+    TELEPORTATION = 'assets/sounds/teleport.mp3'
+    SCRATCH = 'assets/sounds/scratch.mp3'
+    SHUFFLE = 'assets/sounds/shuffle.mp3'
+    COIN_DROP = 'assets/sounds/coinDrop.mp3'
+    LIGHTNING = 'assets/sounds/lightning.mp3'
+    DEATH = 'assets/sounds/death.mp3'

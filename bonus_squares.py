@@ -79,6 +79,13 @@ class ReplaySquare(Square):
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
             context.replay = True
+            center = WIDTH // 2, HEIGHT // 2
+            replay_particule = load_image('replay_particule', PartConfig.REWIND)
+            context.add_effect(
+                RotateEffect(center, 1, replay_particule, death_effect= FadeDeath, alpha= (230, 230),
+                             scale= 25, kill_duration= 0.3, rotation_speed= 500, life_time= 0.7,
+                             sound= SFX.SCRATCH)
+            )
 
         return context
     
@@ -93,10 +100,11 @@ class ReplaceableSquare(Square):
     def trigger_effect(self, context : GameContext):
         if context.try_place and self.marker is not None and context.player != self.get_owner():
             self.marker.kill()
+            context.add_effect(BreakEffect(self.get_pos(), self.marker.image, z_index= 5))
             self.marker = None
             if not context.blueprint: self.effect_triggered = True # no unknown variable for blueprint
 
-        elif not context.blueprint and context.marker_placed and self.effect_triggered: #no self destruct if executed by blueprint / no unknown variable for blueprint
+        elif not context.blueprint and context.marker_placed and self.effect_triggered: #no self destruct if executed by blueprint
             new_case = DefaultSquare()
             context.add_changed_case(self, new_case)
             context.add_marker(new_case, self.marker)
@@ -166,17 +174,18 @@ class KillSquare(Square):
 
                 context.add_changed_case(kill, DefaultSquare())
                 context.add_marker(kill, None)
+                
                 # Effects
+                context.add_effect(BreakEffect(kill.get_pos(), kill.marker.image))
                 context.add_effect(BloodEffect(
                     kill.get_pos(), direction= kill.get_pos() - self.pos
                 ))
                 context.add_effect(
                     TargetEffect(
                     self.pos, amount= 1, surface= load_image('bullet', PartConfig.BULLET), 
-                    target= kill.get_pos(), scale_range=(8, 8), life_time= (0.1, 0.1),
+                    target= kill.get_pos(), scale=8, life_time= 0.1,
                     adaptative_angle= True, kill_duration= 0.1, sound= SFX.GUN
                 ))
-
 
         return context
     
@@ -277,7 +286,16 @@ class MoneySquare(Square):
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
             gain = random.randint(0, 10)
-            context.add_gain(context.player, gain)
+            if gain > 0:
+                context.add_gain(context.player, gain)
+                coin = load_image('coin', PartConfig.COIN)
+                context.add_effect(
+                    FallEffect(
+                        self.get_pos(), gain, coin, angle_offset= 30, scale=PIXEL_SIZE, 
+                        speed= (500, 1200), sound= SFX.COIN_DROP
+                    )
+                )
+
         return context
     
 class InterestSquare(Square):
@@ -389,8 +407,11 @@ class RandomSquare(Square):
                     context.add_effect(
                     ParticleEffect(
                     square.get_pos(), amount= 1, surface= load_image('q_mark_case', PartConfig.Q_MARK_SQUARE), 
-                    scale_range= (PIXEL_SIZE, PIXEL_SIZE), life_time= (0.3, 1), z_index= 5, death_effect= FadeDeath
+                    scale= PIXEL_SIZE, life_time= (0.3, 1), z_index= 5, death_effect= FadeDeath
                 ))
+                context.add_effect(
+                    SoundEffect(sound_path= SFX.SHUFFLE)
+                )
 
 
         return context
@@ -430,7 +451,7 @@ class JailSquare(Square):
             case_list = context.table.get_case_list()
             potential_cases = []
             for case in case_list:
-                if isinstance(case, DefaultSquare) and case.get_marker() is None:
+                if isinstance(case, DefaultSquare) and case.get_marker() is None and case.counting:
                     potential_cases.append(case)
             if len(potential_cases) < 1:
                 for case in case_list:
@@ -470,27 +491,37 @@ class ModifySideSquare(Square):
             
             if context.blueprint : self.side = random.randint(0, 3)
 
-            #haut
+            #top
             if self.side == 0:
                 target_square : Square = context.table.get_side(index, 'top')
-            #droite
+            #right
             elif self.side == 1:
                 target_square : Square = context.table.get_side(index, 'right')
-            #bas
+            #bottom
             elif self.side == 2:
                 target_square : Square = context.table.get_side(index, 'bottom')
-            #gauche
+            #left
             elif self.side == 3:
                 target_square : Square = context.table.get_side(index, 'left')
             
             
-            if target_square is not None and target_square.can_place():
+            if target_square is not None:
                 if target_square.counting:
                     if not isinstance(target_square, DefaultSquare):
-                        context.add_changed_case(target_square, DefaultSquare())
+                        new_square = DefaultSquare()
+                        color = (0, 0, 0)
                     else:
                         new_square = generate_random_square()
-                        context.add_changed_case(target_square, new_square)
+                        color = (255, 255, 255)
+
+                    context.add_changed_case(target_square, new_square)
+                    context.add_marker(new_square, target_square.get_marker())
+                    
+
+                    context.add_effect(ExplosionEffect(
+                        target_square.get_pos(), 100, speed= (200, 500), scale= 2,
+                        final_speed= 10, kill_duration= 0.2, color= color
+                    ))
 
         return context
     
@@ -521,6 +552,22 @@ class TeleportSquare(Square):
                 context.add_changed_case(self, DefaultSquare())
                 context.add_marker(self, None)
                 context.add_marker(teleported_square, marker)
+
+
+                enter_image = pygame.Surface((10, 10), pygame.SRCALPHA).convert_alpha()
+                exit_image = pygame.Surface((10, 10), pygame.SRCALPHA).convert_alpha()
+                enter_image.fill((0, 255, 255))
+                exit_image.fill((255, 150, 0))
+
+                context.add_effect(
+                    CompressEffect(self.get_pos(), amount= 300, life_time= (0.3, 0.5), surface= enter_image, scale= (1, 3),
+                    alpha= 255, kill_duration= 0, distance= (100, 400), angle= (-180, 180), sound= SFX.TELEPORTATION)
+                )
+                context.add_effect(
+                    ParticleEffect(teleported_square.get_pos(), amount= 300, life_time= (0.3, 0.5), surface= exit_image, scale= (1, 3),
+                    alpha= 255, kill_duration= 0.3, angle= (-180, 180), speed= (200, 500), death_effect= ScaleDeath)
+                )
+
 
 
         return context
@@ -586,12 +633,14 @@ class DeathSquare(Square):
                     context.add_marker(d_case, self.get_marker())
 
                 for square in dead_player_list:
+                    context.add_effect(BreakEffect(square.get_pos(), square.marker.image, z_index= 49))
                     context.add_effect(
                     ParticleEffect(
                     square.get_pos(), amount= 1, surface= load_image('ghost', PartConfig.GHOST), 
-                    scale_range= (8, 8), life_time= (1, 1), z_index= 20, dir_range_x= (0, 0),
-                    dir_range_y= (-1, -1), speed_range=(100, 150), alpha_range= (150, 200), death_effect= FadeDeath
+                    scale= 8, life_time= 1, z_index= 20, direction_x= 0,
+                    direction_y= -1, speed=(100, 150), alpha= (150, 200), death_effect= FadeDeath
                 ))
+                context.add_effect(SoundEffect(sound_path= SFX.DEATH))
             
 
         return context
@@ -606,7 +655,7 @@ class CreeperSquare(Square):
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
             index = context.table.get_index(self)
-            destroyed_cases = []
+            destroyed_cases : list[Square] = []
             destroyed_cases.append(self)
             destroyed_cases.append(context.table.get_side(index, 'top'))
             destroyed_cases.append(context.table.get_side(index, 'right'))
@@ -614,9 +663,13 @@ class CreeperSquare(Square):
             destroyed_cases.append(context.table.get_side(index, 'left'))
 
             for case in destroyed_cases:
-                if case is not None:
+                if case is not None and case.counting:
                     context.add_changed_case(case, EmptySquare())
                     context.add_marker(case, None)
+
+
+                    if case != self:
+                        context.add_effect(BreakEffect(case.get_pos(), case.surface, intensity= 1200))
 
             context.add_effect(FullExplosionEffect(self.get_pos()))
 
@@ -638,11 +691,21 @@ class DestructionSquare(Square):
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
             squares = context.table.get_case_list()
-            for square in squares:
-                if square != self and not isinstance(square, DefaultSquare):
-                    new_case = DefaultSquare()
-                    context.add_changed_case(square, new_case)
-                    context.add_marker(new_case, square.get_marker())
+            if squares != []:
+                for square in squares:
+                    if square != self and not isinstance(square, DefaultSquare):
+                        new_case = DefaultSquare()
+                        context.add_changed_case(square, new_case)
+                        context.add_marker(new_case, square.get_marker())
+
+                        context.add_effect(
+                            BreakEffect(square.get_pos(), square.surface, z_index= 5, intensity= 1000)
+                        )
+                        context.add_effect(
+                            LightningEffect(square.get_pos(), thickness= random.randint(12, 15), sound= None)
+                        )
+                context.add_effect(SoundEffect(sound_path= SFX.LIGHTNING))
+                
 
         return context
 

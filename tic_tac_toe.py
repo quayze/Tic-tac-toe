@@ -29,7 +29,7 @@ class TicTacToe:
     def start_playing(self):
         self.state = 'playing' 
         self.winner = None
-        self.turns_left = 0
+        self.turns_left = 10
         self.table.activate()
         self.table.reset_cases()
         self.start_turn()

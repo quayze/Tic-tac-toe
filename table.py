@@ -53,13 +53,14 @@ class Table(Drawable):
                 self.game.add_effect(
                     FallEffect(
                     square.get_pos(), amount= 1, surface= square.surface,
-                    speed_range= (800, 1300), angle_offset= 30, z_index= 2
+                    speed= (800, 1300), angle_offset= 30, z_index= 2,
+                    sound= SFX.BREAKING
                 ))
                 if square.marker is not None:
                     self.game.add_effect(
                     FallEffect(
                     square.get_pos(), amount= 1, surface= square.get_marker().image,
-                    speed_range= (800, 1300), angle_offset= 30, z_index= 2
+                    speed= (800, 1300), angle_offset= 30, z_index= 2
                 ))
                     
     
@@ -144,6 +145,7 @@ class Table(Drawable):
         context.marker_placed = True
         context = current_case.trigger_effect(context)
         context.marker_placed = False
+        self.game.add_effect(SoundEffect(sound_path= SFX.POP))
         return context
 
         
@@ -210,16 +212,16 @@ class Table(Drawable):
             self.game.add_effect(
                 FallEffect(
                 square.get_pos(), amount= 1, surface= square.surface,
-                speed_range= (800, 1300), angle_offset= 30, z_index= 2
+                speed= (800, 1300), angle_offset= 30, z_index= 2,
+                sound= SFX.BREAKING
             ))
             if square.marker is not None:
                 self.game.add_effect(
                 FallEffect(
                 square.get_pos(), amount= 1, surface= square.get_marker().image,
-                speed_range= (800, 1300), angle_offset= 30, z_index= 2
+                speed= (800, 1300), angle_offset= 30, z_index= 2
             ))      
             square.remove_marker()
-
 
         self.cases_list.clear()
 

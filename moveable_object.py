@@ -6,7 +6,9 @@ from drawable import *
 
 class Moveable(Drawable):
     def __init__(self, pos, width, height):
-        super().__init__(z = 10)
+        self.base_z = 10
+        super().__init__(z = self.base_z)
+        
         self.rect = pygame.rect.Rect((0, 0, width, height))
         self.rect.center = pos
         self.pos = Vector2(pos)
@@ -127,7 +129,7 @@ class Moveable(Drawable):
             self.on_click()
 
     def on_realease_trigger(self):
-        self.z = 20
+        self.z = self.base_z
         self.shadow.set_parallax(**ShadowConfig.DEFAULT)
         self.get_direction_to_anchor()
         if self.on_release:
