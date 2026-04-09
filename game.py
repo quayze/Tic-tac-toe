@@ -103,7 +103,7 @@ class Game:
             inv.handle_mouse(self.mouse_pos)
 
         if self.state == 'play':
-            self.tic_tac_toe.handle_input(self.mouse_pos)
+            self.tic_tac_toe.handle_mouse(self.mouse_pos)
 
         elif self.state == 'shop':
             self.shop.handle_mouse(self.mouse_pos)

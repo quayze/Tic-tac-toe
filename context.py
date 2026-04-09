@@ -10,12 +10,15 @@ class GameContext:
 
         self.try_place = False
         self.marker_placed = False
+        self.skip_turn = True
         self.new_round = False
         self.end_round = False
         self.destroyed = False
 
+
         self.replay = False
         self.blueprint = False
+
 
         self.first_to_play = None
         self.changed_case = {} # case : new_case

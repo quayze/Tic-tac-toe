@@ -16,6 +16,7 @@ class Square:
         #-----------------------------------
         self.blueprint = True
         self.counting = True
+        self.placable = [DefaultSquare]
         #-----------------------------------
         # data
         #-----------------------------------
@@ -85,7 +86,17 @@ class Square:
     def trigger_effect(self, context):
         return context
 
-    
+#----------------------------------------------
+# DEFAULT SQUARE
+#----------------------------------------------    
 
+class DefaultSquare(Square):
+    """Base case functionning"""
+    def __init__(self, pos = (0, 0)):
+        super().__init__(pos)
+        self.get_image()
+        self.blit_image()
 
+    def trigger_effect(self, context):
+        return context
         

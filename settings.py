@@ -101,6 +101,7 @@ class PartConfig:
     REWIND = 'assets/textures/particles/rewind.png'
     COIN = 'assets/textures/particles/coin.png'
     SHOOT = 'assets/textures/particles/shoot.png'
+    WIN_CHECK = 'assets/textures/particles/winCheck.png'
 
 class SFX:
     GUN = 'assets/sounds/gun.mp3'
@@ -114,3 +115,4 @@ class SFX:
     COIN_DROP = 'assets/sounds/coinDrop.mp3'
     LIGHTNING = 'assets/sounds/lightning.mp3'
     DEATH = 'assets/sounds/death.mp3'
+    WIN = 'assets/sounds/win.mp3'

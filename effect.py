@@ -497,13 +497,33 @@ class WinEffect(MultipleEffect):
         first_pos = Vector2(first_pos)
         last_pos = Vector2(last_pos)
         pos = (first_pos.x + last_pos.x)//2 , (first_pos.y + last_pos.y)//2
-        sound=None
+        sound = SFX.WIN
         super().__init__(pos, delay, sound, z_index)
-        
+
+
+        check_image = load_image('win_check', PartConfig.WIN_CHECK)
+        end_piece = get_image(check_image, 13, 9)
+        mid_piece = get_image(check_image, 13, 9, frame_x= 1)
+
+        end_piece = resize(end_piece, NineSliceConfig.PIXEL_SIZE)
+        mid_piece = resize(mid_piece, NineSliceConfig.PIXEL_SIZE)
+        width = mid_piece.get_width()
+
 
         vector = last_pos - first_pos
         length = first_pos.distance_to(last_pos) + overshoot
-        surface = generate_nine_slice(width= 100, height= length, color= (255, 255, 0), center_color= (255, 255, 255))
+
+        height = end_piece.get_height()
+        mid_piece_height = max(0, length - height*2)
+
+        mid_piece = pygame.transform.scale(mid_piece, (width, mid_piece_height))
+        
+        surface = pygame.Surface((width, length), pygame.SRCALPHA).convert_alpha()
+        surface.blit(end_piece, (0, 0))
+        surface.blit(pygame.transform.flip(end_piece, False, True), (0, mid_piece_height + height))
+        surface.blit(mid_piece, (0, height))
+
+
         surface = pygame.transform.rotate(surface, vector.angle_to((0, -1)))
 
         self.add_effect(ParticleEffect(pos, 1, surface, life_time= 1, particle_type= GrowParticle, death_effect= ScaleDeath, kill_duration= 0.4))

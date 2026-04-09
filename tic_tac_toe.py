@@ -28,10 +28,13 @@ class TicTacToe:
         self.winner = None
         self.context = None
 
+
+        self.temp = False
+
     def start_playing(self):
         self.state = 'playing' 
         self.winner = None
-        self.turns_left = 10
+        self.turns_left = 5
         self.table.activate()
         self.table.spawn_squares()
         self.start_turn()
@@ -57,10 +60,11 @@ class TicTacToe:
         return self.session.get_inventory(self.active_player)
 
     def start_turn(self):
+        self.state = 'playing'
         inv = self._active_inventory()
         inv.add_marker()
         inv.set_case_callback(self._place_case)
-        inv.set_release_callback(self._try_place)
+        inv.set_release_callback(self._place_marker)
 
 
     def _place_case(self):
@@ -68,16 +72,19 @@ class TicTacToe:
         current_item : Item = inv.case_inventory.get_selected()
         if current_item is None:
             return
+        context = GameContext()
+
         index = self.table.try_place_case(current_item)
         if index is None:
             return
+        square = current_item.object
         
-        case = current_item.object
-        self.table.change_case(case, index)
+        context = self.table.place_square(square, index, context)
+        self.apply_context_events(context)
         inv.case_placed()
         
 
-    def _try_place(self):
+    def _place_marker(self):
         inv = self._active_inventory()
         marker = inv.marker_container.marker
         if marker is None:
@@ -93,6 +100,19 @@ class TicTacToe:
         self.apply_context_events(context)
         self.apply_effects(context)
 
+    def _skip_turn(self):
+        context = GameContext(self.active_player, self.table, self.session)
+        context.skip_turn = True
+
+        inv = self._active_inventory()
+        marker : Marker = inv.marker_container.marker
+        context.add_effect(BreakEffect(marker.get_pos(), marker.surface))
+        marker.kill()
+
+
+        self.apply_context_events(context)
+        self.apply_effects(context)
+
     def apply_context_events(self, context : GameContext):
         self.table.apply_context(context)
         for player, gain in context.gains.items():
@@ -102,7 +122,7 @@ class TicTacToe:
 
     
 
-    def apply_effects(self, context : GameContext):
+    def apply_effects(self, context):
         self.context = context
         result, winner, squares = self.table.get_result()
 
@@ -117,7 +137,7 @@ class TicTacToe:
 
         elif result == 'ongoing':
             self.active_player = self.player1 if self.active_player == self.player2 else self.player2
-            if context.replay: self.active_player = context.player
+            if self.context.replay: self.active_player = self.context.player
             for inv in self.inventories.values():
                 inv.delete_callbacks()
 
@@ -140,9 +160,13 @@ class TicTacToe:
         
         self.new_game(context.first_to_play)
 
-    def handle_input(self, mouse_pos):
-        if self.state != 'playing':
-            return
+    def handle_mouse(self, mouse_pos):
+        if self.state == 'playing':
+            if pygame.mouse.get_pressed()[1] and not self.temp:
+                self.temp = True
+                self._skip_turn()
+            elif not pygame.mouse.get_pressed()[1]:
+                self.temp = False
 
 
     def update(self, dt):
@@ -156,6 +180,9 @@ class TicTacToe:
             self.update_draw(dt)
         elif self.state == 'ending':
             self.update_ending(dt)
+
+        
+
 
     def update_win(self, dt):
         if self.game_effects.is_done():

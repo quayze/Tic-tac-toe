@@ -115,15 +115,8 @@ class Table(Drawable):
             
         for case in self.cases_list:
             empty_case = case.counting is False
-            if case.get_marker() is None and not empty_case:
-
-                empty_cases = [c for c in self.cases_list if c.get_marker() is None and not isinstance(c, EmptySquare)]
-                chain_owners = set(c.owner for c in empty_cases if isinstance(c, ChainSquare) and c.owner is not None)
-                if all(isinstance(c, ChainSquare) for c in empty_cases) and len(chain_owners) == 1:
-                    return 'draw', None, None
-                
+            if case.get_marker() is None and not empty_case:      
                 return 'ongoing', None, None
-            
         return 'draw', None, None
     
     def trigger_abilities(self, context):
@@ -138,10 +131,11 @@ class Table(Drawable):
         return context
     
     
-    def try_place_case(self, item):
+    def try_place_case(self, item : SquareItem):
         nearest_case : Square = self.nearest_case(item.get_pos())
-        if nearest_case is not None : 
-            if isinstance(nearest_case, DefaultSquare) and nearest_case.can_place():
+        if nearest_case is not None :
+            square : Square = item.get_object()
+            if type(nearest_case) in square.placable and nearest_case.can_place():
                 return self.get_index(nearest_case)
         return None
     
@@ -163,6 +157,21 @@ class Table(Drawable):
         context = current_case.trigger_effect(context)
         context.marker_placed = False
         self.game.add_effect(SoundEffect(sound_path= SFX.POP))
+        return context
+    
+    def place_square(self, square : Square, old_square_index : int, context : GameContext):
+        self.change_case(square, old_square_index)
+        full_stone = True
+        for square in self.cases_list:
+            if not isinstance(square, StoneSquare):
+                full_stone = False
+        if full_stone == True:
+            for square in self.cases_list:
+                context.add_changed_case(square, DefaultSquare())
+                context.add_effect(FallEffect(square.get_pos(), 1, square.surface, angle_offset= 70, speed= (800, 1200)))
+
+            context.add_effect(SoundEffect(SFX.BREAKING))
+            context.add_effect(ScreenShakeEffect(offset_x= 30, offset_y= 30))
         return context
 
         
@@ -233,17 +242,18 @@ class Table(Drawable):
             ))
             if square.marker is not None:
                 context.add_effect(
-                FallEffect(
-                square.get_pos(), amount= 1, surface= square.get_marker().image,
-                speed= (800, 1300), angle_offset= 30, z_index= 2
-            ))      
-            square.remove_marker()
+                    FallEffect(
+                    square.get_pos(), amount= 1, surface= square.get_marker().image,
+                    speed= (800, 1300), angle_offset= 30, z_index= 2
+                ))      
+                square.remove_marker()
 
         context.add_effect(SoundEffect(SFX.BREAKING))
         context.add_effect(ScreenShakeEffect(offset_x= 30, offset_y= 30))
         self.cases_list.clear()
 
         return context
+
 
     def activate(self):
         self.game.add_object(self)

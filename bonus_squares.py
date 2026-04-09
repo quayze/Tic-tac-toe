@@ -1,4 +1,4 @@
-from square import Square
+from square import *
 from settings import *
 from functions import *
 from context import GameContext
@@ -47,22 +47,6 @@ def square_random_rarity(rarity = 'common'):
     square_type = random.choices(classes)[0]
 
     return square_type()
-
-
-
-#----------------------------------------------
-# DEFAULT SQUARE
-#----------------------------------------------
-
-class DefaultSquare(Square):
-    """Base case functionning"""
-    def __init__(self, pos = (0, 0)):
-        super().__init__(pos)
-        self.get_image()
-        self.blit_image()
-
-    def trigger_effect(self, context):
-        return context
 
 #----------------------------------------------
 # COMMON SQUARES
@@ -216,7 +200,7 @@ class DivisionSquare(Square):
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
             index = context.table.get_index(self)
-            none_divisable_case = [DivisionSquare, EmptySquare]
+            none_divisable_case = [DivisionSquare, EmptySquare, StoneSquare]
 
             targets_cases = []
             target_case = None
@@ -402,7 +386,7 @@ class RandomSquare(Square):
             shuffled_squares = []
             final_dict = {}
             for square in all_squares:
-                if square is not self and type(square) not in (EmptySquare, ChainSquare):
+                if square is not self and type(square) not in (EmptySquare, ChainSquare, StoneSquare):
                     changed_squares.append(square)
                     shuffled_squares.append(type(square))
 
@@ -799,6 +783,12 @@ class StoneSquare(Square):
         self.blit_image()
         self.blueprint = False
         self.counting = False
+        self.placable = [
+            DefaultSquare, ReplaceableSquare, ItemSquare, JailSquare, ChainSquare, EmptySquare, 
+            BurningSquare, BluePrintSquare, DeathSquare, LuckySquare, MoneySquare, DestructionSquare,
+            DiamondSquare, CreeperSquare, TeleportSquare, ModifySideSquare, ReplaySquare, SideSquare,
+            KillSquare, DivisionSquare, InterestSquare, RandomSquare
+        ]
 
     def can_place(self):
         return False

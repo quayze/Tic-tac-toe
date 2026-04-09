@@ -124,6 +124,11 @@
         "name": "Lucky Clover", 
         "description": "50% chance to give a legendary square. 50% chance to receive this square as a negative item at the end of the round", 
         "rarity": "legendary"
+    },
+    "StoneSquare" : {
+        "name": "The Rock", 
+        "description": "Block permenently any square, destroy if all squares are rocks",
+        "rarity": "legendary"
     }
 
 }
