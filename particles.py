@@ -138,6 +138,51 @@ class RotatingParticle(Particle):
         self.rect = self.image.get_rect(center = self.pos)
         super().update(dt)
 
+class FadeParticle(Particle):
+    def __init__(self, pos, surface, life_time, direction=(1, 0), 
+                 speed=0, angle=0, kill_duration=1, scaling=1, alpha=255, 
+                 death_behavior=None, fade_delay= 0.5):
+        super().__init__(pos, surface, life_time, direction, speed, angle, kill_duration, scaling, alpha, death_behavior)
+        self.final_alpha = self.alpha
+        self.alpha = 0
+        if fade_delay == 0:
+            self.alpha = 255
+            self.alpha_rate = 255
+        self.alpha_rate = self.final_alpha / fade_delay if fade_delay < life_time else self.final_alpha / life_time
+
+    def update(self, dt):
+        self.image.set_alpha(self.alpha)
+        self.alpha += self.alpha_rate*dt
+        self.alpha = min(self.alpha, self.final_alpha)
+        super().update(dt)   
+
+class GrowParticle(Particle):
+    def __init__(self, pos, surface, life_time, direction=(1, 0), speed=0, angle=0, 
+                 kill_duration=1, scaling=1, alpha=255, death_behavior=None, scale_time = 0.5):
+        super().__init__(pos, surface, life_time, direction, speed, angle, 
+                         kill_duration, scaling, alpha, death_behavior)
+        
+        self.scale_time = min(self.life_time, scale_time)
+        self.time = 0
+        self.final_scale = scaling
+        self.scale = 0
+        self.base_image = self.image.copy()
+        self.image = pygame.transform.scale(self.base_image, (0, 0))
+
+    def update(self, dt):
+        
+        if self.time < self.scale_time:
+            self.time += dt
+            progress = min(self.time / self.scale_time, 1)
+            self.scale = self.final_scale * ease_out_back(progress)
+            self.image = resize(self.base_image, self.scale)
+            self.rect = self.image.get_rect(center = self.pos)
+
+
+
+        super().update(dt)
+        
+
 
 class DeathBehavior:
     def setup(self, particle : Particle): 
@@ -167,9 +212,13 @@ class ScaleDeath(DeathBehavior):
     def setup(self, particle):
         self.scale = 1
         self.scale_rate = 1 / particle.kill_duration
-        self.copy_image = particle.image
+        self.copy_image = None
 
     def on_death(self, particle, dt):
+        if self.copy_image is None:
+            self.copy_image = particle.image
+            return
+
         self.scale -= self.scale_rate * dt
         if self.scale <= 0:
             particle.kill()

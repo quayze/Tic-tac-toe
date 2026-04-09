@@ -222,3 +222,6 @@ def rand(tuple_int, int_mode = False):
 
 
     
+
+def ease_out_back(t, s=1.70158):
+    return 1 + (s + 1) * (t - 1)**3 + s * (t - 1)**2

@@ -100,6 +100,7 @@ class PartConfig:
     GHOST = 'assets/textures/particles/ghost.png'
     REWIND = 'assets/textures/particles/rewind.png'
     COIN = 'assets/textures/particles/coin.png'
+    SHOOT = 'assets/textures/particles/shoot.png'
 
 class SFX:
     GUN = 'assets/sounds/gun.mp3'

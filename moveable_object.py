@@ -102,6 +102,9 @@ class Moveable(Drawable):
     def set_shadow(self, activated = True):
         self.handle_shadow = activated
 
+    def set_shadow_parallax(self, x_mult= None, y_mult= None, x_abs= 0, y_abs= 0):
+        self.shadow.set_parallax(x_mult= x_mult, y_mult= y_mult, x_abs= x_abs, y_abs= y_abs)
+
     def update(self, dt):
         self.update_pos(dt)
         self.shadow.update(self.rect.center)
@@ -109,6 +112,16 @@ class Moveable(Drawable):
     def set_pos(self, pos):
         self.pos = pos
         self.rect.center = pos
+    
+    def set_z(self, new_z):
+        if new_z >= 100:
+            return
+        else:
+            if self.z == self.base_z:
+                self.z = new_z
+            self.base_z = new_z
+
+
 
     def get_pos(self):
         return self.pos

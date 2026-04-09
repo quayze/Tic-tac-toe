@@ -7,18 +7,32 @@ import random
 from random_case import *
 from drawable import *
 from effect import *
+from effect_group import *
 
 class Table(Drawable):
     def __init__(self, game):
         super().__init__(1)
         self.center = pygame.Vector2(WIDTH//2, HEIGHT//2)
         self.game = game
+        self.curr_effects = EffectGroup()
         self.game.add_object(self)
         self.cases_list = []
 
-    
-    
-    def reset_cases(self):
+
+    def spawn_squares(self):
+        self.cases_list.clear()
+        test_case = Square()
+        offset = TableConfig.OFFSET
+        case_mid_size = test_case.rect.width//2
+        center_offset = case_mid_size*2 + offset
+        topleft = self.center + pygame.Vector2(-center_offset, -center_offset)
+        for y in range(0, 3):
+            for x in range(0, 3):
+                current_topleft = topleft + pygame.Vector2(center_offset*x, center_offset*y)
+                self.cases_list.append(get_random_case(current_topleft))
+
+
+    def reset_cases(self, context : GameContext):
         # Reset all markers
         for case in self.cases_list:
             if case.marker is not None:
@@ -44,24 +58,27 @@ class Table(Drawable):
         for i, square in enumerate(old_cases):
             if isinstance(square, StoneSquare):
                 self.cases_list[i] = square
-        self.fall_anim(old_cases)
+        self.fall_anim(old_cases, context)
         old_cases.clear()
+
+        return context
     
-    def fall_anim(self, squares):
+    def fall_anim(self, squares, context : GameContext):
         for square in squares:
             if not isinstance(square, StoneSquare):
-                self.game.add_effect(
+                context.add_effect(
                     FallEffect(
                     square.get_pos(), amount= 1, surface= square.surface,
                     speed= (800, 1300), angle_offset= 30, z_index= 2,
-                    sound= SFX.BREAKING
                 ))
                 if square.marker is not None:
-                    self.game.add_effect(
+                    context.add_effect(
                     FallEffect(
                     square.get_pos(), amount= 1, surface= square.get_marker().image,
                     speed= (800, 1300), angle_offset= 30, z_index= 2
                 ))
+        context.add_effect(SoundEffect(SFX.BREAKING))
+        context.add_effect(ScreenShakeEffect(offset_x= 30, offset_y= 30))
                     
     
     def nearest_case(self, pos):
@@ -93,7 +110,7 @@ class Table(Drawable):
                     elif case.get_marker().owner != reference_case.owner:
                         win = False
             if win:
-                return 'win', reference_case.owner
+                return 'win', reference_case.owner, [self.get_case(index) for index in result]
             
             
         for case in self.cases_list:
@@ -103,11 +120,11 @@ class Table(Drawable):
                 empty_cases = [c for c in self.cases_list if c.get_marker() is None and not isinstance(c, EmptySquare)]
                 chain_owners = set(c.owner for c in empty_cases if isinstance(c, ChainSquare) and c.owner is not None)
                 if all(isinstance(c, ChainSquare) for c in empty_cases) and len(chain_owners) == 1:
-                    return 'win', case.owner
+                    return 'draw', None, None
                 
-                return 'ongoing', None
+                return 'ongoing', None, None
             
-        return 'draw', None
+        return 'draw', None, None
     
     def trigger_abilities(self, context):
         for case in self.cases_list:
@@ -206,24 +223,27 @@ class Table(Drawable):
         elif side_name == 'bottom':
             return self.get_case(index +3)
         
-    def destroy(self):
+    def destroy(self, context : GameContext):
         for square in self.cases_list:
 
-            self.game.add_effect(
+            context.add_effect(
                 FallEffect(
                 square.get_pos(), amount= 1, surface= square.surface,
                 speed= (800, 1300), angle_offset= 30, z_index= 2,
-                sound= SFX.BREAKING
             ))
             if square.marker is not None:
-                self.game.add_effect(
+                context.add_effect(
                 FallEffect(
                 square.get_pos(), amount= 1, surface= square.get_marker().image,
                 speed= (800, 1300), angle_offset= 30, z_index= 2
             ))      
             square.remove_marker()
 
+        context.add_effect(SoundEffect(SFX.BREAKING))
+        context.add_effect(ScreenShakeEffect(offset_x= 30, offset_y= 30))
         self.cases_list.clear()
+
+        return context
 
     def activate(self):
         self.game.add_object(self)

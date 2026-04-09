@@ -31,7 +31,7 @@ class Square:
         self.marker : Marker = marker
         self.marker.get_placed()
         self.marker.set_anchor(self.pos)
-        self.marker.set_shadow(False)
+        self.marker.set_shadow_parallax(y_abs= 20)
 
     def get_image(self, frame_x = 0, frame_y = 0):
         sprite_sheet = load_image('cases', SquareConfig.CASE_SHEET)

@@ -50,6 +50,7 @@ class ItemArea:
 
         for i, item in enumerate(self.items_inventory):
             item.set_anchor(self.items_anchors[i])
+            item.set_z(12 + i)
 
     def check_anchors(self):
         if self.selected_object is not None:

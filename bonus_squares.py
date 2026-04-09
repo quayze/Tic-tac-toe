@@ -176,16 +176,31 @@ class KillSquare(Square):
                 context.add_marker(kill, None)
                 
                 # Effects
+                barrel_pos = self.rect.centerx, self.rect.centery - 3*PIXEL_SIZE
                 context.add_effect(BreakEffect(kill.get_pos(), kill.marker.image))
-                context.add_effect(BloodEffect(
-                    kill.get_pos(), direction= kill.get_pos() - self.pos
+                context.add_effect(BloodEffect(kill.get_pos(), direction= kill.get_pos() - self.pos))
+                context.add_effect(
+                    ExplosionEffect(
+                    barrel_pos, amount= 100, speed= (400, 700), scale= 2, final_speed= 10, 
+                    life_time= (0.2, 0.3), kill_duration= (0.6, 0.9), color= (200, 200, 200)
+                ))
+                context.add_effect(
+                    ExplosionEffect(
+                    barrel_pos, amount= 100, speed= (500, 900), scale= 1, final_speed= 10, 
+                    life_time= (0.2, 0.3), kill_duration= (0.6, 0.9), color= (30, 30, 30)
                 ))
                 context.add_effect(
                     TargetEffect(
-                    self.pos, amount= 1, surface= load_image('bullet', PartConfig.BULLET), 
-                    target= kill.get_pos(), scale=8, life_time= 0.1,
-                    adaptative_angle= True, kill_duration= 0.1, sound= SFX.GUN
+                    barrel_pos, amount= 1, surface= load_image('bullet', PartConfig.BULLET), 
+                    target= kill.get_pos(), scale=8, life_time= 0.15,
+                    adaptative_angle= True, kill_duration= 0.1, sound= SFX.GUN, z_index= 51
                 ))
+                context.add_effect(
+                    ParticleEffect(barrel_pos, 1, load_image('gun_shoot', PartConfig.SHOOT), 
+                                   death_effect= FadeDeath, scale= 5, life_time= 0.5, kill_duration= 0.5, angle= (-10, 10)
+                ))
+                context.add_effect(ScreenShakeEffect(0.5))
+                context.add_effect((FlashEffect((255, 255, 255), 0.2, 255, 0.05)))
 
         return context
     
@@ -295,6 +310,7 @@ class MoneySquare(Square):
                         speed= (500, 1200), sound= SFX.COIN_DROP
                     )
                 )
+                
 
         return context
     
@@ -453,9 +469,10 @@ class JailSquare(Square):
             for case in case_list:
                 if isinstance(case, DefaultSquare) and case.get_marker() is None and case.counting:
                     potential_cases.append(case)
+
             if len(potential_cases) < 1:
                 for case in case_list:
-                    if self != case and case.get_marker() is None and not isinstance(case, ChainSquare):
+                    if self != case and case.get_marker() is None and not isinstance(case, ChainSquare) and case.counting:
                         potential_cases.append(case)
             
             if potential_cases != []:
@@ -535,11 +552,11 @@ class TeleportSquare(Square):
 
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
-            all_squares = context.table.get_case_list()
+            all_squares : list[Square] = context.table.get_case_list()
             selected_list = []
             teleported_square = None
             for square in all_squares:
-                if square.marker is None and self != square:
+                if square.marker is None and self != square and square.counting:
                     selected_list.append(square)
 
             if len(selected_list) == 1:
@@ -549,7 +566,7 @@ class TeleportSquare(Square):
 
             if teleported_square is not None:
                 marker = Marker(context.player, teleported_square.get_pos())
-                context.add_changed_case(self, DefaultSquare())
+                if not context.blueprint : context.add_changed_case(self, DefaultSquare())
                 context.add_marker(self, None)
                 context.add_marker(teleported_square, marker)
 
@@ -567,7 +584,7 @@ class TeleportSquare(Square):
                     ParticleEffect(teleported_square.get_pos(), amount= 300, life_time= (0.3, 0.5), surface= exit_image, scale= (1, 3),
                     alpha= 255, kill_duration= 0.3, angle= (-180, 180), speed= (200, 500), death_effect= ScaleDeath)
                 )
-
+                context.add_effect(ScreenShakeEffect(0.5))
 
 
         return context
@@ -672,6 +689,7 @@ class CreeperSquare(Square):
                         context.add_effect(BreakEffect(case.get_pos(), case.surface, intensity= 1200))
 
             context.add_effect(FullExplosionEffect(self.get_pos()))
+            context.add_effect(ScreenShakeEffect(offset_x = 30, offset_y= 30))
 
         return context
 
@@ -705,6 +723,8 @@ class DestructionSquare(Square):
                             LightningEffect(square.get_pos(), thickness= random.randint(12, 15), sound= None)
                         )
                 context.add_effect(SoundEffect(sound_path= SFX.LIGHTNING))
+                context.add_effect(ScreenShakeEffect(2, 30, 30))
+                context.add_effect((FlashEffect((255, 255, 255), 0.5, 255, 0.1, 0.5, FadeDeath)))
                 
 
         return context

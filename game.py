@@ -12,9 +12,11 @@ class Game:
         pygame.init()
         info = pygame.display.Info()
         self.display = pygame.display.set_mode((info.current_w, info.current_h))
+        self.background_screen = pygame.Surface((WIDTH, HEIGHT)).convert_alpha()
         self.screen = pygame.Surface((WIDTH, HEIGHT)).convert_alpha()
         pygame.display.set_caption('Tic Tac Toe')
         self.clock = pygame.time.Clock()
+        
 
         self.player = Player(name= 'JOUEUR', markers_type= 'cross', color_theme= 'red')
         self.guest = Player(name= 'GUEST', markers_type= 'round', color_theme= 'blue')
@@ -22,10 +24,13 @@ class Game:
         self.effects_manager = EffectsManager(self)
         self.sound_manager = SoundManager()
 
+
         self.new_run()
 
 
         self.temp = False
+        self.screen_offset = [0, 0]
+        self.shake_trauma = 0
 
 
     def run(self):
@@ -37,7 +42,9 @@ class Game:
             self.delta_time = (pygame.time.get_ticks() - self.start_time)/1000
             self.start_time = pygame.time.get_ticks()
 
-            self.screen.fill((50, 0, 50))
+            self.screen.fill((0, 0, 0, 0))
+            self.background_screen.fill((50, 0, 50))
+            
 
             window_width, window_height = self.display.get_size()
             window_height = (self.display.get_width()*HEIGHT)/ WIDTH
@@ -60,11 +67,15 @@ class Game:
             
             self.handle_mouse()
             self.run_game()
-            self.render_game()
 
+            self.screen_manager.draw_background(self.background_screen)
+            self.screen_manager.draw(self.screen)
+            self.update_shake()
 
-            resized_screen = pygame.transform.scale(self.screen.copy(), (window_width, window_height))
-            self.display.blit(resized_screen, (0, 0))
+            resized_background = pygame.transform.scale(self.background_screen, (window_width, window_height))
+            resized_screen = pygame.transform.scale(self.screen, (window_width, window_height))
+            self.display.blit(resized_background, (0, 0))
+            self.display.blit(resized_screen, self.screen_offset)
 
             
             pygame.display.flip()
@@ -87,11 +98,6 @@ class Game:
             self.state = 'play'
             self.tic_tac_toe.start_playing()
         
-
-
-
-
-
     def handle_mouse(self):
         for inv in self.inventories:
             inv.handle_mouse(self.mouse_pos)
@@ -102,22 +108,26 @@ class Game:
         elif self.state == 'shop':
             self.shop.handle_mouse(self.mouse_pos)
 
-
-
         if pygame.mouse.get_pressed()[2] and not self.temp:
             self.temp = True
             surf = get_marker('death_star')
             surf = resize(surf, PIXEL_SIZE)
             self.add_effect(
-                FullExplosionEffect(self.mouse_pos)
-                   
+                WinEffect(self.mouse_pos, (1000, 540))    
             )
+
         elif not pygame.mouse.get_pressed()[2]:
             self.temp = False
-            
 
-
-
+    def update_shake(self):
+        if self.shake_trauma <= 0:
+            if self.screen_offset != [0, 0]: self.screen_offset = [0, 0]
+            return
+        
+        self.shake_trauma -= self.delta_time
+        intensity = (self.shake_trauma / self.max_trauma) ** 2
+        self.screen_offset[0] = random.uniform(self.shake_offset_x[0], self.shake_offset_x[1]) * intensity
+        self.screen_offset[1] = random.uniform(self.shake_offset_y[0], self.shake_offset_y[1]) * intensity
 
 
     def run_game(self):
@@ -127,16 +137,7 @@ class Game:
             self.tic_tac_toe.update(self.delta_time)
         elif self.state == 'shop':
             self.shop.update(self.delta_time)  
-
-
-
-
-    def render_game(self):
-        self.screen_manager.draw(self.screen)
-
-
-    
-
+        
     def add_object(self, object):
         self.screen_manager.add_object(object)
 
@@ -151,3 +152,9 @@ class Game:
 
     def effects_finished(self):
         return self.effects_manager.effects == [] and self.effects_manager.waiting_effects == []
+    
+    def add_screen_shake(self, duration, offset_x = (-20, 20), offset_y = (-20, 20)):
+        self.shake_trauma = duration
+        self.max_trauma = duration
+        self.shake_offset_x = offset_x
+        self.shake_offset_y = offset_y

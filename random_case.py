@@ -8,9 +8,9 @@ def get_random_case(pos):
                            ModifySideSquare, TeleportSquare])[0]
     return square(pos)
 
-def get_random_cas1e(pos):
-    case = random.choices([ModifySideSquare, DefaultSquare])[0]
+def get_random1_case(pos):
+    case = random.choices([EmptySquare, JailSquare])[0]
     return case(pos)
 
-def get_random_cas1e(pos):
-    return ReplaceableSquare(pos)
+def get_random1_case(pos):
+    return CreeperSquare(pos)

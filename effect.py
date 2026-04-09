@@ -42,7 +42,7 @@ class Effect(Drawable):
         return True
     
 class SoundEffect(Effect):
-    def __init__(self, delay=0, sound_path = None):
+    def __init__(self, sound_path = None, delay=0):
         super().__init__((0,0), delay, sound_path, 0)
 
     def start(self, game):
@@ -57,6 +57,13 @@ class SoundEffect(Effect):
         if self.sound_played:
             self.kill()
 
+class GameEffect(Effect):
+    def __init__(self, delay=0):
+        super().__init__((0, 0), delay, None, 0)
+
+    def start(self, game):
+        self.kill()
+
 class MultipleEffect(Effect):
     def __init__(self, pos, delay=0, sound=None, z_index=50):
         super().__init__(pos, delay, sound, z_index)
@@ -64,6 +71,9 @@ class MultipleEffect(Effect):
 
     def add_effect(self, effect : Effect):
         self.effects.append(effect)
+
+    def get_effect_list(self):
+        return self.effects
 
     def start(self, game):
         for effect in self.effects:
@@ -271,6 +281,7 @@ class ExplosionEffect(ParticleEffect):
             speed = rand(self.s_range, True)
             angle = rand(self.a_range, True)
             life_time = rand(self.lf_range)
+            kill_time = rand(self.kill_dur)
 
             d_x = rand(self.d_x_range)
             d_y = rand(self.d_y_range)
@@ -280,7 +291,7 @@ class ExplosionEffect(ParticleEffect):
 
 
             self.particles.add(self.particle_type(self.pos, self.surface, life_time, (d_x, d_y), speed, angle, 
-                                                  self.kill_dur, full_speed_time = full_time_speed,
+                                                  kill_time, full_speed_time = full_time_speed,
                                                   death_behavior = self.death_eff, final_speed = self.final_speed))
             
 
@@ -391,7 +402,7 @@ class LightningEffect(MultipleEffect):
         
         
         
-        distance_between_pt = (40, 70)
+        distance_between_pt = (30, 70)
 
         all_points = []
 
@@ -416,9 +427,9 @@ class LightningEffect(MultipleEffect):
         self.add_effect(ParticleEffect(
             center, 1, lightning_surf, life_time= (1.2, 1.2), death_effect= FadeDeath
         ))
-        self.add_effect(ExplosionEffect(self.pos, 40, scale= 2, speed= (200,400), life_time= (0.8, 1.2), final_speed= 20))
-        self.add_effect(ExplosionEffect(self.pos, 40, scale= 4, speed= (100,300), color= (255, 255, 0), life_time= (0.5, 0.8), final_speed= 20))
-        self.add_effect(ExplosionEffect(self.pos, 100, scale= 1, speed= (0,50), color= (255, 255, 255), life_time= (1.5, 1.5), final_speed= 0))
+        self.add_effect(ExplosionEffect(self.pos, 40, scale= 2, speed= (200,400), life_time= (0.8, 1.2), color = (color_center), final_speed= 20))
+        self.add_effect(ExplosionEffect(self.pos, 40, scale= 4, speed= (100,300), color= color_border, life_time= (0.5, 0.8), final_speed= 20))
+        self.add_effect(ExplosionEffect(self.pos, 100, scale= 1, speed= (0,50), color= color_center, life_time= (1.5, 1.5), final_speed= 0))
 
         
 
@@ -431,3 +442,68 @@ class LightningEffect(MultipleEffect):
                 pygame.draw.line(surface, color, last_point, point, thickness)
                 last_point = point
 
+class ScreenShakeEffect(GameEffect):
+    def __init__(self, duration = 1, offset_x = 20, offset_y = 20, delay=0):
+        super().__init__(delay)
+        self.duration = duration
+
+        self.offset_x = self.get_offset(offset_x)
+        self.offset_y = self.get_offset(offset_y)
+
+    def get_offset(self, offset):
+        if isinstance(offset, tuple):
+            if offset[0] <= 0 and offset[1] >= 0:
+                return offset
+            else:
+                return (-(offset[0]), abs(offset[0]))
+
+        elif isinstance(offset, int):
+           return -abs(offset), abs(offset)
+        
+        else:
+            return (-20, 20)
+
+    def start(self, game):
+        game.add_screen_shake(self.duration, self.offset_x, self.offset_y)
+        return super().start(game)
+    
+
+
+class FlashEffect(ParticleEffect):
+    def __init__(self, color = (255, 255, 255), duration = 1, alpha=255, 
+                 spawn_duration = 0.1, kill_duration = 0, death_effect = None,
+                delay=0, z_index = 0):
+        surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA).convert_alpha()
+        surface.fill(color)
+        super().__init__((WIDTH//2, HEIGHT//2), 1, surface, FadeParticle, duration, 0, 0, 0, 0, 1, kill_duration, delay, None, z_index, alpha, death_effect)
+        self.spawn_duration = spawn_duration
+
+    def add_particles(self):
+        for _ in range(self.amount):
+            speed = rand(self.s_range, True)
+            angle = rand(self.a_range, True)
+            life_time = rand(self.lf_range)
+            d_x = rand(self.d_x_range)
+            d_y = rand(self.d_y_range)
+            scale = rand(self.scl_range)
+            alpha = rand(self.alpha, True)
+
+
+            self.particles.add(self.particle_type(self.pos, self.surface, life_time, (d_x, d_y), speed, angle, self.kill_dur, scale, alpha, self.death_eff, self.spawn_duration))
+
+
+class WinEffect(MultipleEffect):
+    def __init__(self, first_pos, last_pos, overshoot = 0, delay=0, z_index=50):
+        first_pos = Vector2(first_pos)
+        last_pos = Vector2(last_pos)
+        pos = (first_pos.x + last_pos.x)//2 , (first_pos.y + last_pos.y)//2
+        sound=None
+        super().__init__(pos, delay, sound, z_index)
+        
+
+        vector = last_pos - first_pos
+        length = first_pos.distance_to(last_pos) + overshoot
+        surface = generate_nine_slice(width= 100, height= length, color= (255, 255, 0), center_color= (255, 255, 255))
+        surface = pygame.transform.rotate(surface, vector.angle_to((0, -1)))
+
+        self.add_effect(ParticleEffect(pos, 1, surface, life_time= 1, particle_type= GrowParticle, death_effect= ScaleDeath, kill_duration= 0.4))

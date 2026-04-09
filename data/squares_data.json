@@ -80,12 +80,12 @@
         "rarity": "null"
     },
     "TeleportSquare" : {
-        "name": "Teleportation Square",
+        "name": "Teleporter",
         "description": "Teleport the marker on a random case with no marker",
         "rarity": "common"
     },
     "ModifySideSquare" : {
-        "name": "Ying Yang Square",
+        "name": "Ying Yang",
         "description": "Create a random square is the side square is a default square else delete its effect",
         "rarity": "common"
     },
@@ -93,7 +93,7 @@
 
               
     "BluePrintSquare" : {
-        "name": "Blueprint Square", 
+        "name": "Blueprint", 
         "description": "Duplicate the right square's ability", 
         "rarity": "rare"
     }, 
