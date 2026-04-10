@@ -255,7 +255,7 @@ class BurningSquare(Square):
         if context.marker_placed:
             index = context.table.get_index(self)
             table = context.table.get_case_list()
-            empty_case_list = [case for case in table if isinstance(case, EmptySquare)]
+            empty_case_list = [case for case in table if not case.counting]
             select_table = table.copy()
             select_table.remove(context.table.get_case(index))
             #on eleve les cases vide du compte
@@ -477,52 +477,49 @@ class JailSquare(Square):
 
         return context
     
-class ModifySideSquare(Square):
+class YinYangSquare(Square):
     """Add marker to a case on one of it side"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.get_image(8, 1)
-        self.side = random.randint(0, 3)
-        self.image = pygame.transform.rotate(self.image, self.side * -90)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
             index = context.table.get_index(self)
             
-            if context.blueprint : self.side = random.randint(0, 3)
+            self.sides = []
 
-            #top
-            if self.side == 0:
-                target_square : Square = context.table.get_side(index, 'top')
-            #right
-            elif self.side == 1:
-                target_square : Square = context.table.get_side(index, 'right')
-            #bottom
-            elif self.side == 2:
-                target_square : Square = context.table.get_side(index, 'bottom')
-            #left
-            elif self.side == 3:
-                target_square : Square = context.table.get_side(index, 'left')
+            for side in ['top', 'right', 'bottom', 'left']:
+                target_square : Square = context.table.get_side(index, side)
+                if target_square is not None and target_square.counting:
+                    self.sides.append(target_square)
+            
+
+
+
             
             
-            if target_square is not None:
-                if target_square.counting:
-                    if not isinstance(target_square, DefaultSquare):
-                        new_square = DefaultSquare()
-                        color = (0, 0, 0)
-                    else:
-                        new_square = generate_random_square()
-                        color = (255, 255, 255)
+            if self.sides != []:
+                if len(self.sides) != 1:
+                    random.shuffle(self.sides)
 
-                    context.add_changed_case(target_square, new_square)
-                    context.add_marker(new_square, target_square.get_marker())
-                    
+                target_square = self.sides[0]
+                if not isinstance(target_square, DefaultSquare):
+                    new_square = DefaultSquare()
+                    color = (0, 0, 0)
+                else:
+                    new_square = generate_random_square()
+                    color = (255, 255, 255)
 
-                    context.add_effect(ExplosionEffect(
-                        target_square.get_pos(), 100, speed= (200, 500), scale= 2,
-                        final_speed= 10, kill_duration= 0.2, color= color
-                    ))
+                context.add_changed_case(target_square, new_square)
+                context.add_marker(new_square, target_square.get_marker())
+                
+
+                context.add_effect(ExplosionEffect(
+                    target_square.get_pos(), 100, speed= (200, 500), scale= 2,
+                    final_speed= 10, kill_duration= 0.2, color= color
+                ))
 
         return context
     
@@ -572,6 +569,9 @@ class TeleportSquare(Square):
 
 
         return context
+    
+
+
     
 #----------------------------------------------
 # RARE SQUARES
@@ -786,8 +786,8 @@ class StoneSquare(Square):
         self.placable = [
             DefaultSquare, ReplaceableSquare, ItemSquare, JailSquare, ChainSquare, EmptySquare, 
             BurningSquare, BluePrintSquare, DeathSquare, LuckySquare, MoneySquare, DestructionSquare,
-            DiamondSquare, CreeperSquare, TeleportSquare, ModifySideSquare, ReplaySquare, SideSquare,
-            KillSquare, DivisionSquare, InterestSquare, RandomSquare
+            DiamondSquare, CreeperSquare, TeleportSquare, ReplaySquare, SideSquare,
+            KillSquare, DivisionSquare, InterestSquare, RandomSquare, YinYangSquare
         ]
 
     def can_place(self):

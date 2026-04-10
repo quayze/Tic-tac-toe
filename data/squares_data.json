@@ -84,7 +84,7 @@
         "description": "Teleport the marker on a random case with no marker",
         "rarity": "common"
     },
-    "ModifySideSquare" : {
+    "YinYangSquare" : {
         "name": "Ying Yang",
         "description": "Create a random square is the side square is a default square else delete its effect",
         "rarity": "common"

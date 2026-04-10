@@ -45,7 +45,7 @@ class Moveable(Drawable):
         if self.hold:
             return
 
-        if self.rect.collidepoint(mouse_pos) and not self.state == 'on_mouse':
+        if self.rect.collidepoint(mouse_pos) and not self.state == 'on_mouse' and not self.state == 'hover':
             self.state = 'hover'
             self.hover_trigger()
 
@@ -153,4 +153,3 @@ class Moveable(Drawable):
 
     def not_hovering_trigger(self):
         pass
-    

@@ -122,5 +122,3 @@ class Button(Moveable):
 
     def update(self, dt):
         pass
-
-
