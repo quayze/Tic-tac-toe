@@ -5,15 +5,17 @@ from shadow import *
 from drawable import *
 
 class Moveable(Drawable):
-    def __init__(self, pos, width, height):
+    def __init__(self, pos, surface : pygame.Surface):
         self.base_z = 10
         super().__init__(z = self.base_z)
-        
-        self.rect = pygame.rect.Rect((0, 0, width, height))
-        self.rect.center = pos
-        self.pos = Vector2(pos)
-        self.hold = False
 
+        self.pos = Vector2(pos)
+        self.base_surface = surface
+        self.surface = self.base_surface.copy()
+        self.rect = self.surface.get_rect(center = pos)
+        
+
+        self.hold = False
         self.can_move = True
         self.anchor : Vector2 = None
         self.anchor_reach = True
@@ -22,6 +24,7 @@ class Moveable(Drawable):
 
         self.shadow = Shadow(self.pos)
         self.shadow.set_parallax(**ShadowConfig.DEFAULT)
+        self.shadow.set_image(self.surface)
         self.handle_shadow = True
 
         #----------------------
@@ -29,6 +32,12 @@ class Moveable(Drawable):
         #----------------------
         self.on_release = None
         self.on_click = None
+
+        #----------------------
+        # JUICE
+        #----------------------
+        self.size = 1
+        self.scale_duration = 0
 
     def handle_mouse(self, mouse_pos):
         if not self.can_move:
@@ -87,6 +96,23 @@ class Moveable(Drawable):
             self.anchor_reach = True
         self.rect.center = self.pos
 
+    def update_scale(self, dt):
+        if self.scale_duration <= 0:
+            return
+        progress = min(1, self.scale_time / self.scale_duration)
+        self.size = self.base_size + (self.final_size - self.base_size) * max(0.01, ease_out_back(progress, s= self.ease_force))
+        self.surface = resize(self.base_surface, self.size)
+        self.rect = self.surface.get_rect(center = self.pos)
+        self.scale_time += dt
+        
+        if progress >= 1:
+            self.scale_duration = 0
+            self.size = self.final_size
+            self.surface = resize(self.base_surface, self.size)
+            self.rect = self.surface.get_rect(center = self.pos)
+
+
+
     def set_anchor(self, pos : tuple):
         self.anchor = Vector2(pos)
         self.get_direction_to_anchor()
@@ -107,7 +133,12 @@ class Moveable(Drawable):
 
     def update(self, dt):
         self.update_pos(dt)
+        self.update_scale(dt)
         self.shadow.update(self.rect.center)
+
+    def draw(self, surface : pygame.Surface):
+        self.shadow.draw(surface)
+        surface.blit(self.surface, self.rect)
 
     def set_pos(self, pos):
         self.pos = pos
@@ -121,7 +152,17 @@ class Moveable(Drawable):
                 self.z = new_z
             self.base_z = new_z
 
+    def juice(self, final_scale=1, duration=0.3, ease_force = 5):
+        self.scale_duration = duration
+        self.scale_time = 0
+        self.final_size = final_scale
+        self.base_size = self.size
+        self.ease_force = ease_force
 
+    def change_surface(self, new_surf: pygame.Surface):
+        self.base_surface = new_surf
+        self.surface = self.base_surface.copy()
+        self.rect = self.surface.get_rect(center = self.pos)
 
     def get_pos(self):
         return self.pos

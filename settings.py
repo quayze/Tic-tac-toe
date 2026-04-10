@@ -116,3 +116,4 @@ class SFX:
     LIGHTNING = 'assets/sounds/lightning.mp3'
     DEATH = 'assets/sounds/death.mp3'
     WIN = 'assets/sounds/win.mp3'
+    POWER_UP = 'assets/sounds/powerUp.mp3'

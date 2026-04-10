@@ -527,3 +527,28 @@ class WinEffect(MultipleEffect):
         surface = pygame.transform.rotate(surface, vector.angle_to((0, -1)))
 
         self.add_effect(ParticleEffect(pos, 1, surface, life_time= 1, particle_type= GrowParticle, death_effect= ScaleDeath, kill_duration= 0.4))
+
+
+class PlaceSquareEffect(MultipleEffect):
+    def __init__(self, pos, rarity = 'common' ,delay=0, z_index=50):
+        sound = SFX.POP
+        super().__init__(pos, delay, sound, z_index)
+
+
+        
+
+        if rarity == 'legendary':
+            self.add_effect(
+                LightningEffect(self.pos, 10, (255, 230, 0), (255, 150, 0), sound= None)  
+            )
+            self.add_effect(ScreenShakeEffect(0.8))
+            self.add_effect(SoundEffect(SFX.POWER_UP))
+
+        else:
+            self.add_effect(ExplosionEffect(self.pos, 40, scale= 4, speed= (100,300), 
+                                        color= (255, 255, 255), life_time= (0.5, 0.8), final_speed= 20))
+            self.add_effect(ExplosionEffect(self.pos, 40, scale= 1, speed= (200,400), 
+                                        color= (255, 255, 255), life_time= (0.5, 0.8), final_speed= 20))
+            self.add_effect(ScreenShakeEffect(0.5, 10, 10))
+
+        

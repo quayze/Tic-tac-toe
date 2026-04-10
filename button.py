@@ -5,10 +5,10 @@ from functions import *
 
 class Button(Moveable):
     def __init__(self, pos, width, height, color = (255, 255, 255), text = [], text_size = 50):
-        super().__init__(pos, width, height)
         self.active = True
         self.base_image = generate_nine_slice(width, height, color)
         self.disable_image = generate_nine_slice(width, height, (120, 120, 120))
+        super().__init__(pos, self.base_image)
 
 
         self.texts = text
@@ -16,8 +16,6 @@ class Button(Moveable):
 
         self.get_text_image()
 
-        self.active_image = self.image
-        self.shadow.set_image(self.image)
 
         
 
@@ -37,11 +35,11 @@ class Button(Moveable):
         self.hover_image.fill((170, 170, 170), special_flags= pygame.BLEND_RGBA_MULT)
         
         if not self.active:
-            self.active_image = self.disable_image
+            self.change_surface(self.disable_image)
         elif self.state == 'hover':
-           self.active_image = self.hover_image
+           self.change_surface(self.hover_image)
         else:
-            self.active_image = self.image
+            self.change_surface(self.image)
     
 
     def update_text(self, new_texts = []):
@@ -82,7 +80,7 @@ class Button(Moveable):
 
 
         if self.rect.collidepoint(mouse_pos) and not self.state == 'on_mouse':
-            self.active_image = self.hover_image
+            self.change_surface(self.hover_image)
             self.state = 'hover'
 
         if mouse_but[0] and self.state == 'hover':
@@ -98,26 +96,23 @@ class Button(Moveable):
         if not self.rect.collidepoint(mouse_pos) and self.state == 'on_mouse':
             self.state = 'idle'
             self.rect.center = self.pos
-            self.active_image = self.image
+            self.change_surface(self.image)
 
 
             
 
         if not self.rect.collidepoint(mouse_pos) and self.state == 'hover':
-            self.active_image = self.image
+            self.change_surface(self.image)
             self.state = 'idle'
 
     def activate(self):
         self.active = True
-        self.active_image = self.image
+        self.change_surface(self.image)
 
     def desactivate(self):
         self.active = False
-        self.active_image = self.disable_image
+        self.change_surface(self.disable_image)
 
-    def draw(self, screen):
-        self.shadow.draw(screen)
-        screen.blit(self.active_image, self.rect)
 
 
     def update(self, dt):

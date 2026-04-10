@@ -160,7 +160,10 @@ class Table(Drawable):
         return context
     
     def place_square(self, square : Square, old_square_index : int, context : GameContext):
+        old_square = self.get_case(old_square_index)
         self.change_case(square, old_square_index)
+        context.add_effect(PlaceSquareEffect(old_square.get_pos(), square.rarity))
+        
         full_stone = True
         for square in self.cases_list:
             if not isinstance(square, StoneSquare):

@@ -34,7 +34,7 @@ class TicTacToe:
     def start_playing(self):
         self.state = 'playing' 
         self.winner = None
-        self.turns_left = 20
+        self.turns_left = 10
         self.table.activate()
         self.table.spawn_squares()
         self.start_turn()

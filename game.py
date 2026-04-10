@@ -18,8 +18,8 @@ class Game:
         self.clock = pygame.time.Clock()
         
 
-        self.player = Player(name= 'JOUEUR', markers_type= 'cross', color_theme= 'red')
-        self.guest = Player(name= 'GUEST', markers_type= 'round', color_theme= 'blue')
+        self.player = Player(name= 'JOUEUR', markers_type= 'pointer', color_theme= 'red')
+        self.guest = Player(name= 'GUEST', markers_type= 'sun', color_theme= 'blue')
         self.screen_manager = ScreenManager()
         self.effects_manager = EffectsManager(self)
         self.sound_manager = SoundManager()
@@ -113,7 +113,7 @@ class Game:
             surf = get_marker('death_star')
             surf = resize(surf, PIXEL_SIZE)
             self.add_effect(
-                WinEffect(self.mouse_pos, (1000, 540))    
+                LightningEffect(self.mouse_pos, 10, (255, 230, 0), (255, 150, 0), sound= None)  
             )
 
         elif not pygame.mouse.get_pressed()[2]:

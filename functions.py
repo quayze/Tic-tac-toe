@@ -132,6 +132,12 @@ def get_marker(marker_type):
     elif marker_type == 'sword':
         return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE, frame_x= 2, frame_y=1)
     
+    elif marker_type == 'sun':
+        return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE, frame_x= 3, frame_y=1)
+    
+    elif marker_type == 'pointer':
+        return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE, frame_x= 4, frame_y=1)
+    
     else:
         return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE)
     
