@@ -12,6 +12,7 @@ from item import *
 from item_area import *
 from button import *
 from effect_group import *
+from interface import *
 
 
 class TicTacToe:
@@ -29,27 +30,32 @@ class TicTacToe:
         self.context = None
 
 
-        self.temp = False
+        self.interface = GameInterface(self.game)
+        
+
+
 
     def start_playing(self):
         self.state = 'playing' 
         self.winner = None
-        self.turns_left = 10
+        self.active_player = random.choices([self.player1, self.player2])[0]
+        self.turns_left = 0
         self.table.activate()
         self.table.spawn_squares()
+        self.interface.activate()
         self.start_turn()
+
+        skip_button = self.interface.get_element('skip_button')
+        skip_button.on_release = self._skip_turn
         
 
 
     def new_game(self, first_player = None):
         self.turns_left -= 1
-
         self.active_player = first_player if first_player is not None else random.choices([self.player1, self.player2])[0]
-
         context = GameContext()
         context = self.table.reset_cases(context)
         self.apply_context_events(context)
-
 
         self.state = 'playing'
         self.winner = None
@@ -101,29 +107,40 @@ class TicTacToe:
         self.apply_effects(context)
 
     def _skip_turn(self):
+        if self.state != 'playing':
+            return
+
         context = GameContext(self.active_player, self.table, self.session)
         context.skip_turn = True
 
         inv = self._active_inventory()
         marker : Marker = inv.marker_container.marker
-        context.add_effect(BreakEffect(marker.get_pos(), marker.surface))
+        context.add_effect(FallEffect(marker.get_pos(), 1, marker.surface, angle_offset= 40, speed= (500, 1000)))
         marker.kill()
 
-
+        context = self.table.trigger_abilities(context)
         self.apply_context_events(context)
+
         self.apply_effects(context)
 
     def apply_context_events(self, context : GameContext):
         self.table.apply_context(context)
         for player, gain in context.gains.items():
             player.pay(gain)
+        for player, lost in context.losts.items():
+            player.lose_money(lost)
         for effect in context.effects:
             self.game_effects.add_effect(effect,self.game)
+
+        context.gains.clear()
+        context.losts.clear()
+        context.effects.clear()
+
 
     
 
     def apply_effects(self, context):
-        self.context = context
+        self.context : GameContext = context
         result, winner, squares = self.table.get_result()
 
         if result == 'win':
@@ -138,17 +155,19 @@ class TicTacToe:
         elif result == 'ongoing':
             self.active_player = self.player1 if self.active_player == self.player2 else self.player2
             if self.context.replay: self.active_player = self.context.player
-            for inv in self.inventories.values():
-                inv.delete_callbacks()
+            for inv in self.inventories.values(): inv.delete_callbacks()
+            self.context.new_turn = True
+            self.context = self.table.trigger_abilities(self.context)
+            self.apply_context_events(self.context)
 
             self.start_turn()
 
+
     def end_round(self, context :GameContext):
-        context = self.table.trigger_end_round_ablility(context)
-        for player, gain in context.gains.items():
-            player.pay(gain)
-        for player, lost in context.losts.items():
-            player.lose_money(lost)
+        context.end_round = True
+        context = self.table.trigger_abilities(context)
+
+        self.apply_context_events(self.context)
         
 
         if self.turns_left == 0:
@@ -156,21 +175,19 @@ class TicTacToe:
             context = GameContext()
             context = self.table.destroy(context)
             self.apply_context_events(context)
+            self.interface.desactivate()
             return
         
         self.new_game(context.first_to_play)
 
     def handle_mouse(self, mouse_pos):
         if self.state == 'playing':
-            if pygame.mouse.get_pressed()[1] and not self.temp:
-                self.temp = True
-                self._skip_turn()
-            elif not pygame.mouse.get_pressed()[1]:
-                self.temp = False
+            self.interface.handle_mouse(mouse_pos)
 
 
     def update(self, dt):
         self.table.update(dt)
+        self.interface.update(dt)
 
         if self.state == 'playing':
             pass
@@ -193,7 +210,10 @@ class TicTacToe:
             self.end_round(self.context)
 
     def update_ending(self, dt):
-        if self.game_effects.is_done():
+        if self.game_effects.is_done() and self.interface.is_closed():
+            for inv in self.inventories.values():
+                inv.delete_callbacks()
+            
             self.game.next_phase()
 
     

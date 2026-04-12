@@ -20,6 +20,8 @@ class Moveable(Drawable):
         self.anchor : Vector2 = None
         self.anchor_reach = True
 
+        self.move = False
+
         self.state = 'idle' #idle, hover, on_mouse
 
         self.shadow = Shadow(self.pos)
@@ -40,7 +42,7 @@ class Moveable(Drawable):
         self.scale_duration = 0
 
     def handle_mouse(self, mouse_pos):
-        if not self.can_move:
+        if not self.can_move or self.move:
             return
         mouse_but = pygame.mouse.get_pressed()
         self.move_to_mouse(mouse_pos)
@@ -86,13 +88,13 @@ class Moveable(Drawable):
             self.rect.center = self.pos
 
     def update_pos(self, dt):
-        if self.state == 'on_mouse' or self.anchor is None or self.anchor_reach:
+        if self.state == 'on_mouse' or self.anchor is None or self.anchor_reach or self.move:
             return
         distance = self.pos.distance_to(self.anchor)
         speed = 100 + distance*7
         self.pos += self.direction * speed * dt
         if self.pos.distance_to(self.anchor) <= speed * dt:
-            self.pos = self.anchor
+            self.pos = Vector2(self.anchor)
             self.anchor_reach = True
         self.rect.center = self.pos
 
@@ -124,6 +126,7 @@ class Moveable(Drawable):
     def start_reacting_to_mouse(self):
         self.can_move = True
         self.state = 'idle'
+
     
     def set_shadow(self, activated = True):
         self.handle_shadow = activated
@@ -134,6 +137,7 @@ class Moveable(Drawable):
     def update(self, dt):
         self.update_pos(dt)
         self.update_scale(dt)
+        self.update_auto_move(dt)
         self.shadow.update(self.rect.center)
 
     def draw(self, surface : pygame.Surface):
@@ -173,8 +177,35 @@ class Moveable(Drawable):
     def get_anchor(self):
         return self.anchor
     
+    #----------------------------------------
+    # AUTO MOVE
+    #----------------------------------------
 
-    # triggers, can be used by child classes
+    def move_to(self, target_pos):
+        self.move = True
+        self.target = Vector2(target_pos)
+        self.target_direction = self.target - self.pos
+        if self.target_direction.length() != 0 : self.target_direction = self.target_direction.normalize()
+        self.speed = 100
+        self.on_mouse_trigger()
+
+    def update_auto_move(self, dt):
+        if not self.move:
+            return
+        self.pos += self.target_direction * self.speed * dt
+        self.rect.center = self.pos
+        if self.pos.distance_to(self.target) <= self.speed * dt:
+            self.move = False
+            self.pos = Vector2(self.target)
+            self.rect.center = self.pos
+            self.on_realease_trigger()
+
+            
+
+    
+    #----------------------------------------
+    # TRIGGERS can be used by child classes
+    #----------------------------------------
 
     def on_mouse_trigger(self):
         self.z = 100
@@ -185,12 +216,17 @@ class Moveable(Drawable):
     def on_realease_trigger(self):
         self.z = self.base_z
         self.shadow.set_parallax(**ShadowConfig.DEFAULT)
-        self.get_direction_to_anchor()
         if self.on_release:
             self.on_release()
+
+        self.get_direction_to_anchor()
 
     def hover_trigger(self):
         pass
 
     def not_hovering_trigger(self):
         pass
+
+    def delete_callbacks(self):
+        self.on_click = None
+        self.on_release = None

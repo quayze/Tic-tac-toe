@@ -1,5 +1,6 @@
 import pygame
 from settings import *
+import math
 import random
 import json
 
@@ -231,3 +232,33 @@ def rand(tuple_int, int_mode = False):
 
 def ease_out_back(t, s=1.70158):
     return 1 + (s + 1) * (t - 1)**3 + s * (t - 1)**2
+
+def ease_out_bounce(t):
+    n1 = 7.5625
+    d1 = 2.75
+
+    if (t < 1 / d1) :
+        return n1 * t * t
+    
+    elif (t < 2 / d1) :
+        t -= 1.5 / d1
+        return n1 * t * t + 0.75
+    
+    elif (t < 2.5 / d1) :
+        t -= 2.25 / d1
+        return n1 * t * t + 0.9375
+    
+    else :
+        t -= 2.625 / d1
+        return n1 * t * t + 0.984375
+    
+def ease_out_elastic(t: float, weakness = 20) -> float:
+    c4 = (2 * math.pi) / 3
+
+    if t == 0:
+        return 0
+    if t == 1:
+        return 1
+
+    return pow(2, -weakness * t) * math.sin((t * 10 - 0.75) * c4) + 1
+

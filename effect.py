@@ -541,7 +541,8 @@ class PlaceSquareEffect(MultipleEffect):
             self.add_effect(
                 LightningEffect(self.pos, 10, (255, 230, 0), (255, 150, 0), sound= None)  
             )
-            self.add_effect(ScreenShakeEffect(0.8))
+
+            self.add_effect(ScreenShakeEffect(0.8, 30, 30))
             self.add_effect(SoundEffect(SFX.POWER_UP))
 
         else:
@@ -552,3 +553,41 @@ class PlaceSquareEffect(MultipleEffect):
             self.add_effect(ScreenShakeEffect(0.5, 10, 10))
 
         
+
+class GunEffect(MultipleEffect):
+    def __init__(self, pos, target_pos, bullet, barrel_offset = (0, 0), smoke_color_1 = None, 
+                 smoke_color_2 = None, break_effect = None, break_intensity = 700,
+                  delay=0, sound=SFX.GUN, z_index=50):
+        super().__init__(pos, delay, sound, z_index)
+
+        barrel_pos = self.pos + Vector2(barrel_offset)
+
+        if break_effect is not None:
+            self.add_effect(BreakEffect(target_pos, break_effect, intensity= break_intensity))
+
+        self.add_effect(BloodEffect(target_pos, direction= target_pos - self.pos))
+
+        if smoke_color_2 is not None:
+            self.add_effect(
+                ExplosionEffect(
+                barrel_pos, amount= 100, speed= (400, 700), scale= 2, final_speed= 10, 
+                life_time= (0.2, 0.3), kill_duration= (0.6, 0.9), color= smoke_color_2
+            ))
+
+        if smoke_color_1 is not None:
+            self.add_effect(
+                ExplosionEffect(
+                barrel_pos, amount= 100, speed= (500, 900), scale= 1, final_speed= 10, 
+                life_time= (0.2, 0.3), kill_duration= (0.6, 0.9), color= smoke_color_1
+            ))
+
+        self.add_effect(
+            TargetEffect(
+            barrel_pos, amount= 1, surface= bullet, 
+            target= target_pos, life_time= 0.15,
+            adaptative_angle= True, kill_duration= 0.1, z_index= 51
+        ))
+
+        self.add_effect(ScreenShakeEffect(0.5, 25, 25))
+        self.add_effect((FlashEffect((255, 255, 255), 0.2, 255, 0.05)))
+

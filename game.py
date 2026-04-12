@@ -6,6 +6,7 @@ from player_interface import *
 from game_managers import *
 from effect import *
 from particles import *
+from main_menu import *
 
 class Game:
     def __init__(self):
@@ -18,19 +19,23 @@ class Game:
         self.clock = pygame.time.Clock()
         
 
-        self.player = Player(name= 'JOUEUR', markers_type= 'pointer', color_theme= 'red')
-        self.guest = Player(name= 'GUEST', markers_type= 'sun', color_theme= 'blue')
+        self.player = Player(name= 'JOUEUR', markers_type= 'death_star', color_theme= 'red')
+        self.guest = Player(name= 'GUEST', markers_type= 'cat', color_theme= 'blue')
         self.screen_manager = ScreenManager()
         self.effects_manager = EffectsManager(self)
         self.sound_manager = SoundManager()
 
+        self.main_menu = MainMenu(self)
+        self.main_menu.open()
 
-        self.new_run()
+
 
 
         self.temp = False
         self.screen_offset = [0, 0]
         self.shake_trauma = 0
+
+        self.state = 'main'
 
 
     def run(self):
@@ -82,6 +87,7 @@ class Game:
 
 
     def new_run(self):
+        self.screen_manager.clear()
         self.session = GameSession(self.player, self.guest, self)
         self.tic_tac_toe = TicTacToe(self.session, self)
         self.shop = Shop(self.session, self)
@@ -97,16 +103,23 @@ class Game:
         elif self.state == 'shop':
             self.state = 'play'
             self.tic_tac_toe.start_playing()
+
         
     def handle_mouse(self):
-        for inv in self.inventories:
-            inv.handle_mouse(self.mouse_pos)
+        if self.state == 'play' or self.state == 'shop':
+            for inv in self.inventories:
+                inv.handle_mouse(self.mouse_pos)
 
         if self.state == 'play':
             self.tic_tac_toe.handle_mouse(self.mouse_pos)
 
         elif self.state == 'shop':
             self.shop.handle_mouse(self.mouse_pos)
+
+        elif self.state == 'main':
+            self.main_menu.handle_mouse(self.mouse_pos)
+
+        
 
         if pygame.mouse.get_pressed()[2] and not self.temp:
             self.temp = True
@@ -131,12 +144,16 @@ class Game:
 
 
     def run_game(self):
-        for inv in self.inventories:
-            inv.update(self.delta_time)
+        if self.state == 'play' or self.state == 'shop':
+            for inv in self.inventories:
+                inv.update(self.delta_time)
         if self.state == 'play':
             self.tic_tac_toe.update(self.delta_time)
         elif self.state == 'shop':
-            self.shop.update(self.delta_time)  
+            self.shop.update(self.delta_time)
+
+        elif self.state == 'main':
+            self.main_menu.update(self.delta_time)
         
     def add_object(self, object):
         self.screen_manager.add_object(object)

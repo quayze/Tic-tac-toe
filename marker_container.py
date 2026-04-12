@@ -48,7 +48,7 @@ class MarkerContainer:
         screen.blit(self.surface, self.rect)
 
     def marker_placed(self):
-        return self.placed == True
+        return self.placed is True
     
     def has_marker(self):
         return self.marker is not None

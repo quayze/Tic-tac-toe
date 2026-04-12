@@ -18,7 +18,6 @@ class ScreenManager:
     def add_object(self, object):
         if object not in self.layers['game']:
             self.layers['game'].append(object)
-
     
     def add_removed_object(self, object):
         self.deleted.append(object)
@@ -29,6 +28,9 @@ class ScreenManager:
                 self.layers['game'].remove(object)
         self.deleted.clear()
 
+    def clear(self):
+        for object in self.layers['game']:
+            self.add_removed_object(object)
 
     def draw_background(self, screen):
         for el in sorted(self.layers['background'], key=lambda el: el.z):

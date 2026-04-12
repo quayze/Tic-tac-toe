@@ -39,4 +39,5 @@ class Marker(Moveable):
         
 
     def get_placed(self):
+        self.juice(1)
         self.placed = True

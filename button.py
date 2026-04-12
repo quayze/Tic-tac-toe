@@ -4,11 +4,13 @@ from functions import *
 
 
 class Button(Moveable):
-    def __init__(self, pos, width, height, color = (255, 255, 255), text = [], text_size = 50):
+    def __init__(self, pos, width, height, color = (255, 255, 255), text = [], text_size = 50, pixel_size= NineSliceConfig.PIXEL_SIZE):
         self.active = True
-        self.base_image = generate_nine_slice(width, height, color)
-        self.disable_image = generate_nine_slice(width, height, (120, 120, 120))
+        self.base_image = generate_nine_slice(width, height, color, pixel_size)
+        self.disable_image = generate_nine_slice(width, height, (120, 120, 120), pixel_size)
         super().__init__(pos, self.base_image)
+
+        self.shadow.set_parallax(x_mult= 0.03, y_abs= 10)
 
 
         self.texts = text
@@ -24,7 +26,11 @@ class Button(Moveable):
         
         if self.texts != []:
             offset = self.text_size * 1.2
-            base_pos_y = self.image.get_height()//2 - len(self.texts) * get_text_dimensions(self.texts[0], self.text_size) + (len(self.texts)-1)*offset
+            text_height = get_text_dimensions(self.texts[0], self.text_size)
+            block_height = (len(self.texts) - 1) * offset + text_height
+            base_pos_y = self.image.get_height()//2 - block_height//2 + text_height//2
+
+            
             for idx, text in enumerate(self.texts):
                 text_surface = get_text_surface(text, self.text_size)
                 text_rect = text_surface.get_rect(center = (self.image.get_width()//2, base_pos_y + offset * idx))

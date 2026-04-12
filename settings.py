@@ -76,7 +76,7 @@ class PopupConfig:
 
 class ShadowConfig:
     DEFAULT = {'x_mult' : 0.05, 'y_abs' : 20}
-    STRONG = {'x_mult' : 0.15, 'y_abs' : 60}
+    STRONG = {'x_mult' : 0.10, 'y_abs' : 60}
     MINIMAL = {'x_mult' : 0.01, 'y_abs' : 10}
     BOTTOM = {'y_abs' : 10}
 
@@ -117,3 +117,4 @@ class SFX:
     DEATH = 'assets/sounds/death.mp3'
     WIN = 'assets/sounds/win.mp3'
     POWER_UP = 'assets/sounds/powerUp.mp3'
+    LASER = 'assets/sounds/laser.mp3'

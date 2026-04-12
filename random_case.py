@@ -5,12 +5,12 @@ def get_random_case(pos):
                            DefaultSquare, DivisionSquare, BurningSquare, MoneySquare, DestructionSquare,
                            InterestSquare, DeathSquare, ItemSquare, JailSquare, CreeperSquare, RandomSquare,
                            FirstSquare, DiamondSquare, LuckySquare, BluePrintSquare,
-                           YinYangSquare, TeleportSquare, StoneSquare])[0]
+                           YinYangSquare, TeleportSquare, StoneSquare, LaserSquare, LoseMoneySquare])[0]
     return square(pos)
 
-def get_random_case(pos):
-    case = random.choices([DefaultSquare, LuckySquare])[0]
+def get_random_ca1se(pos):
+    case = random.choices([LuckySquare, DefaultSquare])[0]
     return case(pos)
 
-def get_random_case1(pos):
-    return DefaultSquare(pos)
+def get_random_1case(pos):
+    return  DefaultSquare(pos)

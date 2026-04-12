@@ -10,7 +10,8 @@ class GameContext:
 
         self.try_place = False
         self.marker_placed = False
-        self.skip_turn = True
+        self.skip_turn = False
+        self.new_turn = False
         self.new_round = False
         self.end_round = False
         self.destroyed = False

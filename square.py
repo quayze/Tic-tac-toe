@@ -76,6 +76,9 @@ class Square:
     
     def set_marker(self, marker=None):
         self.marker = marker
+
+    def has_marker(self):
+        return self.marker != None
         
 
     def set_pos(self, pos):

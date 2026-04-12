@@ -211,7 +211,9 @@ class Table(Drawable):
                 case.place_marker(marker)
                 self.game.add_object(marker)
             else:
-                marker.kill()
+                case.remove_marker()
+                case.place_marker(marker)
+                self.game.add_object(marker)
 
         context.changed_markers = {}
         context.changed_case = {}

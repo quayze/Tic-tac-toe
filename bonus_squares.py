@@ -68,8 +68,9 @@ class ReplaySquare(Square):
             context.add_effect(
                 RotateEffect(center, 1, replay_particule, death_effect= FadeDeath, alpha= (230, 230),
                              scale= 25, kill_duration= 0.3, rotation_speed= 500, life_time= 0.7,
-                             sound= SFX.SCRATCH)
-            )
+                             sound= SFX.SCRATCH
+            ))
+            context.add_effect(ScreenShakeEffect(0.5, 40, 0))
 
         return context
     
@@ -161,30 +162,14 @@ class KillSquare(Square):
                 
                 # Effects
                 barrel_pos = self.rect.centerx, self.rect.centery - 3*PIXEL_SIZE
-                context.add_effect(BreakEffect(kill.get_pos(), kill.marker.image))
-                context.add_effect(BloodEffect(kill.get_pos(), direction= kill.get_pos() - self.pos))
-                context.add_effect(
-                    ExplosionEffect(
-                    barrel_pos, amount= 100, speed= (400, 700), scale= 2, final_speed= 10, 
-                    life_time= (0.2, 0.3), kill_duration= (0.6, 0.9), color= (200, 200, 200)
-                ))
-                context.add_effect(
-                    ExplosionEffect(
-                    barrel_pos, amount= 100, speed= (500, 900), scale= 1, final_speed= 10, 
-                    life_time= (0.2, 0.3), kill_duration= (0.6, 0.9), color= (30, 30, 30)
-                ))
-                context.add_effect(
-                    TargetEffect(
-                    barrel_pos, amount= 1, surface= load_image('bullet', PartConfig.BULLET), 
-                    target= kill.get_pos(), scale=8, life_time= 0.15,
-                    adaptative_angle= True, kill_duration= 0.1, sound= SFX.GUN, z_index= 51
-                ))
+                bullet = resize(load_image('bullet', PartConfig.BULLET), 8)
+                context.add_effect(GunEffect(self.pos, kill.get_pos(), bullet,
+                                             (0, - 3*PIXEL_SIZE), (30, 30, 30), (200, 200, 200), kill.marker.image         
+                                             ))
                 context.add_effect(
                     ParticleEffect(barrel_pos, 1, load_image('gun_shoot', PartConfig.SHOOT), 
                                    death_effect= FadeDeath, scale= 5, life_time= 0.5, kill_duration= 0.5, angle= (-10, 10)
                 ))
-                context.add_effect(ScreenShakeEffect(0.5))
-                context.add_effect((FlashEffect((255, 255, 255), 0.2, 255, 0.05)))
 
         return context
     
@@ -292,9 +277,27 @@ class MoneySquare(Square):
                     FallEffect(
                         self.get_pos(), gain, coin, angle_offset= 30, scale=PIXEL_SIZE, 
                         speed= (500, 1200), sound= SFX.COIN_DROP
-                    )
-                )
+                    ))
                 
+
+        return context
+    
+class LoseMoneySquare(Square):
+    def __init__(self, pos = (0, 0)):
+        super().__init__(pos)
+        self.get_image(4, 2)
+        self.blit_image()
+
+    def trigger_effect(self, context : GameContext):
+        if context.marker_placed:
+            if context.player.get_balance() > 0:
+                lost = random.randint(1, 5)
+                context.add_lost(context.player, lost)
+                coin = load_image('coin', PartConfig.COIN)
+                context.add_effect(
+                        CompressEffect(self.get_pos(), amount= lost*10, life_time= (0.3, 0.5), surface= coin, scale= 3,
+                        alpha= 255, kill_duration= 0, distance= (100, 400), angle= (-180, 180))
+                    )
 
         return context
     
@@ -517,7 +520,7 @@ class YinYangSquare(Square):
                 
 
                 context.add_effect(ExplosionEffect(
-                    target_square.get_pos(), 100, speed= (200, 500), scale= 2,
+                    target_square.get_pos(), 100, speed= (150, 350), scale= 2,
                     final_speed= 10, kill_duration= 0.2, color= color
                 ))
 
@@ -567,6 +570,49 @@ class TeleportSquare(Square):
                 )
                 context.add_effect(ScreenShakeEffect(0.5))
 
+
+        return context
+    
+class PointingSquare(Square):
+    def __init__(self, pos = (0, 0)):
+        super().__init__(pos)
+        self.get_image(2, 2)
+        self.side = 0
+        self.base_image = self.image
+        self.image = self.base_image.copy()
+        self.blit_image()
+
+    def trigger_effect(self, context : GameContext):
+        if context.marker_placed and not context.blueprint:
+            index = context.table.get_index(self)
+            
+            if context.blueprint : self.side = random.randint(0, 3)
+
+            #haut
+            if self.side == 0:
+                target_case : Square = context.table.get_side(index, 'top')
+            #droite
+            elif self.side == 1:
+                target_case : Square = context.table.get_side(index, 'right')
+            #bas
+            elif self.side == 2:
+                target_case : Square = context.table.get_side(index, 'bottom')
+            #gauche
+            elif self.side == 3:
+                target_case : Square = context.table.get_side(index, 'left')
+            
+            
+            if target_case is not None and target_case.can_place():
+                marker_pos = target_case.get_pos()
+                marker = Marker(owner= context.player, pos= marker_pos)
+                context.add_marker(target_case, marker)
+
+
+        elif context.new_turn and not context.blueprint:
+            
+            self.side = (self.side + 1)%4
+            self.image = pygame.transform.rotate(self.base_image, self.side * -90)
+            self.blit_image()
 
         return context
     
@@ -677,7 +723,67 @@ class CreeperSquare(Square):
 
         return context
 
+class LaserSquare(Square):
+    def __init__(self, pos=(0, 0)):
+        super().__init__(pos)
+        self.get_image(3, 2)
+        self.blit_image()
 
+
+
+    def trigger_effect(self, context : GameContext):
+        if context.skip_turn:
+            squares : list[Square] = context.table.get_case_list()
+            targets = []
+            for square in squares:
+                
+                if square.has_marker() and square.get_owner() != context.player and square != self:
+                    targets.append(square)
+
+            if targets != []:
+                kill_list = []
+                context.skip_turn = False
+
+                if len(targets) > 1: 
+                    random.shuffle(targets)
+                    for i in range(2):
+                        kill_list.append(targets[i])
+                else:
+                    kill_list.append(targets[0])
+
+                for killed_square in kill_list:
+                    marker = Marker(context.player, killed_square.get_pos())
+                    context.add_marker(killed_square, marker)
+
+                default_square = DefaultSquare()
+                context.add_changed_case(self, default_square)
+                context.add_marker(default_square, self.get_marker())
+
+                
+
+                laser_beam = pygame.Surface((30, 100), pygame.SRCALPHA).convert_alpha()
+                laser_beam.fill((0, 255, 0))
+                marker_image = marker.image.copy()
+                marker_image.fill((100, 255, 100), special_flags= pygame.BLEND_RGBA_MULT)
+
+                context.add_effect(ParticleEffect(self.get_pos(), 1, self.surface, life_time= 0.7, kill_duration= 0, z_index= 5))
+                context.add_effect(BreakEffect(self.get_pos(), self.surface, delay= 0.7, z_index= 5))
+                for killed_square in kill_list:
+                    context.add_effect(ParticleEffect(killed_square.get_pos(), 1, marker_image, life_time= 0, kill_duration= 1.5, 
+                                                    death_effect= FadeDeath, z_index= 10))
+
+
+                    context.add_effect(GunEffect(self.pos, killed_square.get_pos(), laser_beam,
+                                (-PIXEL_SIZE, 0), (0, 50, 0), (0, 120, 0), killed_square.marker.image,
+                                break_intensity= 700, sound= None   
+                                ))
+                context.add_effect(SoundEffect(SFX.LASER))
+                
+               
+
+
+
+        return context
 
 #----------------------------------------------
 # LEGENDARY SQUARES

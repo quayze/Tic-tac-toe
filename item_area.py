@@ -72,7 +72,8 @@ class ItemArea:
         if self.items_inventory == []:
             return
         
-        item_center = self.items_inventory[0].get_rect().width//2
+        base_item = self.items_inventory[0]
+        item_center = base_item.base_surface.get_width() // 2
 
         left = self.left_pos + item_center if self.left_pos + item_center < self.right_pos else self.left_pos
         right = self.right_pos - item_center if self.right_pos - item_center > self.left_pos else self.right_pos

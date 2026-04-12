@@ -20,7 +20,7 @@
         "rarity": "common"
     }, 
     "KillSquare" : {
-        "name": "Killer Square", 
+        "name": "Six-shooter", 
         "description": "Kills one random opponent marker",
         "rarity": "common"
     }, 
@@ -35,17 +35,22 @@
         "rarity": "common"
     }, 
     "BurningSquare" : {
-        "name": "Burning Square", 
+        "name": "Fire Square", 
         "description": "Burns one random square and destoys its marker", 
         "rarity": "common"
     }, 
     "MoneySquare" : {
         "name": "Money Square", 
-        "description": "Gives the player a random amount of money between 1 and 10", 
+        "description": "Gives the player a random amount of money between 0 and 10", 
+        "rarity": "common"
+    },
+    "LoseMoneySquare" : {
+        "name": "Anti Money Square", 
+        "description": "Absorb a random amount of money between 1 and 5", 
         "rarity": "common"
     }, 
     "InterestSquare" : {
-        "name": "Interest Square", 
+        "name": "Stonks", 
         "description": "Gives 10% of total money if a marker is placed on it at the end of the round", 
         "rarity": "common"
     },         
@@ -65,12 +70,12 @@
         "rarity": "null"
     },
     "RandomSquare" : {
-        "name": "Random Square", 
+        "name": "Random Dice", 
         "description": "Shuffles all squares", 
         "rarity": "common"
     },
     "JailSquare" : {
-        "name": "Jail Square", 
+        "name": "Jail", 
         "description": "Creates one linked Chain Square but lose 5$ minimum or 10% of balance at the end of the round", 
         "rarity": "common"
     },
@@ -91,6 +96,7 @@
     },
 
 
+
               
     "BluePrintSquare" : {
         "name": "Blueprint", 
@@ -98,7 +104,7 @@
         "rarity": "rare"
     }, 
     "DeathSquare" : {
-        "name": "Death Square", 
+        "name": "The Death", 
         "description": "Kills all markers of one random player", 
         "rarity": "rare"
     }, 
@@ -106,7 +112,12 @@
         "name": "Creeper Square", 
         "description": "Explodes, destroying itself and all surrounding squares", 
         "rarity": "rare"
-    },   
+    },
+    "LaserSquare" : {
+        "name": "Laser Gun", 
+        "description": "When skip turn, shoot up to two lasers who targets opponent markers and replace them with player's markers", 
+        "rarity": "rare"
+    },
     
 
 
