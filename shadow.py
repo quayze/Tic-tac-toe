@@ -8,6 +8,8 @@ class Shadow:
         
         self.object_pos = object_pos
 
+        self.anchor_pos = WIDTH//2, HEIGHT
+
         self.x_mult = None
         self.y_mult = None
         self.x_abs = 0
@@ -25,8 +27,7 @@ class Shadow:
 
     def get_pos(self):
         pos_x, pos_y = self.object_pos
-        center_x = WIDTH//2
-        center_y = HEIGHT
+        center_x, center_y = self.anchor_pos
         offset_x = center_x - pos_x
         offset_y = center_y - pos_y
 
@@ -49,9 +50,12 @@ class Shadow:
         if self.image is not None:
             self.rect.center = self.pos
 
-    def draw(self, screen):
-        screen.blit(self.image, self.rect)
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
 
+
+        
+    
     def update(self, object_pos):
         if object_pos != self.object_pos:
             self.object_pos = object_pos

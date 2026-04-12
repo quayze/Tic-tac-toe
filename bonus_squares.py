@@ -735,53 +735,98 @@ class LaserSquare(Square):
         if context.skip_turn:
             squares : list[Square] = context.table.get_case_list()
             targets = []
+
+            best_squares = {}
+
             for square in squares:
-                
-                if square.has_marker() and square.get_owner() != context.player and square != self:
-                    targets.append(square)
+                if isinstance(square, LaserSquare):
+                    if square.marker is None : quality = 2
+                    elif square.get_owner() == context.player : quality = 1
+                    else : quality = 0
+                    best_squares[square] = quality
+            
+            sorted_squares = [k for k, v in sorted(best_squares.items(), key=lambda x: x[1], reverse=True)]
+            if sorted_squares[0] == self:
 
-            if targets != []:
-                kill_list = []
-                context.skip_turn = False
+                for square in squares:
+                    if square.has_marker() and square.get_owner() != context.player and square != self:
+                        targets.append(square)
 
-                if len(targets) > 1: 
-                    random.shuffle(targets)
-                    for i in range(2):
-                        kill_list.append(targets[i])
-                else:
-                    kill_list.append(targets[0])
+                if targets != []:
+                    kill_list = []
+                    context.skip_turn = False
 
-                for killed_square in kill_list:
-                    marker = Marker(context.player, killed_square.get_pos())
-                    context.add_marker(killed_square, marker)
+                    if len(targets) > 1: 
+                        random.shuffle(targets)
+                        for i in range(2):
+                            kill_list.append(targets[i])
+                    else:
+                        kill_list.append(targets[0])
 
-                default_square = DefaultSquare()
-                context.add_changed_case(self, default_square)
-                context.add_marker(default_square, self.get_marker())
+                    for killed_square in kill_list:
+                        marker = Marker(context.player, killed_square.get_pos())
+                        context.add_marker(killed_square, marker)
 
-                
+                    default_square = DefaultSquare()
+                    context.add_changed_case(self, default_square)
+                    context.add_marker(default_square, self.get_marker())
 
-                laser_beam = pygame.Surface((30, 100), pygame.SRCALPHA).convert_alpha()
-                laser_beam.fill((0, 255, 0))
-                marker_image = marker.image.copy()
-                marker_image.fill((100, 255, 100), special_flags= pygame.BLEND_RGBA_MULT)
+                    
+                    # Effect
+                    laser_beam = pygame.Surface((30, 100), pygame.SRCALPHA).convert_alpha()
+                    laser_beam.fill((0, 255, 0))
+                    marker_image = marker.image.copy()
+                    marker_image.fill((100, 255, 100), special_flags= pygame.BLEND_RGBA_MULT)
 
-                context.add_effect(ParticleEffect(self.get_pos(), 1, self.surface, life_time= 0.7, kill_duration= 0, z_index= 5))
-                context.add_effect(BreakEffect(self.get_pos(), self.surface, delay= 0.7, z_index= 5))
-                for killed_square in kill_list:
-                    context.add_effect(ParticleEffect(killed_square.get_pos(), 1, marker_image, life_time= 0, kill_duration= 1.5, 
-                                                    death_effect= FadeDeath, z_index= 10))
-
-
-                    context.add_effect(GunEffect(self.pos, killed_square.get_pos(), laser_beam,
-                                (-PIXEL_SIZE, 0), (0, 50, 0), (0, 120, 0), killed_square.marker.image,
-                                break_intensity= 700, sound= None   
-                                ))
-                context.add_effect(SoundEffect(SFX.LASER))
-                
-               
+                    context.add_effect(ParticleEffect(self.get_pos(), 1, self.surface, life_time= 0.9, kill_duration= 0, z_index= 5))
+                    context.add_effect(BreakEffect(self.get_pos(), self.surface, delay= 0.9, z_index= 5))
+                    for killed_square in kill_list:
+                        context.add_effect(ParticleEffect(killed_square.get_pos(), 1, marker_image, life_time= 0, kill_duration= 1.5, 
+                                                        death_effect= FadeDeath, z_index= 10))
 
 
+                        context.add_effect(GunEffect(self.pos, killed_square.get_pos(), laser_beam,
+                                    (-PIXEL_SIZE, 0), (0, 50, 0), (0, 120, 0), killed_square.marker.image,
+                                    break_intensity= 700, sound= None   
+                                    ))
+                    context.add_effect(SoundEffect(SFX.LASER))
+
+
+        return context
+    
+class TriggerSideSquare(Square):
+    def __init__(self, pos = (0, 0)):
+        super().__init__(pos)
+        self.get_image(5, 2)
+        self.side = random.randint(0, 3)
+        self.image = pygame.transform.rotate(self.image, self.side * -90)
+        self.blit_image()
+
+    def trigger_effect(self, context : GameContext):
+        if context.marker_placed:
+            index = context.table.get_index(self)
+            
+            if context.blueprint : self.side = random.randint(0, 3)
+
+            #haut
+            if self.side == 0:
+                target_case : Square = context.table.get_side(index, 'top')
+            #droite
+            elif self.side == 1:
+                target_case : Square = context.table.get_side(index, 'right')
+            #bas
+            elif self.side == 2:
+                target_case : Square = context.table.get_side(index, 'bottom')
+            #gauche
+            elif self.side == 3:
+                target_case : Square = context.table.get_side(index, 'left')
+            
+            context.recursion_depth += 1 
+            if target_case is not None and target_case.can_place() and context.recursion_depth <= 9:
+                marker_pos = target_case.get_pos()
+                marker = Marker(owner= context.player, pos= marker_pos)
+                context.add_marker(target_case, marker)
+                context = target_case.trigger_effect(context)
 
         return context
 

@@ -8,6 +8,7 @@ from effect import *
 from particles import *
 from main_menu import *
 
+
 class Game:
     def __init__(self):
         pygame.init()
@@ -17,10 +18,8 @@ class Game:
         self.screen = pygame.Surface((WIDTH, HEIGHT)).convert_alpha()
         pygame.display.set_caption('Tic Tac Toe')
         self.clock = pygame.time.Clock()
-        
 
-        self.player = Player(name= 'JOUEUR', markers_type= 'death_star', color_theme= 'red')
-        self.guest = Player(name= 'GUEST', markers_type= 'cat', color_theme= 'blue')
+    
         self.screen_manager = ScreenManager()
         self.effects_manager = EffectsManager(self)
         self.sound_manager = SoundManager()
@@ -85,6 +84,10 @@ class Game:
             
             pygame.display.flip()
 
+    def create_players(self, p1_marker, p1_theme, p2_marker, p2_theme):
+        self.player = Player(name= 'JOUEUR', markers_type= p1_marker, color_theme= p1_theme)
+        self.guest = Player(name= 'GUEST', markers_type= p2_marker, color_theme= p2_theme)
+
 
     def new_run(self):
         self.screen_manager.clear()
@@ -126,7 +129,7 @@ class Game:
             surf = get_marker('death_star')
             surf = resize(surf, PIXEL_SIZE)
             self.add_effect(
-                LightningEffect(self.mouse_pos, 10, (255, 230, 0), (255, 150, 0), sound= None)  
+                FullExplosionEffect(self.mouse_pos)
             )
 
         elif not pygame.mouse.get_pressed()[2]:

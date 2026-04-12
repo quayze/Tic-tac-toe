@@ -81,9 +81,8 @@ class MultipleEffect(Effect):
         self.effects.clear()
         self.play_audio(game)
         self.kill()
+
         
-
-
 class ParticleEffect(Effect):
     def __init__(self, pos, amount, surface : pygame.Surface, particle_type : Particle = Particle,
                  life_time = 1, direction_x = (-1, 1), direction_y = (-1, 1), speed = 0, angle = 0, scale = 1,
@@ -134,7 +133,7 @@ class ParticleEffect(Effect):
     def draw(self, screen):
         if not super().draw(screen): 
             return 
-
+        
         self.particles.draw(screen)
 
 class RotateEffect(ParticleEffect):

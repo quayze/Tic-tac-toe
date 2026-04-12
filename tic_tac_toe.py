@@ -39,7 +39,7 @@ class TicTacToe:
         self.state = 'playing' 
         self.winner = None
         self.active_player = random.choices([self.player1, self.player2])[0]
-        self.turns_left = 0
+        self.turns_left = 10
         self.table.activate()
         self.table.spawn_squares()
         self.interface.activate()

@@ -9,7 +9,7 @@ TEXT_FONT = 'assets/FreakyFont.otf'
 class MarkerConfig:
     MARKER_SIZE = 13
     MARKERS_SHEET = 'assets/textures/markers.png'
-    MARKERS_TYPE = ['cross', 'round']
+    MARKERS_TYPE = ['cross', 'round', 'donut', 'nugget_guy', 'cat', 'death_star', 'vert_cross', 'sword', 'sun', 'pointer']
 
 class SquareConfig:
     CASE_SHEET = 'assets/textures/squares.png'

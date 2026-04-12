@@ -26,7 +26,7 @@
     }, 
     "SideSquare" : {
         "name": "Side Square", 
-        "description": "Places a marker on the", 
+        "description": "Places a marker on one side", 
         "rarity": "common"
     },           
     "DivisionSquare" : {
@@ -116,6 +116,11 @@
     "LaserSquare" : {
         "name": "Laser Gun", 
         "description": "When skip turn, shoot up to two lasers who targets opponent markers and replace them with player's markers", 
+        "rarity": "rare"
+    },
+    "TriggerSideSquare" : {
+        "name": "Golden Arrow", 
+        "description": "Places a marker on one side and trigger square's effect", 
         "rarity": "rare"
     },
     

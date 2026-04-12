@@ -262,3 +262,7 @@ def ease_out_elastic(t: float, weakness = 20) -> float:
 
     return pow(2, -weakness * t) * math.sin((t * 10 - 0.75) * c4) + 1
 
+def ease_out_quart(t):
+    return 1 - pow(1 - t, 4)
+
+

@@ -19,6 +19,7 @@ class GameContext:
 
         self.replay = False
         self.blueprint = False
+        self.recursion_depth = 0
 
 
         self.first_to_play = None
