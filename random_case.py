@@ -8,9 +8,9 @@ def get_random_case(pos):
                            YinYangSquare, TeleportSquare, StoneSquare, LaserSquare, LoseMoneySquare])[0]
     return square(pos)
 
-def get_random_ca1se(pos):
-    case = random.choices([TriggerSideSquare, TeleportSquare, ReplaySquare, KillSquare])[0]
+def get_random_cas1e(pos):
+    case = random.choices([ItemSquare, DefaultSquare])[0]
     return case(pos)
 
-def get_random_case(pos):
-    return TriggerSideSquare(pos)
+def get_random_ca1se(pos):
+    return DiamondSquare(pos)

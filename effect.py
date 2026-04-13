@@ -546,9 +546,9 @@ class PlaceSquareEffect(MultipleEffect):
 
         else:
             self.add_effect(ExplosionEffect(self.pos, 40, scale= 4, speed= (100,300), 
-                                        color= (255, 255, 255), life_time= (0.5, 0.8), final_speed= 20))
-            self.add_effect(ExplosionEffect(self.pos, 40, scale= 1, speed= (200,400), 
-                                        color= (255, 255, 255), life_time= (0.5, 0.8), final_speed= 20))
+                                        color= (255, 255, 255), life_time= (0.5, 0.8), final_speed= 10))
+            self.add_effect(ExplosionEffect(self.pos, 40, scale= 2, speed= (200,400), 
+                                        color= (255, 255, 255), life_time= (0.6, 0.9), final_speed= 10))
             self.add_effect(ScreenShakeEffect(0.5, 10, 10))
 
         
@@ -590,3 +590,40 @@ class GunEffect(MultipleEffect):
         self.add_effect(ScreenShakeEffect(0.5, 25, 25))
         self.add_effect((FlashEffect((255, 255, 255), 0.2, 255, 0.05)))
 
+class ArrowEffect(MultipleEffect):
+    def __init__(self, first_pos, last_pos, size = 1, overshoot = 0, delay=0, z_index=50):
+        first_pos = Vector2(first_pos)
+        last_pos = Vector2(last_pos)
+        pos = (first_pos.x + last_pos.x)//2 , (first_pos.y + last_pos.y)//2
+        super().__init__(pos, delay, None, z_index)
+
+
+        arrow_image = load_image('arrow', PartConfig.ARROW)
+        end_piece = get_image(arrow_image, 9, 6)
+        mid_piece = get_image(arrow_image, 9, 6, frame_x= 1)
+        start_piece = get_image(arrow_image, 9, 6, frame_x= 2)
+
+
+        end_piece = resize(end_piece, size)
+        mid_piece = resize(mid_piece, size)
+        start_piece = resize(start_piece, size)
+        width = end_piece.get_width()
+
+
+        vector = last_pos - first_pos
+        length = first_pos.distance_to(last_pos) + overshoot
+
+        height = end_piece.get_height()
+        mid_piece_height = max(0, length - height*2)
+
+        mid_piece = pygame.transform.scale(mid_piece, (width, mid_piece_height))
+        
+        surface = pygame.Surface((width, length), pygame.SRCALPHA).convert_alpha()
+        surface.blit(end_piece, (0, 0))
+        surface.blit(start_piece, (0, mid_piece_height + height))
+        surface.blit(mid_piece, (0, height))
+
+
+        surface = pygame.transform.rotate(surface, vector.angle_to((0, -1)))
+
+        self.add_effect(ParticleEffect(pos, 1, surface, life_time= 1, particle_type= GrowParticle, death_effect= ScaleDeath, kill_duration= 0.3))

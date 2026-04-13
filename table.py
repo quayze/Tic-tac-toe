@@ -198,7 +198,7 @@ class Table(Drawable):
         return self.cases_list
     
     def apply_context(self, context : GameContext):
-        for case, new_case in context.changed_case.items():
+        for case, new_case in context.changed_case.items():  
             new_case : Square = new_case
             index = self.get_index(case)
             self.change_case(new_case, index)
@@ -262,6 +262,11 @@ class Table(Drawable):
 
     def activate(self):
         self.game.add_object(self)
+
+    def copy(self):
+        table = Table(self.game)
+        table.cases_list = self.cases_list
+        return table
     
                 
 

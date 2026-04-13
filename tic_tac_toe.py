@@ -125,6 +125,16 @@ class TicTacToe:
 
     def apply_context_events(self, context : GameContext):
         self.table.apply_context(context)
+
+        while context.pending_triggers:
+            square : Square =  next(iter(context.pending_triggers))
+            context_type = context.pending_triggers.pop(square)
+            setattr(context, context_type, True)
+            context = square.trigger_effect(context)
+            setattr(context, context_type, False)
+            self.table.apply_context(context)
+
+
         for player, gain in context.gains.items():
             player.pay(gain)
         for player, lost in context.losts.items():
@@ -146,8 +156,7 @@ class TicTacToe:
         if result == 'win':
             self.state = 'win'
             self.winner = winner
-            self.game_effects.add_effect(WinEffect(squares[0].get_pos(), squares[-1].get_pos(),
-                                                   overshoot= 40), self.game)
+            self.win_squares = squares
 
         elif result == 'draw':
             self.state = 'draw'
@@ -167,7 +176,7 @@ class TicTacToe:
         context.end_round = True
         context = self.table.trigger_abilities(context)
 
-        self.apply_context_events(self.context)
+        self.apply_context_events(context)
         
 
         if self.turns_left == 0:
@@ -179,6 +188,9 @@ class TicTacToe:
             return
         
         self.new_game(context.first_to_play)
+
+
+    
 
     def handle_mouse(self, mouse_pos):
         if self.state == 'playing':
@@ -197,17 +209,23 @@ class TicTacToe:
             self.update_draw(dt)
         elif self.state == 'ending':
             self.update_ending(dt)
+        elif self.state == 'end_round':
+            self.update_end_round(dt)
 
         
-
+    def update_end_round(self, dt):
+        if self.game_effects.is_done():
+            self.end_round(self.context)
 
     def update_win(self, dt):
         if self.game_effects.is_done():
-            self.end_round(self.context)
+            self.game_effects.add_effect(WinEffect(self.win_squares[0].get_pos(), self.win_squares[-1].get_pos(),
+                                                   overshoot= 40), self.game)
+            self.state = 'end_round'
     
     def update_draw(self, dt):
         if self.game_effects.is_done():
-            self.end_round(self.context)
+            self.state = 'end_round'
 
     def update_ending(self, dt):
         if self.game_effects.is_done() and self.interface.is_closed():

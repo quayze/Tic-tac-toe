@@ -103,6 +103,8 @@ def get_color(interface, color_theme):
         return ColorThemes.BLUE[interface]
     elif color_theme == 'red':
         return ColorThemes.RED[interface]
+    elif color_theme == 'green':
+        return ColorThemes.GREEN[interface]
     
     
 

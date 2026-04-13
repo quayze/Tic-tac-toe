@@ -9,20 +9,12 @@ from effect import *
 
 
 class Swiper:
-    def __init__(self, pos, first_element, first_name, button_color = (220, 30, 30)):
+    def __init__(self, pos, button_color = (220, 30, 30)):
         self.pos = V2(pos)
         self.elements = {}
-        self.add_element(first_name, first_element)
-        self.current_element = first_name
+        self.button_color = button_color
 
-        height = first_element.rect.height
-        left = first_element.rect.left
-        right = first_element.rect.right
-        self.button_left = Button((left - 60, self.pos.y), 50, height, color= button_color, text= ['<'], pixel_size= 4)
-        self.button_right = Button((right + 60, self.pos.y), 50, height, color= button_color, text= ['>'], pixel_size= 4)
-
-        self.button_left.on_release = self._swipe_left
-        self.button_right.on_release = self._swipe_right
+        
 
 
     def _swipe_right(self):
@@ -62,6 +54,24 @@ class Swiper:
         if name not in self.elements:
             self.elements[name] = element
             element.rect.center = self.pos
+            if len(self.elements) == 1:
+                self.current_element = name
+                self.create_buttons(element)
+
+    
+    def create_buttons(self, element):
+        height = element.rect.height
+        left = element.rect.left
+        right = element.rect.right
+        self.button_left = Button((left - 60, self.pos.y), 50, height, color= self.button_color, text= ['<'], pixel_size= 4)
+        self.button_right = Button((right + 60, self.pos.y), 50, height, color= self.button_color, text= ['>'], pixel_size= 4)
+
+        self.button_left.on_release = self._swipe_left
+        self.button_right.on_release = self._swipe_right
+
+
+
+
 
     def get_active(self):
         return self.elements[self.current_element]

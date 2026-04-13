@@ -84,15 +84,21 @@ class ShadowConfig:
 
 class ColorThemes:
     BLUE = {
-        'm_container' : (60, 60, 255),
+        'm_container' : (00, 00, 255),
         'money_ui' : (0, 255, 200),
-        'case_inv' : (30, 30, 180)
+        'case_inv' : (0, 0, 150)
     }
     RED = {
         'm_container' : (180, 30, 30),
         'money_ui' : (255, 180, 0),
         'case_inv' : (150, 0, 0)
     }
+    GREEN = {
+        'm_container' : (0, 230, 0),
+        'money_ui' : (230, 255, 0),
+        'case_inv' : (0, 180, 0)
+    }
+
 
 class PartConfig:
     BULLET = 'assets/textures/particles/bullet.png'
@@ -102,6 +108,8 @@ class PartConfig:
     COIN = 'assets/textures/particles/coin.png'
     SHOOT = 'assets/textures/particles/shoot.png'
     WIN_CHECK = 'assets/textures/particles/winCheck.png'
+    ARROW = 'assets/textures/particles/arrow.png'
+    DIAMOND = 'assets/textures/particles/diamond.png'
 
 class SFX:
     GUN = 'assets/sounds/gun.mp3'

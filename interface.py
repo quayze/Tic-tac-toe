@@ -158,18 +158,39 @@ class PlayInterface(Interface):
         self.add_element('back', Button((self.center.x, self.center.y + 330), 500, 60, (255, 210, 0), ['Back'], 30, 4))
 
 
-        cross = get_marker('cross')
-        p1_maker_swiper = Swiper((self.center.x - 200, self.center.y), SwiperImage(cross, 10), 'cross')
-        for name in MarkerConfig.MARKERS_TYPE[1:]:
+        p1_maker_swiper = Swiper((self.center.x - 200, self.center.y+50))
+        for name in MarkerConfig.MARKERS_TYPE:
             p1_maker_swiper.add_element(name, SwiperImage(get_marker(name), 10))
 
         self.add_element('maker_selector_1', p1_maker_swiper)
 
-        p2_maker_swiper = Swiper((self.center.x + 200, self.center.y), SwiperImage(cross, 10), 'cross')
-        for name in MarkerConfig.MARKERS_TYPE[1:]:
+        p2_maker_swiper = Swiper((self.center.x + 200, self.center.y+50))
+        for name in MarkerConfig.MARKERS_TYPE:
             p2_maker_swiper.add_element(name, SwiperImage(get_marker(name), 10))
 
         self.add_element('maker_selector_2', p2_maker_swiper)
+
+        p1_color_swiper = Swiper((self.center.x - 200, self.center.y-100))
+        p2_color_swiper = Swiper((self.center.x + 200, self.center.y-100))
+        self.add_element('color_selector_1', p1_color_swiper)
+        self.add_element('color_selector_2', p2_color_swiper)
+
+        blue_surf = generate_nine_slice(100, 100, (0, 0, 255), pixel_size= 4)
+        red_surf = generate_nine_slice(100, 100, (255, 0, 0), pixel_size= 4)
+        green_surf = generate_nine_slice(100, 100, (0, 255, 0), pixel_size= 4)
+        p1_color_swiper.add_element('blue', SwiperImage(blue_surf, 1))
+        p1_color_swiper.add_element('red', SwiperImage(red_surf, 1))
+        p1_color_swiper.add_element('green', SwiperImage(green_surf, 1))
+        p2_color_swiper.add_element('blue', SwiperImage(blue_surf, 1))
+        p2_color_swiper.add_element('red', SwiperImage(red_surf, 1))
+        p2_color_swiper.add_element('green', SwiperImage(green_surf, 1))
+
+
+
+
+
+
+
 
 
     def get_p1_marker(self):
@@ -179,6 +200,16 @@ class PlayInterface(Interface):
     def get_p2_marker(self):
         selector : Swiper = self.get_element('maker_selector_2')
         return selector.get_active_name()
+    
+    def get_p1_color(self):
+        selector : Swiper = self.get_element('color_selector_1')
+        return selector.get_active_name()
+    
+    def get_p2_color(self):
+        selector : Swiper = self.get_element('color_selector_2')
+        return selector.get_active_name()
+    
+
 
 
 

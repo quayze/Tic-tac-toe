@@ -29,6 +29,11 @@ class GameContext:
         self.losts = {} # player : lost
 
         self.effects = []
+        self.pending_triggers = {}
+
+    def add_triggers(self, square, context_type : str):
+        self.pending_triggers[square] = context_type
+
 
     def add_changed_case(self, base_case, new_case):
         self.changed_case[base_case] = new_case

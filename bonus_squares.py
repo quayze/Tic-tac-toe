@@ -132,6 +132,10 @@ class SideSquare(Square):
                 marker = Marker(owner= context.player, pos= marker_pos)
                 context.add_marker(target_case, marker)
 
+                context.add_effect(ArrowEffect(self.get_pos(), target_case.get_pos(), 8))
+                context.add_effect(SoundEffect(SFX.POP, delay= (context.recursion_depth+1) * 0.06))
+
+
         return context
 
 
@@ -276,7 +280,7 @@ class MoneySquare(Square):
                 context.add_effect(
                     FallEffect(
                         self.get_pos(), gain, coin, angle_offset= 30, scale=PIXEL_SIZE, 
-                        speed= (500, 1200), sound= SFX.COIN_DROP
+                        speed= (500, 1200), sound= SFX.COIN_DROP, angle= (-180, 180)
                     ))
                 
 
@@ -341,6 +345,7 @@ class ChainSquare(Square):
     
     def set_owner(self, player):
         self.owner = player
+        self.placable = False
         self.get_icon()
 
     def get_icon(self):
@@ -528,7 +533,6 @@ class YinYangSquare(Square):
     
 
 class TeleportSquare(Square):
-    """Player start next round if marker placed on it"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
         self.get_image(9, 1)
@@ -613,6 +617,7 @@ class PointingSquare(Square):
             self.side = (self.side + 1)%4
             self.image = pygame.transform.rotate(self.base_image, self.side * -90)
             self.blit_image()
+
 
         return context
     
@@ -826,7 +831,15 @@ class TriggerSideSquare(Square):
                 marker_pos = target_case.get_pos()
                 marker = Marker(owner= context.player, pos= marker_pos)
                 context.add_marker(target_case, marker)
-                context = target_case.trigger_effect(context)
+                context.add_triggers(target_case, 'marker_placed')
+
+                
+                context.add_effect(ExplosionEffect(target_case.get_pos(), 40, speed= (200, 400), 
+                                                   life_time=(0.4, 0.6), color= (255, 255, 0), scale= 3, final_speed= 10))
+                context.add_effect(ExplosionEffect(target_case.get_pos(), 30, speed= (100, 400), life_time=(0.5, 0.7), 
+                                                   color= (255, 170, 0), scale= 2, final_speed= 10))
+                context.add_effect(ArrowEffect(self.get_pos(), target_case.get_pos(), 8))
+                context.add_effect(SoundEffect(SFX.POP, delay= context.recursion_depth * 0.06))
 
         return context
 
@@ -878,8 +891,21 @@ class DiamondSquare(Square):
             if money < 20:
                 context.add_gain(current_player, 20)
             else:
-               gain = money
+               gain = min(1000, money)
                context.add_gain(current_player, gain) 
+
+            coin = load_image('coin', PartConfig.COIN)
+            diamond = load_image('diamond', PartConfig.DIAMOND)
+            context.add_effect(
+                FallEffect(
+                    self.get_pos(), 10, coin, angle_offset= 30, scale=PIXEL_SIZE, 
+                    speed= (500, 1100), sound= SFX.COIN_DROP, angle= (-180, 180)
+                ))
+            context.add_effect(
+                FallEffect(
+                    self.get_pos(), 1, diamond, angle_offset= 20, scale=PIXEL_SIZE, 
+                    speed= (800, 1100), angle= (-20, 20)
+                ))
 
         elif context.end_round:
             player = self.get_owner()
@@ -887,6 +913,8 @@ class DiamondSquare(Square):
                 money = player.get_balance()
                 gain = int(money * 0.2) + 1
                 context.add_gain(player, gain)
+
+
 
         return context
 

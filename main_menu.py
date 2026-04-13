@@ -78,9 +78,17 @@ class MainMenu(Drawable):
         self.settings['p1_marker'] = self.play_interface.get_p1_marker()
         self.settings['p2_marker'] = self.play_interface.get_p2_marker()
 
+        self.settings['p1_color'] = self.play_interface.get_p1_color()
+        self.settings['p2_color'] = self.play_interface.get_p2_color()
+
         if self.settings['p1_marker'] == self.settings['p2_marker']:
             text = get_text_surface("Players must have different markers")
-
+            self.effects_group.add_effect(ParticleEffect(self.center, 1, text, GrowParticle, 
+                                                         kill_duration= 0.5, death_effect= ScaleDeath, scale= 0.7), self.game)
+            return False
+        
+        if self.settings['p1_color'] == self.settings['p2_color']:
+            text = get_text_surface("Players must have different color themes")
             self.effects_group.add_effect(ParticleEffect(self.center, 1, text, GrowParticle, 
                                                          kill_duration= 0.5, death_effect= ScaleDeath, scale= 0.7), self.game)
             return False
