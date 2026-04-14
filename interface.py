@@ -153,7 +153,7 @@ class GameInterface(Interface):
 class PlayInterface(Interface):
     def __init__(self, game, base_pos, active_pos):
         self.screen_center = V2(WIDTH//2, HEIGHT//2)
-        super().__init__(game, base_pos, active_pos, 1200, 800, (255, 255, 255), (100, 100, 100))
+        super().__init__(game, base_pos, active_pos, 1200, 900, (255, 255, 255), (100, 100, 100))
         self.add_element('play', Button((self.center.x, self.center.y+ 200), 250, 100, (0, 210, 80), ['Start'], 30, 4))
         self.add_element('back', Button((self.center.x, self.center.y + 330), 500, 60, (255, 210, 0), ['Back'], 30, 4))
 

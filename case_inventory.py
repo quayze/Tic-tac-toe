@@ -12,6 +12,10 @@ class CaseInventory(ItemArea):
         self.bg_surface = generate_nine_slice(InterfacesConfig.PLAYER_INV_WIDTH, InterfacesConfig.PLAYER_INV_HEIGHT, get_color('case_inv', color_theme))
         self.bg_rect = self.bg_surface.get_rect(center = pos)
 
+        self.shadow = Shadow(pos)
+        self.shadow.set_image(self.bg_surface)
+        self.shadow.set_parallax(x_mult= 0.02, y_abs= 10)
+
         screen_center = HEIGHT//2
         if pos[1] < screen_center:
             self.items_pos = pos[0], self.bg_rect.bottom - 80
@@ -31,6 +35,7 @@ class CaseInventory(ItemArea):
 
 
     def draw(self, screen):
+        self.shadow.draw(screen)
         screen.blit(self.bg_surface, self.bg_rect)
     
 

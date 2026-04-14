@@ -26,7 +26,7 @@ class PlayerInventory(Drawable):
         self.player = player
 
         self.marker_container = MarkerContainer(self.player, (self.center_x, self.container_y), self.game)
-        self.player_balance = PlayerBalance(self.player, (self.center_x + 500*self.x_offset, self.pos_y))
+        self.player_balance = PlayerBalance(self.player, (self.center_x + 400*self.x_offset, self.pos_y))
         self.case_inventory = CaseInventory(self.player, (self.center_x - 500*self.x_offset, self.pos_y), self.game)
 
         self.init_pay_interface()

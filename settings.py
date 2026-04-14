@@ -57,13 +57,22 @@ class TableConfig:
         [0, 4, 8],  # diagonale
         [2, 4, 6],  # diagonale
     ]
+    EXETEND_WIN_COMBINATION = [
+        [7, 5, 9],
+        [1, 5, 11],
+        [7, 8, 11],
+        [4, 5, 10],
+        [1, 2, 9],
+        [9, 10, 11]
+    ]
+
 
 class InterfacesConfig:
     MAKER_CONTAINER_OFFSET = 80
     PLAYER_INV_OFFSET = 50
     PLAYER_INV_HEIGHT = 250
     MARKER_CONTAINER_WIDTH = 200
-    PLAYER_BALANCE_WIDTH = 400
+    PLAYER_BALANCE_WIDTH = 500
     PLAYER_INV_WIDTH = 700
 
 
@@ -94,7 +103,7 @@ class ColorThemes:
         'case_inv' : (150, 0, 0)
     }
     GREEN = {
-        'm_container' : (0, 230, 0),
+        'm_container' : (0, 240, 0),
         'money_ui' : (230, 255, 0),
         'case_inv' : (0, 180, 0)
     }

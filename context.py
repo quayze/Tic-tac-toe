@@ -23,6 +23,7 @@ class GameContext:
 
 
         self.first_to_play = None
+        self.extend_table = False
         self.changed_case = {} # case : new_case
         self.changed_markers = {} # case : Marker or None-->destroy
         self.gains = {} # player : gain

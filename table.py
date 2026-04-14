@@ -18,6 +18,8 @@ class Table(Drawable):
         self.game.add_object(self)
         self.cases_list = []
 
+        self.extended = False
+
 
     def spawn_squares(self):
         self.cases_list.clear()
@@ -55,30 +57,21 @@ class Table(Drawable):
                 current_topleft = topleft + pygame.Vector2(center_offset*x, center_offset*y)
                 self.cases_list.append(get_random_case(current_topleft))
 
+        breaking_squares = []
         for i, square in enumerate(old_cases):
             if isinstance(square, StoneSquare):
                 self.cases_list[i] = square
-        self.fall_anim(old_cases, context)
+            else:
+                breaking_squares.append(square)
+
+
+        context = self.break_squares(context, breaking_squares)
         old_cases.clear()
 
+
+        self.extended = False
+
         return context
-    
-    def fall_anim(self, squares, context : GameContext):
-        for square in squares:
-            if not isinstance(square, StoneSquare):
-                context.add_effect(
-                    FallEffect(
-                    square.get_pos(), amount= 1, surface= square.surface,
-                    speed= (800, 1300), angle_offset= 30, z_index= 2,
-                ))
-                if square.marker is not None:
-                    context.add_effect(
-                    FallEffect(
-                    square.get_pos(), amount= 1, surface= square.get_marker().image,
-                    speed= (800, 1300), angle_offset= 30, z_index= 2
-                ))
-        context.add_effect(SoundEffect(SFX.BREAKING))
-        context.add_effect(ScreenShakeEffect(offset_x= 30, offset_y= 30))
                     
     
     def nearest_case(self, pos):
@@ -111,6 +104,23 @@ class Table(Drawable):
                         win = False
             if win:
                 return 'win', reference_case.owner, [self.get_case(index) for index in result]
+            
+        if self.extended:
+            for result in TableConfig.EXETEND_WIN_COMBINATION:
+                first_index = result[0]
+                reference_case =  self.cases_list[first_index].get_marker()
+                win = True
+                if reference_case is None:
+                    win = False
+                if win:
+                    for index in result:
+                        case = self.cases_list[index]
+                        if case.get_marker() is None:
+                            win = False
+                        elif case.get_marker().owner != reference_case.owner:
+                            win = False
+                if win:
+                    return 'win', reference_case.owner, [self.get_case(index) for index in result]
             
             
         for case in self.cases_list:
@@ -198,6 +208,9 @@ class Table(Drawable):
         return self.cases_list
     
     def apply_context(self, context : GameContext):
+        if context.extend_table:
+            self.add_squares()
+
         for case, new_case in context.changed_case.items():  
             new_case : Square = new_case
             index = self.get_index(case)
@@ -226,20 +239,47 @@ class Table(Drawable):
 
     def get_side(self, index, side_name):
         if side_name == 'left':
+            if self.extended:
+                if index == 9: return self.get_case(2)
+                elif index == 10: return self.get_case(5)
+                elif index == 11: return self.get_case(8)
             return self.get_case(index -1) if index not in [0, 3, 6] else None
 
         elif side_name == 'right':
+            if self.extended:
+                if index  in [9, 10, 11]:
+                    return None
+                elif index == 2: return self.get_case(9)
+                elif index == 5: return self.get_case(10)
+                elif index == 8: return self.get_case(11)
+                else:
+                    self.get_case(index +1)
+            
             return self.get_case(index +1) if index not in [2, 5, 8] else None
         
         elif side_name == 'top':
+            if self.extended and index in [11, 10, 9]:
+                return self.get_case(index - 1)
             return self.get_case(index -3)
         
         elif side_name == 'bottom':
+            if self.extended:
+                if index in [11, 10, 9]:
+                    return self.get_case(index + 1)
+                elif index in [6, 7, 8]:
+                    return None
             return self.get_case(index +3)
         
+        
     def destroy(self, context : GameContext):
-        for square in self.cases_list:
+        
+        context = self.break_squares(context, self.cases_list)
+        self.cases_list.clear()
 
+        return context
+    
+    def break_squares(self, context, squares_list):
+        for square in squares_list:
             context.add_effect(
                 FallEffect(
                 square.get_pos(), amount= 1, surface= square.surface,
@@ -255,9 +295,24 @@ class Table(Drawable):
 
         context.add_effect(SoundEffect(SFX.BREAKING))
         context.add_effect(ScreenShakeEffect(offset_x= 30, offset_y= 30))
-        self.cases_list.clear()
 
         return context
+
+
+    
+    def add_squares(self):
+        if self.extended:
+            return
+        right_square : Square = self.cases_list[2]
+        last_center = right_square.get_pos()
+        x_pos = last_center[0] + right_square.surface.get_width() + TableConfig.OFFSET
+        y_pos = last_center[1]
+        for idx in range(3):
+            current_y_pos = y_pos + (right_square.surface.get_height() + TableConfig.OFFSET) * idx
+            square = DefaultSquare((x_pos, current_y_pos))
+            self.cases_list.append(square)
+
+        self.extended = True
 
 
     def activate(self):

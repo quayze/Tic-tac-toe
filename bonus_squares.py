@@ -49,6 +49,22 @@ def square_random_rarity(rarity = 'common'):
     return square_type()
 
 #----------------------------------------------
+# ALL SQUARES
+#----------------------------------------------
+def get_all_squares():
+    data : dict = get_all_squares_data()
+    classes = []
+    module = importlib.import_module('bonus_squares')
+
+    for class_name, info in data.items():
+        cls = getattr(module, class_name, None)
+        if cls is not None:
+            classes.append(cls)
+
+    return classes
+
+
+#----------------------------------------------
 # COMMON SQUARES
 #----------------------------------------------
 
@@ -888,10 +904,10 @@ class DiamondSquare(Square):
         if context.marker_placed:
             current_player = context.player
             money = current_player.get_balance()
-            if money < 20:
-                context.add_gain(current_player, 20)
+            if money < 10:
+                context.add_gain(current_player, 10)
             else:
-               gain = min(1000, money)
+               gain = min(100, money)
                context.add_gain(current_player, gain) 
 
             coin = load_image('coin', PartConfig.COIN)
@@ -954,6 +970,40 @@ class TableSquare(Square):
         self.get_image(3, 3)
         self.blit_image()
 
+    def trigger_effect(self, context: GameContext):
+        if context.marker_placed:
+            table = context.table
+
+            if not table.extended:
+                context.extend_table = True
+
+            else:
+                right_squares = []
+                upgraded_squares = []
+                right_squares.append(table.get_case(9))
+                right_squares.append(table.get_case(10))
+                right_squares.append(table.get_case(11))
+                for square in right_squares:
+                    if isinstance(square, DefaultSquare) and not square.has_marker():
+                        upgraded_squares.append(square)
+
+                if upgraded_squares != []:
+                    if len(upgraded_squares) == 1:
+                        selected = upgraded_squares[0]
+                    else:
+                        selected = random.choices(upgraded_squares)[0]
+
+                    new_square = generate_random_square()
+                    while type(new_square) in (TableSquare, StoneSquare):
+                        new_square = generate_random_square()
+                        
+                    context.add_changed_case(selected, generate_random_square())
+                    
+
+        return context
+
+
+
 class StoneSquare(Square):
     """Block one case permenently for 1 game """
     def __init__(self, pos=(0, 0)):
@@ -962,12 +1012,8 @@ class StoneSquare(Square):
         self.blit_image()
         self.blueprint = False
         self.counting = False
-        self.placable = [
-            DefaultSquare, ReplaceableSquare, ItemSquare, JailSquare, ChainSquare, EmptySquare, 
-            BurningSquare, BluePrintSquare, DeathSquare, LuckySquare, MoneySquare, DestructionSquare,
-            DiamondSquare, CreeperSquare, TeleportSquare, ReplaySquare, SideSquare,
-            KillSquare, DivisionSquare, InterestSquare, RandomSquare, YinYangSquare
-        ]
+        self.placable = get_all_squares()
+        self.placable.remove(type(self))
 
     def can_place(self):
         return False

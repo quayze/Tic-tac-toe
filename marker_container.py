@@ -3,6 +3,7 @@ from marker import Marker
 from settings import *
 from functions import *
 from table import Table
+from shadow import *
 
 class MarkerContainer:
     def __init__(self, player : Player, pos, game):
@@ -15,6 +16,10 @@ class MarkerContainer:
         color_theme = self.player.color_theme
         self.surface = generate_nine_slice(InterfacesConfig.MARKER_CONTAINER_WIDTH, InterfacesConfig.PLAYER_INV_HEIGHT, get_color('m_container', color_theme))
         self.rect = self.surface.get_rect(center = pos)
+
+        self.shadow = Shadow(self.pos)
+        self.shadow.set_image(self.surface)
+        self.shadow.set_parallax(x_abs= 10, y_abs= 10)
 
         screen_center = HEIGHT//2
         if self.pos[1] < screen_center:
@@ -40,11 +45,13 @@ class MarkerContainer:
         self.marker.handle_mouse(mouse_pos)
 
     def update(self, dt):
+        self.shadow.update(self.pos)
         if self.marker is None:
             return
         self.marker.update(dt)
     
     def draw(self, screen):
+        self.shadow.draw(screen)
         screen.blit(self.surface, self.rect)
 
     def marker_placed(self):

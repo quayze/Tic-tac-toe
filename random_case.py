@@ -1,16 +1,16 @@
 import random
 from bonus_squares import *
 def get_random_case(pos):
-    square = random.choices([ReplaySquare, KillSquare, SideSquare, ReplaceableSquare ,
+    square = random.choices([ReplaySquare, KillSquare, SideSquare, ReplaceableSquare , TableSquare,
                            DefaultSquare, DivisionSquare, BurningSquare, MoneySquare, DestructionSquare,
                            InterestSquare, DeathSquare, ItemSquare, JailSquare, CreeperSquare, RandomSquare,
                            FirstSquare, DiamondSquare, LuckySquare, BluePrintSquare, TriggerSideSquare,
                            YinYangSquare, TeleportSquare, StoneSquare, LaserSquare, LoseMoneySquare])[0]
     return square(pos)
 
-def get_random_cas1e(pos):
-    case = random.choices([ItemSquare, DefaultSquare])[0]
+def get_random_ca1se(pos):
+    case = random.choices([TableSquare, SideSquare])[0]
     return case(pos)
 
-def get_random_ca1se(pos):
-    return DiamondSquare(pos)
+def get_random_case(pos):
+    return TableSquare(pos)

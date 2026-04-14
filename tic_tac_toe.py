@@ -26,8 +26,8 @@ class TicTacToe:
         self.inventories = self.session.inventories
         self.table = Table(self.game)
         self.state = 'playing'  # 'playing', 'win', 'draw', 'ending'
-        self.winner = None
-        self.context = None
+        self.winner : Player = None
+        self.context : GameContext = None
 
 
         self.interface = GameInterface(self.game)
@@ -221,6 +221,7 @@ class TicTacToe:
         if self.game_effects.is_done():
             self.game_effects.add_effect(WinEffect(self.win_squares[0].get_pos(), self.win_squares[-1].get_pos(),
                                                    overshoot= 40), self.game)
+            self.winner.pay(5)
             self.state = 'end_round'
     
     def update_draw(self, dt):

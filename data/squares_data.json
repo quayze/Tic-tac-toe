@@ -128,7 +128,7 @@
 
     "DiamondSquare" : {
         "name": "The Gem", 
-        "description": "Doubles money if balance is below 20$ else gives 20$. Grants 10% interest at the end of the round", 
+        "description": "Doubles money (max : 100) if balance is below 10$ else gives 10$. Grants 10% interest at the end of the round", 
         "rarity": "legendary"
     }, 
     "DestructionSquare" : {
@@ -145,6 +145,12 @@
         "name": "The Rock", 
         "description": "Block permenently any square, destroy if all squares are rocks",
         "rarity": "legendary"
+    },
+    "TableSquare" : {
+        "name": "4 by 3", 
+        "description": "Add one column of squares on the right side of the Table",
+        "rarity": "legendary"
     }
+    
 
 }

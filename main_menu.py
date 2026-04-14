@@ -15,7 +15,7 @@ class MainMenu(Drawable):
         super().__init__(1)
         self.game = game
         self.center = V2(WIDTH//2, HEIGHT//2)
-        self.play_button = Button((self.center.x, self.center.y + 200), 400, 200, color= (0, 210, 80), text= ['PLAY'])
+        self.play_button = Button((self.center.x, self.center.y + 200), 400, 200, color= (0, 150, 70), text= ['PLAY'])
         self.state = 'main'
 
         self.settings = {'p1_color' : 'red', 'p2_color' : 'blue',
