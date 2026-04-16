@@ -7,19 +7,20 @@ from button import *
 from shadow import *
 from effect import *
 from swiper import *
+from text import *
 
 class Interface(Drawable):
     def __init__(self, game, base_pos, active_pos, width, height, color, center_color):
         super().__init__(1)
         self.state = 'disable'
-        self.surface = pygame.Surface((width, height), pygame.SRCALPHA).convert_alpha()
+        self.surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA).convert_alpha()
         self.rect = self.surface.get_rect(center = base_pos)
         self.surf_image = generate_nine_slice(width, height, color, center_color= center_color)
+        self.surf_rect = self.surf_image.get_rect(center = (self.surface.get_width()//2, self.surface.get_height()//2))
         self.game = game
 
 
-        self.screen_center = V2(WIDTH//2, HEIGHT//2)
-        self.center = V2(self.surface.get_width()//2, self.surface.get_height()//2)
+        self.center = V2(WIDTH//2, HEIGHT//2)
         self.pos = V2(base_pos)
         self.base_pos = V2(base_pos)
         self.active_pos = V2(active_pos)
@@ -29,6 +30,7 @@ class Interface(Drawable):
         self.shadow.set_parallax(x_abs= 10, y_abs= 10)
 
         self.open_time = 0.5
+        self.instant_close = True
 
         self.elements = [{}]
         self.page_buttons : list[Button] = []
@@ -53,7 +55,7 @@ class Interface(Drawable):
     def draw(self, screen):
         self.shadow.draw(screen)
         self.surface.fill((0, 0, 0, 0))
-        self.surface.blit(self.surf_image, (0, 0))
+        self.surface.blit(self.surf_image, self.surf_rect)
         for element in self.browse_elements():
             element.draw(self.surface)
 
@@ -72,6 +74,13 @@ class Interface(Drawable):
 
     def desactivate(self):
         if self.state == "enable":
+            if self.instant_close:
+                self.state = "disable"
+                self.pos = V2(self.base_pos)
+                self.rect.center = self.pos
+                self.game.remove_object(self)
+                return
+
             self.state = 'close'
             self.start_pos = V2(self.pos)
             self.duration = self.open_time
@@ -103,18 +112,15 @@ class Interface(Drawable):
 
     def add_element(self, name, element, page = 0):
         if page >= len(self.elements):
-            if len(self.elements) == 1:
-                self.add_page_button(0)
-
             page = len(self.elements)
             self.elements.append({})
-            self.add_page_button(page)
 
         if name not in self.elements[page]:
             self.elements[page][name] = element
 
-    def add_page_button(self, page_index):
-        button = Button((100, 100 * (page_index + 1)), 150, 50, color= (200, 0, 0), text= [f'Page {page_index}'], pixel_size= 4)
+    def add_page_button(self, page_index, title, color, width):
+        init_pos = (self.surf_rect.left + (width//2) + 50)
+        button = Button((init_pos + (width + 20) * page_index, self.surf_rect.top + 60), width, 70, color= color, text= title, pixel_size= 4)
         button.on_release = self._make_page_callback(page_index)
 
         self.page_buttons.append(button)
@@ -147,34 +153,33 @@ class GameInterface(Interface):
     def __init__(self, game):
         self.screen_center = V2(WIDTH//2, HEIGHT//2)
         super().__init__(game, (-300, self.screen_center.y), (200, self.screen_center.y), 600, 500, (255, 255, 255), (100, 0, 100))
-        self.add_element('skip_button', Button((300, self.center.y), 250, 30, (255, 200, 0), ['Skip turn'], 30))
+        self.add_element('skip_button', Button((self.center.x +100, self.center.y), 250, 30, (255, 200, 0), ['Skip turn'], 30))
 
 
 class PlayInterface(Interface):
     def __init__(self, game, base_pos, active_pos):
         self.screen_center = V2(WIDTH//2, HEIGHT//2)
-        super().__init__(game, base_pos, active_pos, 1200, 900, (255, 255, 255), (100, 100, 100))
-        self.add_element('play', Button((self.center.x, self.center.y+ 200), 250, 100, (0, 210, 80), ['Start'], 30, 4))
-        self.add_element('back', Button((self.center.x, self.center.y + 330), 500, 60, (255, 210, 0), ['Back'], 30, 4))
+        super().__init__(game, base_pos, active_pos, 1200, 800, (255, 255, 255), (100, 100, 100))
+        self.add_element('play', Button((self.center.x, self.center.y+ 200), 300, 100, (0, 210, 80), ['Start'], 30, 4))
+        self.add_element('back', Button((self.center.x, self.center.y + 320), 800, 60, (255, 210, 0), ['Back'], 30, 4))
 
 
-        p1_maker_swiper = Swiper((self.center.x - 200, self.center.y+50))
+        p1_maker_swiper = Swiper((self.center.x - 300, self.center.y + 50))
         for name in MarkerConfig.MARKERS_TYPE:
             p1_maker_swiper.add_element(name, SwiperImage(get_marker(name), 10))
 
         self.add_element('maker_selector_1', p1_maker_swiper)
 
-        p2_maker_swiper = Swiper((self.center.x + 200, self.center.y+50))
+        p2_maker_swiper = Swiper((self.center.x + 300, self.center.y + 50))
         for name in MarkerConfig.MARKERS_TYPE:
             p2_maker_swiper.add_element(name, SwiperImage(get_marker(name), 10))
 
         self.add_element('maker_selector_2', p2_maker_swiper)
 
-        p1_color_swiper = Swiper((self.center.x - 200, self.center.y-100))
-        p2_color_swiper = Swiper((self.center.x + 200, self.center.y-100))
+        p1_color_swiper = Swiper((self.center.x - 300, self.center.y - 100))
+        p2_color_swiper = Swiper((self.center.x + 300, self.center.y - 100))
         self.add_element('color_selector_1', p1_color_swiper)
         self.add_element('color_selector_2', p2_color_swiper)
-
         blue_surf = generate_nine_slice(100, 100, (0, 0, 255), pixel_size= 4)
         red_surf = generate_nine_slice(100, 100, (255, 0, 0), pixel_size= 4)
         green_surf = generate_nine_slice(100, 100, (0, 255, 0), pixel_size= 4)
@@ -185,13 +190,16 @@ class PlayInterface(Interface):
         p2_color_swiper.add_element('red', SwiperImage(red_surf, 1))
         p2_color_swiper.add_element('green', SwiperImage(green_surf, 1))
 
+        self.add_element('p1_text', AnimText('Player 1', 70, (self.center.x - 300, self.center.y - 230), auto_start= True))
+        self.add_element('p2_text', AnimText('Player 2', 70, (self.center.x + 300, self.center.y - 230), auto_start= True))
+        self.add_element('color', AnimText('Colors', 40, (self.center.x, self.center.y - 100)))
+        self.add_element('marker', AnimText('Markers', 40, (self.center.x, self.center.y + 50)))
 
+        self.add_element('2P_mode', AnimText('2 PLAYERS MODE', 70, (self.center.x, self.surf_rect.top - 80)))
+        self.add_element('1P_mode', AnimText('1 PLAYER MODE', 70, (self.center.x, self.surf_rect.top - 80)), page= 1)
 
-
-
-
-
-
+        self.add_page_button(0, ['2 players'], (200, 0 , 0), 400)
+        self.add_page_button(1, ['Singleplayer'], (200, 0 , 0), 400)
 
     def get_p1_marker(self):
         selector : Swiper = self.get_element('maker_selector_1')

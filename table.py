@@ -311,7 +311,7 @@ class Table(Drawable):
             current_y_pos = y_pos + (right_square.surface.get_height() + TableConfig.OFFSET) * idx
             square = DefaultSquare((x_pos, current_y_pos))
             self.cases_list.append(square)
-
+            
         self.extended = True
 
 

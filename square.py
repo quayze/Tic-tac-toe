@@ -1,4 +1,4 @@
-import pygame
+import pygame, ast
 from settings import * 
 from marker import Marker
 from pygame import Vector2
@@ -24,6 +24,8 @@ class Square:
         self.name = data['name']
         self.description = data['description']
         self.rarity = data['rarity']
+        self.image_coord = ast.literal_eval(data['image'])
+        self.get_image(*self.image_coord)
 
 
 
@@ -35,7 +37,7 @@ class Square:
         self.marker.set_shadow_parallax(y_abs= 20)
 
     def get_image(self, frame_x = 0, frame_y = 0):
-        sprite_sheet = load_image('cases', SquareConfig.CASE_SHEET)
+        sprite_sheet = load_image('squares', SquareConfig.CASE_SHEET)
         image = get_image(sprite_sheet, SquareConfig.CASE_SIZE, SquareConfig.CASE_SIZE, frame_x, frame_y)
         self.image = image
 
@@ -85,6 +87,8 @@ class Square:
         self.pos = pos
         self.rect.center = pos
 
+    def copy_attributes(self, square):
+        pass
 
     def trigger_effect(self, context):
         return context

@@ -25,7 +25,7 @@ class Game:
         self.sound_manager = SoundManager()
 
         self.main_menu = MainMenu(self)
-        self.main_menu.open()
+        self.launch_main_menu()
 
 
 
@@ -63,8 +63,7 @@ class Game:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+                    self.quit()
 
 
             self.effects_manager.update(self.delta_time)
@@ -83,6 +82,9 @@ class Game:
 
             
             pygame.display.flip()
+
+    def launch_main_menu(self):
+        self.main_menu.open()
 
     def create_players(self, p1_marker, p1_theme, p2_marker, p2_theme):
         self.player = Player(name= 'JOUEUR', markers_type= p1_marker, color_theme= p1_theme)
@@ -178,3 +180,7 @@ class Game:
         self.max_trauma = duration
         self.shake_offset_x = offset_x
         self.shake_offset_y = offset_y
+
+    def quit(self):
+        pygame.quit()
+        sys.exit()

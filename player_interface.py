@@ -40,6 +40,13 @@ class PlayerInventory(Drawable):
         self.pay_square_surface = InteractiveBox(case_inventory_size[0], case_inventory_size[1], case_inv_pos, color= (0, 255, 0), 
                                         alpha= 150, text= 'BUY', text_pos= items_pos)
         self.game.add_object(self.pay_square_surface)
+
+        p_balance_size = self.player_balance.rect.size
+        p_balance_pos = self.player_balance.pos
+        p_balance_txt_pos = self.player_balance.text_pos
+        self.refund_surface = InteractiveBox(p_balance_size[0], p_balance_size[1], p_balance_pos, color= (255, 0, 0), 
+                                        alpha= 150, text= 'REFUND', text_pos= p_balance_txt_pos)
+        self.game.add_object(self.refund_surface)
         
 
     def handle_mouse(self, mouse_pos):

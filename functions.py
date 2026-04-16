@@ -2,7 +2,7 @@ import pygame
 from settings import *
 import math
 import random
-import json
+import json, ast
 
 def perfect_rezize(image : pygame.Surface, width = None, height = None):
     if width is not None:
@@ -143,6 +143,13 @@ def get_marker(marker_type):
     
     else:
         return get_image(markers, MarkerConfig.MARKER_SIZE, MarkerConfig.MARKER_SIZE)
+    
+def get_square(square_name):
+    data = get_square_data(square_name)
+    sprite_sheet = load_image('squares', SquareConfig.CASE_SHEET)
+    image_coord = ast.literal_eval(data['image'])
+    image = get_image(sprite_sheet, SquareConfig.CASE_SIZE, SquareConfig.CASE_SIZE, *image_coord)
+    return image
     
 
 def get_text_dimensions(text, size, type = 'height'):

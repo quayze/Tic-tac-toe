@@ -4,13 +4,14 @@ from pygame import Vector2
 from drawable import *
 
 class ItemArea:
-    def __init__(self, width, pos, game, max_items = 1):
+    def __init__(self, width, pos, game, max_items = 1, z_index = 12):
         self.items_inventory : list[Item] = []
         self.items_anchors = []
         self.pos = pos
         self.slots = max_items
         self.max_items = max_items
         self.game = game
+        self.z_index = z_index
 
         #surface de la zone
         self.surface = pygame.Surface((width, 200)).convert()
@@ -50,7 +51,7 @@ class ItemArea:
 
         for i, item in enumerate(self.items_inventory):
             item.set_anchor(self.items_anchors[i])
-            item.set_z(12 + i)
+            item.set_z(self.z_index + i)
 
     def check_anchors(self):
         if self.selected_object is not None:

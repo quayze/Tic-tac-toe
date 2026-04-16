@@ -36,30 +36,31 @@ class TicTacToe:
 
 
     def start_playing(self):
-        self.state = 'playing' 
-        self.winner = None
-        self.active_player = random.choices([self.player1, self.player2])[0]
-        self.turns_left = 10
+        self.turns_left = 5
+        self.win_streak = 0
         self.table.activate()
         self.table.spawn_squares()
         self.interface.activate()
-        self.start_turn()
 
         skip_button = self.interface.get_element('skip_button')
         skip_button.on_release = self._skip_turn
+
+        self.start_round()
         
-
-
-    def new_game(self, first_player = None):
+    def start_round(self, first_player = None):
         self.turns_left -= 1
         self.active_player = first_player if first_player is not None else random.choices([self.player1, self.player2])[0]
-        context = GameContext()
-        context = self.table.reset_cases(context)
-        self.apply_context_events(context)
 
         self.state = 'playing'
         self.winner = None
         self.start_turn()
+
+    def new_game(self, first_player = None):
+        context = GameContext()
+        context = self.table.reset_cases(context)
+        self.apply_context_events(context)
+
+        self.start_round(first_player)
 
 
     def _active_inventory(self):
@@ -155,6 +156,12 @@ class TicTacToe:
 
         if result == 'win':
             self.state = 'win'
+
+            if winner == self.winner:
+                self.win_streak += 1
+            else:
+                self.win_streak = 0
+
             self.winner = winner
             self.win_squares = squares
 
@@ -221,7 +228,7 @@ class TicTacToe:
         if self.game_effects.is_done():
             self.game_effects.add_effect(WinEffect(self.win_squares[0].get_pos(), self.win_squares[-1].get_pos(),
                                                    overshoot= 40), self.game)
-            self.winner.pay(5)
+            self.winner.pay(10 + self.win_streak * 5)
             self.state = 'end_round'
     
     def update_draw(self, dt):

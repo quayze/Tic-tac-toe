@@ -73,7 +73,6 @@ class ReplaySquare(Square):
     """Replay if marker placed"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(1, 0)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -94,23 +93,28 @@ class ReplaceableSquare(Square):
     """Replace 1 time if ennemy marker on it"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(2, 0)
         self.blit_image()
         self.effect_triggered = False
+
+    def copy_attributes(self, square):
+        if not hasattr(square, 'effect_triggered'):
+            square.effect_triggered = False
 
     def trigger_effect(self, context : GameContext):
         if context.try_place and self.marker is not None and context.player != self.get_owner():
             self.marker.kill()
             context.add_effect(BreakEffect(self.get_pos(), self.marker.image, z_index= 5))
             self.marker = None
-            if not context.blueprint: self.effect_triggered = True # no unknown variable for blueprint
+            self.effect_triggered = True
 
-        elif not context.blueprint and context.marker_placed and self.effect_triggered: #no self destruct if executed by blueprint
+        elif context.marker_placed and self.effect_triggered:
             new_case = DefaultSquare()
             context.add_changed_case(self, new_case)
             context.add_marker(new_case, self.marker)
 
         return context
+    
+
 
     
 
@@ -118,16 +122,17 @@ class SideSquare(Square):
     """Add marker to a case on one of it side"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(3, 0)
         self.side = random.randint(0, 3)
         self.image = pygame.transform.rotate(self.image, self.side * -90)
         self.blit_image()
+
+    def copy_attributes(self, square : Square):
+        square.side = self.side
 
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
             index = context.table.get_index(self)
             
-            if context.blueprint : self.side = random.randint(0, 3)
 
             #haut
             if self.side == 0:
@@ -153,13 +158,14 @@ class SideSquare(Square):
 
 
         return context
+    
+
 
 
 class KillSquare(Square):
     """Destroy 1 ennemy marker and square"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(4, 0)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -197,7 +203,6 @@ class DivisionSquare(Square):
     """Replace nearby case with its type, +on other bonus squares"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(6, 0)
         self.blit_image()
 
 
@@ -242,7 +247,6 @@ class EmptySquare(Square):
     """Can't place marker on it"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(8, 0)
         self.blit_image()
         self.counting = False
 
@@ -253,7 +257,6 @@ class BurningSquare(Square):
     """Transform on random square into empty square except itself"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(9, 0)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -284,7 +287,6 @@ class MoneySquare(Square):
     """Gives random amount of $ to the player who place the marker on it"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(7, 0)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -305,7 +307,6 @@ class MoneySquare(Square):
 class LoseMoneySquare(Square):
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(4, 2)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -325,7 +326,6 @@ class InterestSquare(Square):
     """Gives 10% of player's balance if on of his case is on it"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(0, 1)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -335,13 +335,19 @@ class InterestSquare(Square):
                 money = player.get_balance()
                 gain = int(money * 0.1) + 1
                 context.add_gain(player, gain)
+
+                coin = load_image('coin', PartConfig.COIN)
+                context.add_effect(
+                    FallEffect(
+                        self.get_pos(), min(50, gain), coin, angle_offset= 90, scale=7, 
+                        speed= (300, 600), sound= SFX.MULT, angle= (-180, 180), gravity_direction= (0, -1)
+                    ))
         return context
     
 class ChainSquare(Square):
     """Can define on play who will be the only one who can place a marker on it"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(1, 1)
         self.blit_image()
         self.owner = None
         self.icon = None
@@ -383,7 +389,6 @@ class ItemSquare(Square):
     """Gives one random item to the player who placed the marker"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(3, 1)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -400,7 +405,6 @@ class RandomSquare(Square):
     """Shuffle all squares on the table except empty cases"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
-        self.get_image(4, 1)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -446,7 +450,6 @@ class FirstSquare(Square):
     """Player start next round if marker placed on it"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
-        self.get_image(6, 1)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -467,7 +470,6 @@ class JailSquare(Square):
     """-5$ or -30% at the end of the round but add a chain case linked to the player on the table"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
-        self.get_image(7, 1)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -505,7 +507,6 @@ class YinYangSquare(Square):
     """Add marker to a case on one of it side"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(8, 1)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -551,7 +552,6 @@ class YinYangSquare(Square):
 class TeleportSquare(Square):
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
-        self.get_image(9, 1)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -596,17 +596,18 @@ class TeleportSquare(Square):
 class PointingSquare(Square):
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(2, 2)
         self.side = 0
         self.base_image = self.image
         self.image = self.base_image.copy()
         self.blit_image()
 
+    def copy_attributes(self, square : Square):
+        square.side = self.side
+
     def trigger_effect(self, context : GameContext):
         if context.marker_placed and not context.blueprint:
             index = context.table.get_index(self)
             
-            if context.blueprint : self.side = random.randint(0, 3)
 
             #haut
             if self.side == 0:
@@ -636,6 +637,8 @@ class PointingSquare(Square):
 
 
         return context
+
+
     
 
 
@@ -647,7 +650,6 @@ class PointingSquare(Square):
 class BluePrintSquare(Square):
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(5, 0)
         self.blit_image()
         self.blueprint = False
 
@@ -658,6 +660,7 @@ class BluePrintSquare(Square):
         if target_case is not None:
             self.counting = target_case.counting
             if target_case.blueprint:
+                target_case.copy_attributes(self)
                 context.blueprint = True
                 effect = target_case.trigger_effect.__func__.__get__(self, target_case)
                 context = effect(context)
@@ -669,7 +672,6 @@ class DeathSquare(Square):
     """50/50 kill all ennemy squares or all player squares"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(2, 1)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -717,7 +719,6 @@ class CreeperSquare(Square):
     """Transform itself and up to 4 adjacent cases into empty cases"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
-        self.get_image(5, 1)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -747,7 +748,6 @@ class CreeperSquare(Square):
 class LaserSquare(Square):
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
-        self.get_image(3, 2)
         self.blit_image()
 
 
@@ -818,16 +818,16 @@ class LaserSquare(Square):
 class TriggerSideSquare(Square):
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
-        self.get_image(5, 2)
         self.side = random.randint(0, 3)
         self.image = pygame.transform.rotate(self.image, self.side * -90)
         self.blit_image()
 
+    def copy_attributes(self, square : Square):
+        square.side = self.side
+
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
             index = context.table.get_index(self)
-            
-            if context.blueprint : self.side = random.randint(0, 3)
 
             #haut
             if self.side == 0:
@@ -858,6 +858,9 @@ class TriggerSideSquare(Square):
                 context.add_effect(SoundEffect(SFX.POP, delay= context.recursion_depth * 0.06))
 
         return context
+    
+    
+
 
 #----------------------------------------------
 # LEGENDARY SQUARES
@@ -867,7 +870,6 @@ class DestructionSquare(Square):
     """Destroy all bonus squares on the table"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
-        self.get_image(0, 3)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -897,7 +899,6 @@ class DiamondSquare(Square):
     """Gives 20 $ if player balance < 20 else double money, 10% interest a the end of the round"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
-        self.get_image(1, 3)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -922,6 +923,7 @@ class DiamondSquare(Square):
                     self.get_pos(), 1, diamond, angle_offset= 20, scale=PIXEL_SIZE, 
                     speed= (800, 1100), angle= (-20, 20)
                 ))
+            
 
         elif context.end_round:
             player = self.get_owner()
@@ -929,6 +931,20 @@ class DiamondSquare(Square):
                 money = player.get_balance()
                 gain = int(money * 0.2) + 1
                 context.add_gain(player, gain)
+
+                coin = load_image('coin', PartConfig.COIN)
+                diamond = load_image('diamond', PartConfig.DIAMOND)
+                context.add_effect(
+                    FallEffect(
+                        self.get_pos(), min(50, gain), coin, angle_offset= 90, scale=7, 
+                        speed= (300, 600), sound= SFX.MULT, angle= (-180, 180), gravity_direction= (0, -1)
+                    ))
+                
+                context.add_effect(
+                    FallEffect(
+                        self.get_pos(), 1, diamond, angle_offset= 90, scale=7, 
+                        speed= (300, 600), sound= SFX.MULT, angle= (-180, 180), gravity_direction= (0, -1), z_index= 51
+                    ))
 
 
 
@@ -938,7 +954,6 @@ class LuckySquare(Square):
     """1/2 -> give legendary square on placement else rare square, 1/2 to re-obtain the square at the end of the round"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
-        self.get_image(2, 3)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
@@ -967,7 +982,6 @@ class TableSquare(Square):
     """Extend the table on the right : 3 * 4 if not already"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
-        self.get_image(3, 3)
         self.blit_image()
 
     def trigger_effect(self, context: GameContext):
@@ -1008,7 +1022,6 @@ class StoneSquare(Square):
     """Block one case permenently for 1 game """
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
-        self.get_image(4, 3)
         self.blit_image()
         self.blueprint = False
         self.counting = False

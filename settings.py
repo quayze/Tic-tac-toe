@@ -135,3 +135,4 @@ class SFX:
     WIN = 'assets/sounds/win.mp3'
     POWER_UP = 'assets/sounds/powerUp.mp3'
     LASER = 'assets/sounds/laser.mp3'
+    MULT = 'assets/sounds/mult.mp3'

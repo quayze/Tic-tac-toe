@@ -6,7 +6,7 @@ from pygame import Vector2
 from math import sin
 
 class AnimText:
-    def __init__(self, text, size, pos, align = 'center', anim_speed = 1.5):   
+    def __init__(self, text, size, pos, align = 'center', anim_speed = 1.5, auto_start = False):   
         self.letters : list[AnimLetter] = []
         self.pos = Vector2(pos)
         self.size = size
@@ -17,6 +17,9 @@ class AnimText:
         self.state = 'disable'
 
         self.text_length = 0
+
+        if auto_start:
+            self.start()
 
     def change_text(self, text):
         self.text = text

@@ -15,7 +15,9 @@ class MainMenu(Drawable):
         super().__init__(1)
         self.game = game
         self.center = V2(WIDTH//2, HEIGHT//2)
-        self.play_button = Button((self.center.x, self.center.y + 200), 400, 200, color= (0, 150, 70), text= ['PLAY'])
+        self.play_button = Button((self.center.x, self.center.y + 130), 500, 130, color= (0, 150, 70), text= ['PLAY'])
+        self.settings_button = Button((self.center.x, self.center.y + 280), 500, 130, color= (150, 150, 150), text= ['SETTINGS'])
+        self.quit_button = Button((self.center.x, self.center.y + 430), 500, 130, color= (150, 0, 0), text= ['QUIT'])
         self.state = 'main'
 
         self.settings = {'p1_color' : 'red', 'p2_color' : 'blue',
@@ -28,6 +30,8 @@ class MainMenu(Drawable):
     def open(self):
         self.game.add_object(self)
         self.play_button.on_release = self._open_play_interface
+        self.quit_button.on_release = self._quit_game
+
         
         play_but = self.play_interface.get_element('play')
         play_but.on_release = self._play
@@ -45,10 +49,14 @@ class MainMenu(Drawable):
 
     def draw(self, screen):
         self.play_button.draw(screen)
+        self.quit_button.draw(screen)
+        self.settings_button.draw(screen)
     
     def handle_mouse(self, mouse_pos):
         if self.state == 'main':
             self.play_button.handle_mouse(mouse_pos)
+            self.quit_button.handle_mouse(mouse_pos)
+            self.settings_button.handle_mouse(mouse_pos)
         elif self.state == 'pre_game':
             self.play_interface.handle_mouse(mouse_pos)
 
@@ -74,6 +82,9 @@ class MainMenu(Drawable):
                                  p2_theme =  self.settings['p2_color'])
         self.game.new_run()
 
+    def _quit_game(self):
+        self.game.quit()
+
     def change_settings(self):
         self.settings['p1_marker'] = self.play_interface.get_p1_marker()
         self.settings['p2_marker'] = self.play_interface.get_p2_marker()
@@ -94,3 +105,4 @@ class MainMenu(Drawable):
             return False
         
         return True
+    
