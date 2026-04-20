@@ -13,11 +13,10 @@ from item_area import *
 from button import *
 from effect_group import *
 from interface import *
-from game import Game
 
 
 class TicTacToe:
-    def __init__(self, game_session : GameSession, game : Game):
+    def __init__(self, game_session : GameSession, game):
         self.session : GameSession = game_session
         self.game = game
         self.game_effects = EffectGroup()
@@ -58,7 +57,7 @@ class TicTacToe:
 
     def new_game(self, first_player = None):
         context = GameContext()
-        context = self.table.reset_cases(context)
+        context = self.table.reset_squares(context)
         self.apply_context_events(context)
 
         self.start_round(first_player)
@@ -71,25 +70,25 @@ class TicTacToe:
         self.state = 'playing'
         inv = self._active_inventory()
         inv.add_marker()
-        inv.set_case_callback(self._place_case)
+        inv.set_square_callback(self._place_square)
         inv.set_release_callback(self._place_marker)
 
 
-    def _place_case(self):
+    def _place_square(self):
         inv = self._active_inventory()
-        current_item : Item = inv.case_inventory.get_selected()
+        current_item : Item = inv.square_inventory.get_selected()
         if current_item is None:
             return
         context = GameContext()
 
-        index = self.table.try_place_case(current_item)
+        index = self.table.try_place_square(current_item)
         if index is None:
             return
         square = current_item.object
         
         context = self.table.place_square(square, index, context)
         self.apply_context_events(context)
-        inv.case_placed()
+        inv.square_placed()
         
 
     def _place_marker(self):
@@ -98,11 +97,11 @@ class TicTacToe:
         if marker is None:
             return
         context = GameContext(self.active_player, self.table, self.session)
-        case, context = self.table.try_place_marker(marker, context)
-        if case is None:
+        square, context = self.table.try_place_marker(marker, context)
+        if square is None:
             return
         
-        context = self.table.place_marker(marker, context, case)
+        context = self.table.place_marker(marker, context, square)
         
         inv.notify_placed()
         self.apply_context_events(context)

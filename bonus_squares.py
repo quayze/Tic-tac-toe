@@ -108,9 +108,9 @@ class ReplaceableSquare(Square):
             self.effect_triggered = True
 
         elif context.marker_placed and self.effect_triggered:
-            new_case = DefaultSquare()
-            context.add_changed_case(self, new_case)
-            context.add_marker(new_case, self.marker)
+            new_square = DefaultSquare()
+            context.add_changed_square(self, new_square)
+            context.add_marker(new_square, self.marker)
 
         return context
     
@@ -119,7 +119,7 @@ class ReplaceableSquare(Square):
     
 
 class SideSquare(Square):
-    """Add marker to a case on one of it side"""
+    """Add marker to a square on one of it side"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.side = random.randint(0, 3)
@@ -136,24 +136,24 @@ class SideSquare(Square):
 
             #haut
             if self.side == 0:
-                target_case : Square = context.table.get_side(index, 'top')
+                target_square : Square = context.table.get_side(index, 'top')
             #droite
             elif self.side == 1:
-                target_case : Square = context.table.get_side(index, 'right')
+                target_square : Square = context.table.get_side(index, 'right')
             #bas
             elif self.side == 2:
-                target_case : Square = context.table.get_side(index, 'bottom')
+                target_square : Square = context.table.get_side(index, 'bottom')
             #gauche
             elif self.side == 3:
-                target_case : Square = context.table.get_side(index, 'left')
+                target_square : Square = context.table.get_side(index, 'left')
             
             
-            if target_case is not None and target_case.can_place():
-                marker_pos = target_case.get_pos()
+            if target_square is not None and target_square.can_place():
+                marker_pos = target_square.get_pos()
                 marker = Marker(owner= context.player, pos= marker_pos)
-                context.add_marker(target_case, marker)
+                context.add_marker(target_square, marker)
 
-                context.add_effect(ArrowEffect(self.get_pos(), target_case.get_pos(), 8))
+                context.add_effect(ArrowEffect(self.get_pos(), target_square.get_pos(), 8))
                 context.add_effect(SoundEffect(SFX.POP, delay= (context.recursion_depth+1) * 0.06))
 
 
@@ -170,11 +170,11 @@ class KillSquare(Square):
 
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
-            list = context.table.get_case_list()
+            list = context.table.get_square_list()
             killable_list = []
-            for case in list:
-                if case.get_owner() is not None and case.get_owner() != context.player:
-                    killable_list.append(case)
+            for square in list:
+                if square.get_owner() is not None and square.get_owner() != context.player:
+                    killable_list.append(square)
 
             if killable_list != []:
                 if len(killable_list) == 1:
@@ -183,7 +183,7 @@ class KillSquare(Square):
                     kill : Square = random.choices(killable_list)[0]
                     
 
-                context.add_changed_case(kill, DefaultSquare())
+                context.add_changed_square(kill, DefaultSquare())
                 context.add_marker(kill, None)
                 
                 # Effects
@@ -200,7 +200,7 @@ class KillSquare(Square):
         return context
     
 class DivisionSquare(Square):
-    """Replace nearby case with its type, +on other bonus squares"""
+    """Replace nearby square with its type, +on other bonus squares"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.blit_image()
@@ -210,35 +210,35 @@ class DivisionSquare(Square):
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
             index = context.table.get_index(self)
-            none_divisable_case = [DivisionSquare, EmptySquare, StoneSquare]
+            none_divisable_square = [DivisionSquare, EmptySquare, StoneSquare]
 
-            targets_cases = []
-            target_case = None
+            targets_squares = []
+            target_square = None
 
-            targets_cases.append(context.table.get_side(index, 'top'))
-            targets_cases.append(context.table.get_side(index, 'right'))
-            targets_cases.append(context.table.get_side(index, 'bottom'))
-            targets_cases.append(context.table.get_side(index, 'left'))
+            targets_squares.append(context.table.get_side(index, 'top'))
+            targets_squares.append(context.table.get_side(index, 'right'))
+            targets_squares.append(context.table.get_side(index, 'bottom'))
+            targets_squares.append(context.table.get_side(index, 'left'))
 
     
-            #se duplique sur les cases spéciales en priorité
-            for case in targets_cases:
-                if case is not None and type(case) != DefaultSquare and type(case) not in none_divisable_case:
-                    target_case = case
+            #se duplique sur les squares spéciales en priorité
+            for square in targets_squares:
+                if square is not None and type(square) != DefaultSquare and type(square) not in none_divisable_square:
+                    target_square = square
                     break
             
-            #si aucune case spéciale trouvée se duplique sur la case normal adjacente
-            if target_case is None:
-                for case in targets_cases:
-                    if case is not None and type(case) not in none_divisable_case:
-                        target_case = case
+            #si aucune square spéciale trouvée se duplique sur la square normal adjacente
+            if target_square is None:
+                for square in targets_squares:
+                    if square is not None and type(square) not in none_divisable_square:
+                        target_square = square
                         break
 
-            if target_case is not None:
-                marker = target_case.get_marker()
-                case = DivisionSquare()
-                context.add_changed_case(target_case, case)
-                context.add_marker(case, marker)
+            if target_square is not None:
+                marker = target_square.get_marker()
+                square = DivisionSquare()
+                context.add_changed_square(target_square, square)
+                context.add_marker(square, marker)
 
 
         return context
@@ -262,23 +262,23 @@ class BurningSquare(Square):
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
             index = context.table.get_index(self)
-            table = context.table.get_case_list()
-            empty_case_list = [case for case in table if not case.counting]
+            table = context.table.get_square_list()
+            empty_square_list = [square for square in table if not square.counting]
             select_table = table.copy()
-            select_table.remove(context.table.get_case(index))
-            #on eleve les cases vide du compte
-            for empty_case in empty_case_list:
-                select_table.remove(empty_case)
+            select_table.remove(context.table.get_square(index))
+            #on eleve les squares vide du compte
+            for empty_square in empty_square_list:
+                select_table.remove(empty_square)
             
-            #si toutes les cases sont vides, ne fait rien
+            #si toutes les squares sont vides, ne fait rien
             if len(select_table) != 0:
                 if len(select_table) == 1:
-                    burned_case = select_table[0]
+                    burned_square = select_table[0]
                 else:
-                    burned_case = random.choice(select_table)
+                    burned_square = random.choice(select_table)
 
-                context.add_changed_case(burned_case, EmptySquare())
-                context.add_marker(burned_case, None)
+                context.add_changed_square(burned_square, EmptySquare())
+                context.add_marker(burned_square, None)
 
         return context
                 
@@ -323,7 +323,7 @@ class LoseMoneySquare(Square):
         return context
     
 class InterestSquare(Square):
-    """Gives 10% of player's balance if on of his case is on it"""
+    """Gives 10% of player's balance if on of his square is on it"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.blit_image()
@@ -402,14 +402,14 @@ class ItemSquare(Square):
     
 
 class RandomSquare(Square):
-    """Shuffle all squares on the table except empty cases"""
+    """Shuffle all squares on the table except empty squares"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
-            all_squares = context.table.get_case_list().copy()
+            all_squares = context.table.get_square_list().copy()
             changed_squares = []
             shuffled_squares = []
             final_dict = {}
@@ -424,17 +424,17 @@ class RandomSquare(Square):
                     final_dict[square] = shuffled_squares[i]
                 for base_square, new_type in final_dict.items():
                     new_square = new_type()
-                    context.add_changed_case(base_square, new_square)
+                    context.add_changed_square(base_square, new_square)
                     context.add_marker(new_square, base_square.get_marker())
 
                 new_self = DefaultSquare()
-                context.add_changed_case(self, new_self)
+                context.add_changed_square(self, new_self)
                 context.add_marker(new_self, self.get_marker())
 
                 for square in all_squares:
                     context.add_effect(
                     ParticleEffect(
-                    square.get_pos(), amount= 1, surface= load_image('q_mark_case', PartConfig.Q_MARK_SQUARE), 
+                    square.get_pos(), amount= 1, surface= load_image('q_mark_square', PartConfig.Q_MARK_SQUARE), 
                     scale= PIXEL_SIZE, life_time= (0.3, 1), z_index= 5, death_effect= FadeDeath
                 ))
                 context.add_effect(
@@ -467,31 +467,31 @@ class FirstSquare(Square):
 
 
 class JailSquare(Square):
-    """-5$ or -30% at the end of the round but add a chain case linked to the player on the table"""
+    """-5$ or -30% at the end of the round but add a chain square linked to the player on the table"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
         self.blit_image()
 
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
-            case_list = context.table.get_case_list()
-            potential_cases = []
-            for case in case_list:
-                if isinstance(case, DefaultSquare) and case.get_marker() is None and case.counting:
-                    potential_cases.append(case)
+            square_list = context.table.get_square_list()
+            potential_squares = []
+            for square in square_list:
+                if isinstance(square, DefaultSquare) and square.get_marker() is None and square.counting:
+                    potential_squares.append(square)
 
-            if len(potential_cases) < 1:
-                for case in case_list:
-                    if self != case and case.get_marker() is None and not isinstance(case, ChainSquare) and case.counting:
-                        potential_cases.append(case)
+            if len(potential_squares) < 1:
+                for square in square_list:
+                    if self != square and square.get_marker() is None and not isinstance(square, ChainSquare) and square.counting:
+                        potential_squares.append(square)
             
-            if potential_cases != []:
-                random.shuffle(potential_cases)
-                case = potential_cases[0]
+            if potential_squares != []:
+                random.shuffle(potential_squares)
+                square = potential_squares[0]
                 
-                chain_case = ChainSquare()
-                chain_case.set_owner(context.player)
-                context.add_changed_case(case, chain_case)
+                chain_square = ChainSquare()
+                chain_square.set_owner(context.player)
+                context.add_changed_square(square, chain_square)
 
 
         elif context.end_round:
@@ -504,7 +504,7 @@ class JailSquare(Square):
         return context
     
 class YinYangSquare(Square):
-    """Add marker to a case on one of it side"""
+    """Add marker to a square on one of it side"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.blit_image()
@@ -537,7 +537,7 @@ class YinYangSquare(Square):
                     new_square = generate_random_square()
                     color = (255, 255, 255)
 
-                context.add_changed_case(target_square, new_square)
+                context.add_changed_square(target_square, new_square)
                 context.add_marker(new_square, target_square.get_marker())
                 
 
@@ -556,7 +556,7 @@ class TeleportSquare(Square):
 
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
-            all_squares : list[Square] = context.table.get_case_list()
+            all_squares : list[Square] = context.table.get_square_list()
             selected_list = []
             teleported_square = None
             for square in all_squares:
@@ -570,7 +570,7 @@ class TeleportSquare(Square):
 
             if teleported_square is not None:
                 marker = Marker(context.player, teleported_square.get_pos())
-                if not context.blueprint : context.add_changed_case(self, DefaultSquare())
+                if not context.blueprint : context.add_changed_square(self, DefaultSquare())
                 context.add_marker(self, None)
                 context.add_marker(teleported_square, marker)
 
@@ -611,22 +611,22 @@ class PointingSquare(Square):
 
             #haut
             if self.side == 0:
-                target_case : Square = context.table.get_side(index, 'top')
+                target_square : Square = context.table.get_side(index, 'top')
             #droite
             elif self.side == 1:
-                target_case : Square = context.table.get_side(index, 'right')
+                target_square : Square = context.table.get_side(index, 'right')
             #bas
             elif self.side == 2:
-                target_case : Square = context.table.get_side(index, 'bottom')
+                target_square : Square = context.table.get_side(index, 'bottom')
             #gauche
             elif self.side == 3:
-                target_case : Square = context.table.get_side(index, 'left')
+                target_square : Square = context.table.get_side(index, 'left')
             
             
-            if target_case is not None and target_case.can_place():
-                marker_pos = target_case.get_pos()
+            if target_square is not None and target_square.can_place():
+                marker_pos = target_square.get_pos()
                 marker = Marker(owner= context.player, pos= marker_pos)
-                context.add_marker(target_case, marker)
+                context.add_marker(target_square, marker)
 
 
         elif context.new_turn and not context.blueprint:
@@ -655,14 +655,14 @@ class BluePrintSquare(Square):
 
     def trigger_effect(self, context : GameContext):
         index = context.table.get_index(self)
-        target_case : Square = context.table.get_side(index, 'right')
+        target_square : Square = context.table.get_side(index, 'right')
             
-        if target_case is not None:
-            self.counting = target_case.counting
-            if target_case.blueprint:
-                target_case.copy_attributes(self)
+        if target_square is not None:
+            self.counting = target_square.counting
+            if target_square.blueprint:
+                target_square.copy_attributes(self)
                 context.blueprint = True
-                effect = target_case.trigger_effect.__func__.__get__(self, target_case)
+                effect = target_square.trigger_effect.__func__.__get__(self, target_square)
                 context = effect(context)
                 context.blueprint = False
 
@@ -676,31 +676,31 @@ class DeathSquare(Square):
 
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
-            cases_list = context.table.get_case_list()
+            squares_list = context.table.get_square_list()
             current_player_list = []
             other_player_list = []
 
-            for case in cases_list:
-                if case.get_owner() is not None:
-                    if case.get_owner() == context.player:
-                        current_player_list.append(case)
+            for square in squares_list:
+                if square.get_owner() is not None:
+                    if square.get_owner() == context.player:
+                        current_player_list.append(square)
                     else:
-                        other_player_list.append(case)
+                        other_player_list.append(square)
 
             dead_player_list : list = random.choices([current_player_list, other_player_list])[0]
 
             if dead_player_list != []:
-                for killed_case in dead_player_list:
-                    if self == killed_case and not context.blueprint: #no self destruct if executed by blueprint
-                        context.add_changed_case(self, DefaultSquare())
+                for killed_square in dead_player_list:
+                    if self == killed_square and not context.blueprint: #no self destruct if executed by blueprint
+                        context.add_changed_square(self, DefaultSquare())
                         context.add_marker(self)
                     else:
-                        context.add_marker(killed_case)     
+                        context.add_marker(killed_square)     
 
                 if self not in dead_player_list and not context.blueprint: #no self destruct if executed by blueprint
-                    d_case = DefaultSquare()
-                    context.add_changed_case(self, d_case)
-                    context.add_marker(d_case, self.get_marker())
+                    d_square = DefaultSquare()
+                    context.add_changed_square(self, d_square)
+                    context.add_marker(d_square, self.get_marker())
 
                 for square in dead_player_list:
                     context.add_effect(BreakEffect(square.get_pos(), square.marker.image, z_index= 49))
@@ -716,7 +716,7 @@ class DeathSquare(Square):
         return context
 
 class CreeperSquare(Square):
-    """Transform itself and up to 4 adjacent cases into empty cases"""
+    """Transform itself and up to 4 adjacent squares into empty squares"""
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
         self.blit_image()
@@ -724,21 +724,21 @@ class CreeperSquare(Square):
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
             index = context.table.get_index(self)
-            destroyed_cases : list[Square] = []
-            destroyed_cases.append(self)
-            destroyed_cases.append(context.table.get_side(index, 'top'))
-            destroyed_cases.append(context.table.get_side(index, 'right'))
-            destroyed_cases.append(context.table.get_side(index, 'bottom'))
-            destroyed_cases.append(context.table.get_side(index, 'left'))
+            destroyed_squares : list[Square] = []
+            destroyed_squares.append(self)
+            destroyed_squares.append(context.table.get_side(index, 'top'))
+            destroyed_squares.append(context.table.get_side(index, 'right'))
+            destroyed_squares.append(context.table.get_side(index, 'bottom'))
+            destroyed_squares.append(context.table.get_side(index, 'left'))
 
-            for case in destroyed_cases:
-                if case is not None and case.counting:
-                    context.add_changed_case(case, EmptySquare())
-                    context.add_marker(case, None)
+            for square in destroyed_squares:
+                if square is not None and square.counting:
+                    context.add_changed_square(square, EmptySquare())
+                    context.add_marker(square, None)
 
 
-                    if case != self:
-                        context.add_effect(BreakEffect(case.get_pos(), case.surface, intensity= 1200))
+                    if square != self:
+                        context.add_effect(BreakEffect(square.get_pos(), square.surface, intensity= 1200))
 
             context.add_effect(FullExplosionEffect(self.get_pos()))
             context.add_effect(ScreenShakeEffect(offset_x = 30, offset_y= 30))
@@ -754,7 +754,7 @@ class LaserSquare(Square):
 
     def trigger_effect(self, context : GameContext):
         if context.skip_turn:
-            squares : list[Square] = context.table.get_case_list()
+            squares : list[Square] = context.table.get_square_list()
             targets = []
 
             best_squares = {}
@@ -789,7 +789,7 @@ class LaserSquare(Square):
                         context.add_marker(killed_square, marker)
 
                     default_square = DefaultSquare()
-                    context.add_changed_case(self, default_square)
+                    context.add_changed_square(self, default_square)
                     context.add_marker(default_square, self.get_marker())
 
                     
@@ -831,30 +831,30 @@ class TriggerSideSquare(Square):
 
             #haut
             if self.side == 0:
-                target_case : Square = context.table.get_side(index, 'top')
+                target_square : Square = context.table.get_side(index, 'top')
             #droite
             elif self.side == 1:
-                target_case : Square = context.table.get_side(index, 'right')
+                target_square : Square = context.table.get_side(index, 'right')
             #bas
             elif self.side == 2:
-                target_case : Square = context.table.get_side(index, 'bottom')
+                target_square : Square = context.table.get_side(index, 'bottom')
             #gauche
             elif self.side == 3:
-                target_case : Square = context.table.get_side(index, 'left')
+                target_square : Square = context.table.get_side(index, 'left')
             
             context.recursion_depth += 1 
-            if target_case is not None and target_case.can_place() and context.recursion_depth <= 9:
-                marker_pos = target_case.get_pos()
+            if target_square is not None and target_square.can_place() and context.recursion_depth <= 9:
+                marker_pos = target_square.get_pos()
                 marker = Marker(owner= context.player, pos= marker_pos)
-                context.add_marker(target_case, marker)
-                context.add_triggers(target_case, 'marker_placed')
+                context.add_marker(target_square, marker)
+                context.add_triggers(target_square, 'marker_placed')
 
                 
-                context.add_effect(ExplosionEffect(target_case.get_pos(), 40, speed= (200, 400), 
+                context.add_effect(ExplosionEffect(target_square.get_pos(), 40, speed= (200, 400), 
                                                    life_time=(0.4, 0.6), color= (255, 255, 0), scale= 3, final_speed= 10))
-                context.add_effect(ExplosionEffect(target_case.get_pos(), 30, speed= (100, 400), life_time=(0.5, 0.7), 
+                context.add_effect(ExplosionEffect(target_square.get_pos(), 30, speed= (100, 400), life_time=(0.5, 0.7), 
                                                    color= (255, 170, 0), scale= 2, final_speed= 10))
-                context.add_effect(ArrowEffect(self.get_pos(), target_case.get_pos(), 8))
+                context.add_effect(ArrowEffect(self.get_pos(), target_square.get_pos(), 8))
                 context.add_effect(SoundEffect(SFX.POP, delay= context.recursion_depth * 0.06))
 
         return context
@@ -874,13 +874,13 @@ class DestructionSquare(Square):
 
     def trigger_effect(self, context : GameContext):
         if context.marker_placed:
-            squares = context.table.get_case_list()
+            squares = context.table.get_square_list()
             if squares != []:
                 for square in squares:
                     if square != self and not isinstance(square, DefaultSquare):
-                        new_case = DefaultSquare()
-                        context.add_changed_case(square, new_case)
-                        context.add_marker(new_case, square.get_marker())
+                        new_square = DefaultSquare()
+                        context.add_changed_square(square, new_square)
+                        context.add_marker(new_square, square.get_marker())
 
                         context.add_effect(
                             BreakEffect(square.get_pos(), square.surface, z_index= 5, intensity= 1000)
@@ -994,9 +994,9 @@ class TableSquare(Square):
             else:
                 right_squares = []
                 upgraded_squares = []
-                right_squares.append(table.get_case(9))
-                right_squares.append(table.get_case(10))
-                right_squares.append(table.get_case(11))
+                right_squares.append(table.get_square(9))
+                right_squares.append(table.get_square(10))
+                right_squares.append(table.get_square(11))
                 for square in right_squares:
                     if isinstance(square, DefaultSquare) and not square.has_marker():
                         upgraded_squares.append(square)
@@ -1011,7 +1011,7 @@ class TableSquare(Square):
                     while type(new_square) in (TableSquare, StoneSquare):
                         new_square = generate_random_square()
                         
-                    context.add_changed_case(selected, generate_random_square())
+                    context.add_changed_square(selected, generate_random_square())
                     
 
         return context
@@ -1019,7 +1019,7 @@ class TableSquare(Square):
 
 
 class StoneSquare(Square):
-    """Block one case permenently for 1 game """
+    """Block one square permenently for 1 game """
     def __init__(self, pos=(0, 0)):
         super().__init__(pos)
         self.blit_image()

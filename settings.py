@@ -12,8 +12,8 @@ class MarkerConfig:
     MARKERS_TYPE = ['cross', 'round', 'donut', 'nugget_guy', 'cat', 'death_star', 'vert_cross', 'sword', 'sun', 'pointer']
 
 class SquareConfig:
-    CASE_SHEET = 'assets/textures/squares.png'
-    CASE_SIZE = 19
+    SQUARE_SHEET = 'assets/textures/squares.png'
+    SQUARE_SIZE = 19
     # RARITY SETTINGS
     RARITY_WEIGHTS = {
         'common' : 60,
@@ -95,17 +95,17 @@ class ColorThemes:
     BLUE = {
         'm_container' : (00, 00, 255),
         'money_ui' : (0, 255, 200),
-        'case_inv' : (0, 0, 150)
+        'square_inv' : (0, 0, 150)
     }
     RED = {
         'm_container' : (180, 30, 30),
         'money_ui' : (255, 180, 0),
-        'case_inv' : (150, 0, 0)
+        'square_inv' : (150, 0, 0)
     }
     GREEN = {
         'm_container' : (0, 240, 0),
         'money_ui' : (230, 255, 0),
-        'case_inv' : (0, 180, 0)
+        'square_inv' : (0, 180, 0)
     }
 
 

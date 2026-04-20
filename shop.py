@@ -28,8 +28,8 @@ class Shop(Drawable):
         self.reroll_price = 5
         self.close_but = Button(self.center + Vector2(500, 0), 300, 500, (200, 0, 0))
 
-        self.case_area = ItemArea(600, self.center, self.game, max_items= 5)
-        self.max_cases = 5
+        self.square_area = ItemArea(600, self.center, self.game, max_items= 5)
+        self.max_squares = 5
 
 
         
@@ -39,12 +39,12 @@ class Shop(Drawable):
         
 
     def _enable_pay_box(self):
-        current_item = self.case_area.get_selected()
+        current_item = self.square_area.get_selected()
         self.pay_surfaces[self.player_active].update_text(f'BUY {current_item.price}')
         self.pay_surfaces[self.player_active].activate()
 
     def _pay_item(self):
-        current_item = self.case_area.get_selected()
+        current_item = self.square_area.get_selected()
         price = current_item.price
         self.pay_surfaces[self.player_active].desactivate()
 
@@ -53,7 +53,7 @@ class Shop(Drawable):
             if inventory.can_add_item():
                 if self.player_active.get_balance() >= price:
                     self.player_active.lose_money(price)
-                    self.case_area.transfer()
+                    self.square_area.transfer()
                     inventory.add_item(current_item)
                     inventory.delete_callbacks()
 
@@ -85,7 +85,7 @@ class Shop(Drawable):
 
     def _close(self):
         self.game.remove_object(self)
-        self.case_area.clear()
+        self.square_area.clear()
         self.game.next_phase()
 
     def _next_player(self):
@@ -105,20 +105,20 @@ class Shop(Drawable):
 
 
     def reroll_items(self):
-        self.case_area.clear()
-        for i in range(self.max_cases):
-            case = generate_random_square()
-            item = SquareItem(self.center + Vector2(i, 0), width= 100, height= 100, object= case)
+        self.square_area.clear()
+        for i in range(self.max_squares):
+            square = generate_random_square()
+            item = SquareItem(self.center + Vector2(i, 0), width= 100, height= 100, object= square)
             item.on_release = self._pay_item
             item.on_click = self._enable_pay_box
-            self.case_area.add_item(item)
+            self.square_area.add_item(item)
 
 
     def update(self, dt):
-        self.case_area.update(dt)
+        self.square_area.update(dt)
     
     def handle_mouse(self, mouse_pos):
-        self.case_area.handle_mouse(mouse_pos)
+        self.square_area.handle_mouse(mouse_pos)
         self.reroll_but.handle_mouse(mouse_pos)
         self.close_but.handle_mouse(mouse_pos)
         

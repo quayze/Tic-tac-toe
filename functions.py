@@ -146,9 +146,9 @@ def get_marker(marker_type):
     
 def get_square(square_name):
     data = get_square_data(square_name)
-    sprite_sheet = load_image('squares', SquareConfig.CASE_SHEET)
+    sprite_sheet = load_image('squares', SquareConfig.SQUARE_SHEET)
     image_coord = ast.literal_eval(data['image'])
-    image = get_image(sprite_sheet, SquareConfig.CASE_SIZE, SquareConfig.CASE_SIZE, *image_coord)
+    image = get_image(sprite_sheet, SquareConfig.SQUARE_SIZE, SquareConfig.SQUARE_SIZE, *image_coord)
     return image
     
 

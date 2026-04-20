@@ -3,7 +3,7 @@ from settings import *
 from marker import *
 from marker_container import *
 from player_balance import PlayerBalance
-from case_inventory import CaseInventory
+from square_inventory import SquareInventory
 from item import *
 from drawable import *
 from interact_box import *
@@ -27,17 +27,17 @@ class PlayerInventory(Drawable):
 
         self.marker_container = MarkerContainer(self.player, (self.center_x, self.container_y), self.game)
         self.player_balance = PlayerBalance(self.player, (self.center_x + 400*self.x_offset, self.pos_y))
-        self.case_inventory = CaseInventory(self.player, (self.center_x - 500*self.x_offset, self.pos_y), self.game)
+        self.square_inventory = SquareInventory(self.player, (self.center_x - 500*self.x_offset, self.pos_y), self.game)
 
         self.init_pay_interface()
 
         self.game.add_object(self)
 
     def init_pay_interface(self):
-        case_inventory_size = self.case_inventory.get_size()
-        case_inv_pos = self.case_inventory.get_pos()
-        items_pos = self.case_inventory.items_pos
-        self.pay_square_surface = InteractiveBox(case_inventory_size[0], case_inventory_size[1], case_inv_pos, color= (0, 255, 0), 
+        square_inventory_size = self.square_inventory.get_size()
+        square_inv_pos = self.square_inventory.get_pos()
+        items_pos = self.square_inventory.items_pos
+        self.pay_square_surface = InteractiveBox(square_inventory_size[0], square_inventory_size[1], square_inv_pos, color= (0, 255, 0), 
                                         alpha= 150, text= 'BUY', text_pos= items_pos)
         self.game.add_object(self.pay_square_surface)
 
@@ -51,27 +51,27 @@ class PlayerInventory(Drawable):
 
     def handle_mouse(self, mouse_pos):
         self.marker_container.handle_mouse(mouse_pos)
-        self.case_inventory.handle_mouse(mouse_pos)
+        self.square_inventory.handle_mouse(mouse_pos)
 
     def update(self, dt):
         self.marker_container.update(dt)
-        self.case_inventory.update(dt)
+        self.square_inventory.update(dt)
         self.player_balance.update(dt)
 
     def add_marker(self):
         self.marker_container.add_marker()
 
     def add_item(self, item : SquareItem):
-        self.case_inventory.add_item(item)
+        self.square_inventory.add_item(item)
 
     def can_add_item(self):
-        return self.case_inventory.can_add()
+        return self.square_inventory.can_add()
 
     def set_release_callback(self, callback):
         self.marker_container.marker.on_release = callback
 
-    def set_case_callback(self, callback):
-        self.case_inventory.set_callback(callback)
+    def set_square_callback(self, callback):
+        self.square_inventory.set_callback(callback)
 
 
     def marker_placed(self):
@@ -81,11 +81,11 @@ class PlayerInventory(Drawable):
         self.marker_container.marker = None
         self.marker_container.placed = True
 
-    def case_placed(self):
-        self.case_inventory.delete()
+    def square_placed(self):
+        self.square_inventory.delete()
 
     def delete_callbacks(self):
-        self.case_inventory.delete_callback()
+        self.square_inventory.delete_callback()
         if self.marker_container.has_marker():
             self.marker_container.marker.on_release = None
 
@@ -93,7 +93,7 @@ class PlayerInventory(Drawable):
     def draw(self, screen):
         self.marker_container.draw(screen)
         self.player_balance.draw(screen)
-        self.case_inventory.draw(screen)
+        self.square_inventory.draw(screen)
 
 
     

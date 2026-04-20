@@ -24,10 +24,10 @@ class GameContext:
 
         self.first_to_play = None
         self.extend_table = False
-        self.changed_case = {} # case : new_case
-        self.changed_markers = {} # case : Marker or None-->destroy
-        self.gains = {} # player : gain
-        self.losts = {} # player : lost
+        self.changed_square = {}
+        self.changed_markers = {} 
+        self.gains = {} 
+        self.losts = {} 
 
         self.effects = []
         self.pending_triggers = {}
@@ -36,11 +36,11 @@ class GameContext:
         self.pending_triggers[square] = context_type
 
 
-    def add_changed_case(self, base_case, new_case):
-        self.changed_case[base_case] = new_case
+    def add_changed_square(self, base_square, new_square):
+        self.changed_square[base_square] = new_square
 
-    def add_marker(self, target_case, marker = None):
-        self.changed_markers[target_case] = marker
+    def add_marker(self, target_square, marker = None):
+        self.changed_markers[target_square] = marker
         
 
 

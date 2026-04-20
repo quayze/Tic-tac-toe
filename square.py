@@ -8,7 +8,7 @@ from moveable_object import *
 class Square:
     def __init__(self, pos = (0, 0)):
         self.pos = Vector2(pos)
-        self.surface = pygame.Surface((PIXEL_SIZE * SquareConfig.CASE_SIZE, PIXEL_SIZE * SquareConfig.CASE_SIZE), pygame.SRCALPHA).convert_alpha()
+        self.surface = pygame.Surface((PIXEL_SIZE * SquareConfig.SQUARE_SIZE, PIXEL_SIZE * SquareConfig.SQUARE_SIZE), pygame.SRCALPHA).convert_alpha()
         self.rect = self.surface.get_rect(center = pos)
         self.marker = None
         
@@ -38,8 +38,8 @@ class Square:
         self.marker.set_shadow_parallax(y_abs= 20)
 
     def get_image(self, frame_x = 0, frame_y = 0):
-        sprite_sheet = load_image('squares', SquareConfig.CASE_SHEET)
-        image = get_image(sprite_sheet, SquareConfig.CASE_SIZE, SquareConfig.CASE_SIZE, frame_x, frame_y)
+        sprite_sheet = load_image('squares', SquareConfig.SQUARE_SHEET)
+        image = get_image(sprite_sheet, SquareConfig.SQUARE_SIZE, SquareConfig.SQUARE_SIZE, frame_x, frame_y)
         self.image = image
 
     def blit_image(self):
@@ -99,7 +99,7 @@ class Square:
 #----------------------------------------------    
 
 class DefaultSquare(Square):
-    """Base case functionning"""
+    """Base square functionning"""
     def __init__(self, pos = (0, 0)):
         super().__init__(pos)
         self.get_image()

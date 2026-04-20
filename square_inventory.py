@@ -4,12 +4,12 @@ from item import *
 from item_area import *
 from table import Table
 
-class CaseInventory(ItemArea):
+class SquareInventory(ItemArea):
     def __init__(self, player, pos, game, max_items=5):
 
         self.player = player
         color_theme = self.player.color_theme
-        self.bg_surface = generate_nine_slice(InterfacesConfig.PLAYER_INV_WIDTH, InterfacesConfig.PLAYER_INV_HEIGHT, get_color('case_inv', color_theme))
+        self.bg_surface = generate_nine_slice(InterfacesConfig.PLAYER_INV_WIDTH, InterfacesConfig.PLAYER_INV_HEIGHT, get_color('square_inv', color_theme))
         self.bg_rect = self.bg_surface.get_rect(center = pos)
 
         self.shadow = Shadow(pos)
