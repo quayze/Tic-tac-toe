@@ -35,7 +35,6 @@ class Marker(Moveable):
 
     def update(self, dt):
         super().update(dt)
-        self.update_scale(dt)
         
 
     def get_placed(self):

@@ -13,10 +13,11 @@ from item_area import *
 from button import *
 from effect_group import *
 from interface import *
+from game import Game
 
 
 class TicTacToe:
-    def __init__(self, game_session : GameSession, game):
+    def __init__(self, game_session : GameSession, game : Game):
         self.session : GameSession = game_session
         self.game = game
         self.game_effects = EffectGroup()

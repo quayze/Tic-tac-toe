@@ -3,6 +3,7 @@ from settings import *
 from marker import Marker
 from pygame import Vector2
 from functions import * 
+from moveable_object import *
 
 class Square:
     def __init__(self, pos = (0, 0)):
@@ -107,3 +108,27 @@ class DefaultSquare(Square):
     def trigger_effect(self, context):
         return context
         
+
+
+class MoveableSquare(Moveable):
+    def __init__(self, name, size, pos):
+        image = get_square(name)
+        image = resize(image, size)
+        super().__init__(pos, image)
+        self.set_anchor(pos)
+
+    def hover_trigger(self):
+        self.juice(1.05)
+        return super().hover_trigger()
+    
+    def not_hovering_trigger(self):
+        self.juice(1)
+        return super().not_hovering_trigger()
+    
+    def on_mouse_trigger(self):
+        self.juice(1.2)
+        return super().on_mouse_trigger()
+    
+    def on_realease_trigger(self):
+        self.juice(1.05)
+        return super().on_realease_trigger()

@@ -8,6 +8,7 @@ from shadow import *
 from effect import *
 from interface import *
 from effect_group import *
+from square import *
 
 
 class MainMenu(Drawable):
@@ -23,9 +24,26 @@ class MainMenu(Drawable):
         self.settings = {'p1_color' : 'red', 'p2_color' : 'blue',
                           'p1_marker' : 'cross', 'p2_marker' : 'round'}
         
-        self.play_interface = PlayInterface(self.game, (self.center.x, 2600), (self.center.x, self.center.y))
+        self.play_interface = PlayInterface(self.game, (self.center.x, 2600), (self.center.x, self.center.y), 11)
 
         self.effects_group = EffectGroup()
+
+        self.squares = []
+
+        self.add_squares()
+
+    def add_squares(self):
+        
+        self.squares.append(MoveableSquare("DeathSquare", size= 10, pos= (600, 230)))
+        self.squares.append(MoveableSquare("SideSquare", size= 10, pos= (400, 500)))
+        self.squares.append(MoveableSquare("YinYangSquare", size= 10, pos= (200, 270)))
+        self.squares.append(MoveableSquare("BurningSquare", size= 10, pos= (300, 800)))
+
+        self.squares.append(MoveableSquare("ReplaySquare", size= 10, pos= (1400, 600)))
+        self.squares.append(MoveableSquare("MoneySquare", size= 10, pos= (1500, 200)))
+        self.squares.append(MoveableSquare("RandomSquare", size= 10, pos= (1700, 750)))
+
+        self.squares.append(MoveableSquare("DefaultSquare", size= 15, pos= (960, 350)))
 
     def open(self):
         self.game.add_object(self)
@@ -39,13 +57,22 @@ class MainMenu(Drawable):
         back_but = self.play_interface.get_element('back')
         back_but.on_release = self._back
 
+        for square in self.squares:
+            self.game.add_object(square)
+
     
     def close(self):
         self.game.remove_object(self)
         self.play_button.delete_callbacks()
 
+        for square in self.squares:
+            self.game.remove_object(square)
+
     def update(self, dt):
         self.play_interface.update(dt)
+        for square in self.squares:
+            square.update(dt)
+        
 
     def draw(self, screen):
         self.play_button.draw(screen)
@@ -57,6 +84,8 @@ class MainMenu(Drawable):
             self.play_button.handle_mouse(mouse_pos)
             self.quit_button.handle_mouse(mouse_pos)
             self.settings_button.handle_mouse(mouse_pos)
+            for square in self.squares:
+                square.handle_mouse(mouse_pos)
         elif self.state == 'pre_game':
             self.play_interface.handle_mouse(mouse_pos)
 

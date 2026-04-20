@@ -10,8 +10,8 @@ from swiper import *
 from text import *
 
 class Interface(Drawable):
-    def __init__(self, game, base_pos, active_pos, width, height, color, center_color):
-        super().__init__(1)
+    def __init__(self, game, base_pos, active_pos, width, height, color, center_color, z_index = 1):
+        super().__init__(z_index)
         self.state = 'disable'
         self.surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA).convert_alpha()
         self.rect = self.surface.get_rect(center = base_pos)
@@ -150,16 +150,16 @@ class Interface(Drawable):
 
 
 class GameInterface(Interface):
-    def __init__(self, game):
+    def __init__(self, game, z_index = 1):
         self.screen_center = V2(WIDTH//2, HEIGHT//2)
-        super().__init__(game, (-300, self.screen_center.y), (200, self.screen_center.y), 600, 500, (255, 255, 255), (100, 0, 100))
+        super().__init__(game, (-300, self.screen_center.y), (200, self.screen_center.y), 600, 500, (255, 255, 255), (100, 0, 100), z_index)
         self.add_element('skip_button', Button((self.center.x +100, self.center.y), 250, 30, (255, 200, 0), ['Skip turn'], 30))
 
 
 class PlayInterface(Interface):
-    def __init__(self, game, base_pos, active_pos):
+    def __init__(self, game, base_pos, active_pos, z_index = 1):
         self.screen_center = V2(WIDTH//2, HEIGHT//2)
-        super().__init__(game, base_pos, active_pos, 1200, 800, (255, 255, 255), (100, 100, 100))
+        super().__init__(game, base_pos, active_pos, 1200, 800, (255, 255, 255), (100, 100, 100), z_index)
         self.add_element('play', Button((self.center.x, self.center.y+ 200), 300, 100, (0, 210, 80), ['Start'], 30, 4))
         self.add_element('back', Button((self.center.x, self.center.y + 320), 800, 60, (255, 210, 0), ['Back'], 30, 4))
 
